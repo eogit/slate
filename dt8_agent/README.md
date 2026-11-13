@@ -54,7 +54,7 @@ self-learning results (`k_prod` 448 → 198, `Q10_CH4` 2.0 → 3.54) and the N2O
 | `annual_ch4` | Annual CH4 for a class at a mean water table: base model, flood-killed litter, total |
 | `run_ch4_drivers` | CH4 on your own daily drivers (WTD, LAI, soil or air temperature), SI totals, validity flags |
 | `annual_n2o` | Annual N2O for a crop, optionally with a different fertiliser rate |
-| `ghg_balance` | CO2 + CH4 + N2O in t CO2e/ha/yr (AR6 GWP100) for a crop |
+| `ghg_balance` | All three gases for a crop, in their own units and in t CO2e/ha/yr (AR6 GWP100), under the drained regime or a prescribed mean water table, fertiliser rate and years since rewetting |
 | `water_table_scenario` | Three-gas balance across water-table depths and the net-GHG optimum (a management response, not an observation) |
 | `validate_inventory` | Model against Inventory Eqs 1 and 3, the CH4 Tier-2 classes and the N2O Tier-2 factors |
 | `get_parameters`, `reset_parameters` | The site's current parameters and where they came from |
@@ -72,6 +72,7 @@ surface.
 pip install -r dt8_agent/requirements.txt
 python dt8_agent/dt8_server.py          # stdio (for orchestrators that launch it)
 python dt8_agent/dt8_server.py --http   # streamable HTTP on http://127.0.0.1:8000/mcp
+DT8_PORT=8765 python dt8_agent/dt8_server.py --http                # another port
 DT8_STATE_FILE=~/.dt8/state.json python dt8_agent/dt8_server.py   # keep learned parameters
 ```
 
@@ -88,6 +89,23 @@ pytest dt8_agent
 running the models loads no plotting library, prints nothing and writes no files.
 `test_dt8_server.py` calls every tool in memory, checks input validation and per-site learning,
 and runs the server over stdio with a persistent state file.
+
+`test_dt8_end_to_end.py` tests the agentic path. An orchestrator query with input parameters
+(a potato field, drained, then with the water table at 30 cm and 100 kg N/ha) goes to
+`ghg_balance` in memory, over stdio, over streamable HTTP, and as raw JSON-RPC 2.0 over stdio and
+HTTP without the MCP client library. Every answer must contain CO2, CH4 and N2O, in their own
+units and as CO2e, and must equal the peatland model run directly with the same inputs; the
+drained answer must also match the coupled notebook (37.0 t CO2e/ha/yr).
+
+`claude_orchestrator_check.py` puts a headless Claude Code agent in the orchestrator's seat. The
+agent gets only the DT8 server and a plain-language question; the script checks every
+`ghg_balance` result the agent received against the model and that its answer quotes the net
+balances. `claude_orchestrator_run.json` is a recorded run (tool calls, results and the answer).
+It needs the signed-in `claude` CLI, so it is not part of the pytest suite:
+
+```bash
+python dt8_agent/claude_orchestrator_check.py --out run.json
+```
 
 ## Limitations to keep in mind
 

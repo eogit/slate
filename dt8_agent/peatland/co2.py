@@ -169,14 +169,25 @@ C_RES = 45.0        # g C m-2, residue (dead plant) pool, climatological mean
 DEFAULT_CO2 = dict(eps_max=1.6, k_peat=1.2e-4, Q10_h=2.3)
 
 
-def simulate(crop, eps_max=1.6, k_peat=1.2e-4, Q10_h=2.3, WTD=None):
-    """Daily CO2 fluxes for one crop year (g C m-2 d-1). ``WTD`` overrides the climatology."""
+def waterlogging_stress(WTD):
+    """GPP reduction under a shallow water table (coupled twin, ``peatland_methane.annual_nee``)."""
+    return np.clip((np.asarray(WTD, float) + 0.05) / 0.25, 0.40, 1.0)
+
+
+def simulate(crop, eps_max=1.6, k_peat=1.2e-4, Q10_h=2.3, WTD=None, waterlogging=False):
+    """Daily CO2 fluxes for one crop year (g C m-2 d-1).
+
+    ``WTD`` overrides the climatology; ``waterlogging`` applies the coupled twin's GPP stress for
+    shallow water tables (used when a water-table scenario is prescribed).
+    """
     cl = climate()
     LAI = lai_curve(CROPS[crop])
     wtd = cl["WTD"] if WTD is None else np.asarray(WTD, float)
     photo = dict(FIXED, eps_max=eps_max)
     resp = dict(FIXED, k_peat=k_peat, Q10_h=Q10_h)
     GPP, _ = gpp_flux(photo, LAI, cl["PAR"], cl["Tair"], cl["beta"])
+    if waterlogging:
+        GPP = GPP * waterlogging_stress(wtd)
     C_veg = 40.0 * LAI
     Ra, _ = plant_resp(resp, GPP, C_veg, cl["Tair"])
     Rh, _ = het_resp(resp, np.full(365, C_PEAT), np.full(365, C_RES), cl["Tsoil"], wtd)

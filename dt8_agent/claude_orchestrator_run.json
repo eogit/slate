@@ -1,0 +1,126 @@
+{
+  "question": "You are an orchestrator for a land-use digital twin. Use the dt8 peatland agent to answer: what are the annual CO2, CH4 and N2O emissions of a potato field on drained East Anglian fen peat, and how do they change if the mean water table is raised to 30 cm and fertiliser is cut to 100 kg N/ha? Give each gas in its own units and in t CO2e/ha/yr, and the net balance.",
+  "tool_calls": [
+    {
+      "tool": "ToolSearch",
+      "arguments": {
+        "query": "select:mcp__dt8__ghg_balance,mcp__dt8__list_crops,mcp__dt8__water_table_scenario,mcp__dt8__annual_n2o,mcp__dt8__annual_ch4,mcp__dt8__simulate_co2,mcp__dt8__get_parameters",
+        "max_results": 10
+      },
+      "result": ""
+    },
+    {
+      "tool": "mcp__dt8__ghg_balance",
+      "arguments": {
+        "crop": "Potato"
+      },
+      "result": {
+        "crop": "Potato",
+        "mean_wtd_m": 0.6614077723812615,
+        "water_table_source": "Fenland drained climatology",
+        "fertiliser_n_kg_ha_yr": 200,
+        "nee_tc_ha_yr": 8.118971905234265,
+        "ch4_kg_ha_yr": -1.0481593510117375,
+        "ch4_litter_kg_ha_yr": 0,
+        "n2o_kg_n_ha_yr": 16.893914089121566,
+        "co2_t_co2e_ha_yr": 29.769563652525637,
+        "ch4_t_co2e_ha_yr": -0.02830030247731691,
+        "n2o_t_co2e_ha_yr": 7.2474891442331515,
+        "net_t_co2e_ha_yr": 36.98875249428147,
+        "provenance": {
+          "model": "DT8 peatland three-gas twin 0.1.0",
+          "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+          "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+          "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+          "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+        }
+      }
+    },
+    {
+      "tool": "mcp__dt8__ghg_balance",
+      "arguments": {
+        "crop": "Potato",
+        "mean_wtd_m": 0.3,
+        "fertiliser_n_kg_ha_yr": 100
+      },
+      "result": {
+        "crop": "Potato",
+        "mean_wtd_m": 0.2954923763267956,
+        "water_table_source": "prescribed annual mean with summer drawdown",
+        "fertiliser_n_kg_ha_yr": 100,
+        "nee_tc_ha_yr": 2.5030688628206166,
+        "ch4_kg_ha_yr": 9.726393295909523,
+        "ch4_litter_kg_ha_yr": 0,
+        "n2o_kg_n_ha_yr": 5.862719499128177,
+        "co2_t_co2e_ha_yr": 9.177919163675593,
+        "ch4_t_co2e_ha_yr": 0.2626126189895571,
+        "n2o_t_co2e_ha_yr": 2.515106665125988,
+        "net_t_co2e_ha_yr": 11.955638447791138,
+        "provenance": {
+          "model": "DT8 peatland three-gas twin 0.1.0",
+          "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+          "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+          "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+          "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+        }
+      }
+    },
+    {
+      "tool": "mcp__dt8__ghg_balance",
+      "arguments": {
+        "crop": "Potato",
+        "mean_wtd_m": 0.3
+      },
+      "result": {
+        "crop": "Potato",
+        "mean_wtd_m": 0.2954923763267956,
+        "water_table_source": "prescribed annual mean with summer drawdown",
+        "fertiliser_n_kg_ha_yr": 200,
+        "nee_tc_ha_yr": 2.5030688628206166,
+        "ch4_kg_ha_yr": 9.726393295909523,
+        "ch4_litter_kg_ha_yr": 0,
+        "n2o_kg_n_ha_yr": 9.317173750318759,
+        "co2_t_co2e_ha_yr": 9.177919163675593,
+        "ch4_t_co2e_ha_yr": 0.2626126189895571,
+        "n2o_t_co2e_ha_yr": 3.9970675388867476,
+        "net_t_co2e_ha_yr": 13.437599321551899,
+        "provenance": {
+          "model": "DT8 peatland three-gas twin 0.1.0",
+          "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+          "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+          "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+          "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+        }
+      }
+    },
+    {
+      "tool": "mcp__dt8__ghg_balance",
+      "arguments": {
+        "crop": "Potato",
+        "fertiliser_n_kg_ha_yr": 100
+      },
+      "result": {
+        "crop": "Potato",
+        "mean_wtd_m": 0.6614077723812615,
+        "water_table_source": "Fenland drained climatology",
+        "fertiliser_n_kg_ha_yr": 100,
+        "nee_tc_ha_yr": 8.118971905234265,
+        "ch4_kg_ha_yr": -1.0481593510117375,
+        "ch4_litter_kg_ha_yr": 0,
+        "n2o_kg_n_ha_yr": 10.746957044560784,
+        "co2_t_co2e_ha_yr": 29.769563652525637,
+        "ch4_t_co2e_ha_yr": -0.02830030247731691,
+        "n2o_t_co2e_ha_yr": 4.610444572116576,
+        "net_t_co2e_ha_yr": 34.3517079221649,
+        "provenance": {
+          "model": "DT8 peatland three-gas twin 0.1.0",
+          "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+          "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+          "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+          "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+        }
+      }
+    }
+  ],
+  "answer": "On the DT8 model, raising the water table to 30 cm and cutting fertiliser to 100 kg N/ha lowers the potato field's net emissions from about **37.0 to 12.0 t CO2e/ha/yr**, a 68% cut (\u221225.0 t CO2e/ha/yr).\n\n## Potato on drained East Anglian fen peat\n\n| Gas | Baseline: drained (WT \u2248 66 cm, 200 kg N/ha) | Scenario: WT 30 cm, 100 kg N/ha | Change |\n|---|---|---|---|\n| **CO2** (net ecosystem exchange) | 8.12 t C/ha/yr \u2192 **29.77 t CO2e** | 2.50 t C/ha/yr \u2192 **9.18 t CO2e** | \u221220.59 |\n| **CH4** | \u22121.05 kg CH4/ha/yr (small uptake) \u2192 **\u22120.03 t CO2e** | +9.73 kg CH4/ha/yr \u2192 **+0.26 t CO2e** | +0.29 |\n| **N2O** | 16.89 kg N2O-N/ha/yr \u2192 **7.25 t CO2e** | 5.86 kg N2O-N/ha/yr \u2192 **2.52 t CO2e** | \u22124.73 |\n| **Net balance** | **36.99 t CO2e/ha/yr** | **11.96 t CO2e/ha/yr** | **\u221225.03** |\n\nPositive numbers are emissions. CO2e uses IPCC AR6 100-year factors (CH4 27, N2O 273). For the conversions, t C is multiplied by 44/12, and N2O-N by 44/28 and then by 273. I checked the tool's arithmetic and it is consistent.\n\n## Which change does what\nI also ran each change on its own:\n\n| Run | Net (t CO2e/ha/yr) | Change from baseline |\n|---|---|---|\n| Water table to 30 cm only (200 kg N) | 13.44 | \u221223.55 |\n| Fertiliser to 100 kg N only (drained) | 34.35 | \u22122.64 |\n| Both together | 11.96 | \u221225.03 |\n\n- **Raising the water table does most of the work.** It cuts peat oxidation, so CO2 falls by about 69%. It also roughly halves N2O, because less peat nitrogen is released.\n- **Methane barely matters.** At 30 cm the field switches from a small CH4 sink to a small source, but that is only +0.29 t CO2e.\n- **Cutting fertiliser saves less on wetter soil.** Drained, it saves about 6.1 kg N2O-N/ha; at 30 cm it saves about 3.5 kg N2O-N/ha. That is why the two separate savings add up to more than the combined run, by about 1.2 t CO2e.\n- **Even with both changes the field still emits about 12 t CO2e/ha/yr.** CO2 from the peat is still the largest part.\n\n## Caveats\n- **Simulated, not measured.** These are DT8 model outputs using calibrated default settings, not field data for a real site. The weather input is one made-up typical Fenland year.\n- **The regime is assumed to be settled.** The tool's default treats the higher water table as having run for 3 years.\n- **The model keeps the same potato crop at 30 cm.** It does not check whether yield or field operations are still workable at that water level.\n- **The 200 kg N/ha baseline is the model's typical potato rate.** It is not this field's actual input."
+}

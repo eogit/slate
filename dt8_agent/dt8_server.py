@@ -171,7 +171,7 @@ def simulate_co2(
 ) -> CO2Result:
     kw = _co2_kw(site)
     wtd = None if mean_wtd_m is None else m_ch4.wtd_series(mean_wtd_m, lo=0.02)
-    sim = m_co2.simulate(crop, WTD=wtd, **kw)
+    sim = m_co2.simulate(crop, WTD=wtd, waterlogging=wtd is not None, **kw)
     ann = m_co2.annual_budget(sim)
     daily = None
     if include_daily:
@@ -352,6 +352,13 @@ def annual_n2o(
 # --------------------------------------------------------------------------- #
 class GHGBalance(BaseModel):
     crop: str
+    mean_wtd_m: float = Field(description="Annual mean water-table depth used (m).")
+    water_table_source: str
+    fertiliser_n_kg_ha_yr: float
+    nee_tc_ha_yr: float = Field(description="CO2 as net ecosystem exchange, t C/ha/yr.")
+    ch4_kg_ha_yr: float = Field(description="Net CH4 including flood-killed litter, kg CH4/ha/yr.")
+    ch4_litter_kg_ha_yr: float
+    n2o_kg_n_ha_yr: float = Field(description="kg N2O-N/ha/yr.")
     co2_t_co2e_ha_yr: float
     ch4_t_co2e_ha_yr: float
     n2o_t_co2e_ha_yr: float
@@ -360,20 +367,56 @@ class GHGBalance(BaseModel):
 
 
 @server.tool(description=(
-    "Full greenhouse-gas balance (CO2 + CH4 + N2O in t CO2e/ha/yr, AR6 GWP100) for a crop "
-    "under the current drained Fenland water-table regime."))
-def ghg_balance(crop: Crop, site: Site = "default") -> GHGBalance:
+    "Full greenhouse-gas balance for a crop on drained peat: CO2 (NEE), CH4 and N2O in their own "
+    "units and in t CO2e/ha/yr (AR6 GWP100). By default uses the drained Fenland water-table "
+    "regime; give mean_wtd_m to evaluate a water-table scenario, and fertiliser_n_kg_ha_yr to "
+    "change the fertiliser rate."))
+def ghg_balance(
+    crop: Crop,
+    mean_wtd_m: Annotated[float | None, Field(
+        ge=-0.10, le=1.20, description="Annual mean water-table depth (m, positive below "
+                                       "surface). Omit for the Fenland climatology (~0.66 m).")]
+    = None,
+    fertiliser_n_kg_ha_yr: Annotated[float | None, Field(
+        ge=0, le=500, description="Annual fertiliser N. Omit for the crop's typical rate.")]
+    = None,
+    years_since_rewetting: YearsSinceRewetting = 3,
+    site: Site = "default",
+) -> GHGBalance:
     kw = _co2_kw(site)
-    sim = m_co2.simulate(crop, **kw)
-    e_co2 = sim["NEE"].mean() * m_co2.GC_TO_TCHA_YR * m_co2.CO2C_TO_CO2
+    ch4p, n2op = store.get("ch4", site), store.get("n2o", site)
     cl = m_co2.climate()
-    ch4_kg = m_ch4.daily_ch4(store.get("ch4", site), cl["Tsoil"], cl["WTD"],
-                             sim["LAI"]).mean() * m_ch4.MGD_TO_KGHAYR
+    lit = 0.0
+    if mean_wtd_m is None:
+        # notebook configuration: drained climatology for all three gases
+        sim = m_co2.simulate(crop, **kw)
+        wtd = cl["WTD"]
+        ch4_kg = m_ch4.daily_ch4(ch4p, cl["Tsoil"], wtd, sim["LAI"]).mean() * m_ch4.MGD_TO_KGHAYR
+        n2o_kg = m_n2o.annual_n2o(crop, n2op, kw, fertiliser_n_kg_ha_yr)
+        source = "Fenland drained climatology"
+    else:
+        # scenario: seasonal water table around the requested mean, as in the water-table runs
+        wtd = m_ch4.water_table(mean_wtd_m)
+        wtd_aer = np.maximum(wtd, 0.02)        # CO2 and N2O peat respiration, as annual_nee
+        sim = m_co2.simulate(crop, WTD=wtd_aer, waterlogging=True, **kw)
+        ch4_kg = m_ch4.daily_ch4(ch4p, cl["Tsoil"], wtd, sim["LAI"]).mean() * m_ch4.MGD_TO_KGHAYR
+        # every CO2/N2O crop (sown grassland and arable) is flood intolerant: Section 14 litter
+        lit = m_ch4.litter_annual(ch4p, m_ch4.LITTER, cl["Tsoil"], wtd, sim["LAI"],
+                                  years_since_rewetting)[0]
+        n2o_kg = m_n2o.annual_n2o_drivers(crop, n2op, cl["Tsoil"], wtd, sim["Rh"],
+                                          fertiliser_n_kg_ha_yr)
+        source = "prescribed annual mean with summer drawdown"
+    ch4_kg = float(ch4_kg + lit)
+    nee = float(sim["NEE"].mean() * m_co2.GC_TO_TCHA_YR)
+    e_co2 = nee * m_co2.CO2C_TO_CO2
     e_ch4 = ch4_kg * m_ch4.GWP_CH4 / 1000
-    e_n2o = (m_n2o.annual_n2o(crop, store.get("n2o", site), kw)
-             * m_n2o.N2ON_TO_N2O * m_n2o.GWP_N2O / 1000)
-    return GHGBalance(crop=crop, co2_t_co2e_ha_yr=float(e_co2), ch4_t_co2e_ha_yr=float(e_ch4),
-                      n2o_t_co2e_ha_yr=float(e_n2o), net_t_co2e_ha_yr=float(e_co2 + e_ch4 + e_n2o),
+    e_n2o = n2o_kg * m_n2o.N2ON_TO_N2O * m_n2o.GWP_N2O / 1000
+    nf = m_n2o.CROP_N[crop]["Nfert"] if fertiliser_n_kg_ha_yr is None else fertiliser_n_kg_ha_yr
+    return GHGBalance(crop=crop, mean_wtd_m=float(np.mean(wtd)), water_table_source=source,
+                      fertiliser_n_kg_ha_yr=nf, nee_tc_ha_yr=nee, ch4_kg_ha_yr=ch4_kg,
+                      ch4_litter_kg_ha_yr=float(lit), n2o_kg_n_ha_yr=float(n2o_kg),
+                      co2_t_co2e_ha_yr=e_co2, ch4_t_co2e_ha_yr=e_ch4, n2o_t_co2e_ha_yr=e_n2o,
+                      net_t_co2e_ha_yr=e_co2 + e_ch4 + e_n2o,
                       provenance=_prov(site, "co2", "ch4", "n2o"))
 
 
@@ -608,4 +651,8 @@ def assimilate_ch4(
 
 
 if __name__ == "__main__":
-    server.run("streamable-http" if "--http" in sys.argv else "stdio")
+    if "--http" in sys.argv:
+        server.run("streamable-http", host=os.environ.get("DT8_HOST", "127.0.0.1"),
+                   port=int(os.environ.get("DT8_PORT", "8000")))
+    else:
+        server.run("stdio")

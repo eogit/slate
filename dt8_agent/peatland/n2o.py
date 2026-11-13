@@ -96,6 +96,13 @@ def daily_n2o(crop, p, co2_pars=None, nfert=None):
     return n2o
 
 
+def annual_n2o_drivers(crop, p, Tsoil, WTD, Rh, nfert=None):
+    """Annual N2O (kg N2O-N ha-1 yr-1) for a crop with explicit daily Tsoil, WTD and Rh."""
+    v, _ = n2o_flux(p, np.asarray(Tsoil, float), np.asarray(WTD, float), np.asarray(Rh, float),
+                    nfert_daily(crop, nfert), CROP_N[crop]["mgmt"])
+    return float(v.mean() * MGD_TO_KGHAYR)
+
+
 def annual_n2o(crop, p, co2_pars=None, nfert=None):
     """Annual N2O (kg N2O-N ha-1 yr-1) under the regional climatology."""
     return float(daily_n2o(crop, p, co2_pars, nfert).mean() * MGD_TO_KGHAYR)
