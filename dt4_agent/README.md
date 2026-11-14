@@ -235,7 +235,7 @@ python dt4_agent/scripts/calibrate_pilots.py
 
 ```bash
 pip install pytest
-pytest dt4_agent        # 73 tests, about 2 min (most of it the calibration rerun)
+pytest dt4_agent        # 72 tests, about 2 min (most of it the calibration rerun)
 ```
 
 - `test_forest_models.py`: yield class equals peak MAI for every species; 3-PG responds to
