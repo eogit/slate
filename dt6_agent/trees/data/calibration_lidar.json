@@ -1,0 +1,1682 @@
+{
+ "_meta": {
+  "model_version": "0.1.0",
+  "citation": "National Trees Outside Woodland Map V1 (Forest Research / Forestry Commission, NCEA, 2025) and Environment Agency LIDAR (National LIDAR Programme and LIDAR Tiles DSM/DTM). Open Government Licence v3.0.",
+  "sigma_first_return_m": 1.0,
+  "sigma_last_return_m": 1.5,
+  "height_drop_event_m": 3.0
+ },
+ "pilots": {
+  "breckland": {
+   "name": "Breckland farmland",
+   "landscape": "Dry arable Brecks beside Thetford Forest: Scots pine rows, shelterbelts, field trees",
+   "tile": "TL7580",
+   "epochs": [
+    1998,
+    2009,
+    2018
+   ],
+   "p_conifer": 0.35,
+   "inventory": {
+    "objects": 2186,
+    "trees": 3727,
+    "canopy_area_ha": 28.3325,
+    "agb_t": 1467.665,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 1743,
+      "trees": 1743,
+      "canopy_area_ha": 12.4649,
+      "height_median_m": 8.0,
+      "agb_t": 543.6324
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 402,
+      "trees": 1265,
+      "canopy_area_ha": 9.9908,
+      "height_median_m": 11.26,
+      "agb_t": 459.8361
+     },
+     {
+      "class": "small_woodland",
+      "objects": 41,
+      "trees": 719,
+      "canopy_area_ha": 5.8768,
+      "height_median_m": 16.35,
+      "agb_t": 464.1965
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 544,
+    "median_m_yr": 0.1913,
+    "p05_m_yr": -0.0401,
+    "p95_m_yr": 0.6165,
+    "height_drops": 35
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 2186,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 8.7798,
+      "theta_p25": 7.9323,
+      "theta_p75": 9.7253,
+      "theta_sd_median": 2.1208,
+      "age_median": 113.7801,
+      "age_p25": 42.3632,
+      "age_p75": 158.4316,
+      "growth_m_yr_median": 0.0726,
+      "multi_epoch_share": 0.2489
+     },
+     "prior": [
+      10.0193,
+      2.6
+     ],
+     "validation": {
+      "n": 544,
+      "years_ahead_median": 9.0137,
+      "model": {
+       "rmse_m": 2.5063,
+       "bias_m": 0.2737,
+       "mae_m": 1.9468
+      },
+      "persistence": {
+       "rmse_m": 3.5536,
+       "bias_m": -2.5934,
+       "mae_m": 2.7675
+      },
+      "skill_vs_persistence": 0.5026,
+      "observed_growth_m_yr_median": 0.1913,
+      "predicted_growth_m_yr_median": 0.2303,
+      "prior_theta_by_fold": [
+       [
+        10.3058,
+        2.6
+       ],
+       [
+        9.795,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 2186,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.1911,
+      "theta_p25": 0.1845,
+      "theta_p75": 0.2055,
+      "theta_sd_median": 0.0908,
+      "age_median": 63.8242,
+      "age_p25": 22.7893,
+      "age_p75": 103.3542,
+      "growth_m_yr_median": 0.1114,
+      "multi_epoch_share": 0.2489
+     },
+     "prior": [
+      0.2416,
+      0.096
+     ],
+     "validation": {
+      "n": 544,
+      "years_ahead_median": 9.0137,
+      "model": {
+       "rmse_m": 2.5984,
+       "bias_m": 1.1714,
+       "mae_m": 2.1163
+      },
+      "persistence": {
+       "rmse_m": 3.5536,
+       "bias_m": -2.5934,
+       "mae_m": 2.7675
+      },
+      "skill_vs_persistence": 0.4653,
+      "observed_growth_m_yr_median": 0.1913,
+      "predicted_growth_m_yr_median": 0.3712,
+      "prior_theta_by_fold": [
+       [
+        0.2475,
+        0.096
+       ],
+       [
+        0.2385,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    }
+   }
+  },
+  "fens": {
+   "name": "Cambridgeshire Fens",
+   "landscape": "Open fen arable along the Great Ouse washes: willows, poplars, farmstead trees",
+   "tile": "TL4075",
+   "epochs": [
+    1999,
+    2017,
+    2019,
+    2021
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 856,
+    "trees": 2379,
+    "canopy_area_ha": 13.357,
+    "agb_t": 559.8639,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 554,
+      "trees": 554,
+      "canopy_area_ha": 2.3506,
+      "height_median_m": 6.3145,
+      "agb_t": 72.1437
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 272,
+      "trees": 1010,
+      "canopy_area_ha": 5.7164,
+      "height_median_m": 8.3325,
+      "agb_t": 180.2871
+     },
+     {
+      "class": "small_woodland",
+      "objects": 30,
+      "trees": 815,
+      "canopy_area_ha": 5.29,
+      "height_median_m": 14.6255,
+      "agb_t": 307.4332
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 709,
+    "median_m_yr": 0.3655,
+    "p05_m_yr": -1.5124,
+    "p95_m_yr": 3.7122,
+    "height_drops": 143
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 856,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 5.6693,
+      "theta_p25": 4.9436,
+      "theta_p75": 6.949,
+      "theta_sd_median": 1.1559,
+      "age_median": 153.8504,
+      "age_p25": 125.5433,
+      "age_p75": 171.106,
+      "growth_m_yr_median": 0.0226,
+      "multi_epoch_share": 0.8283
+     },
+     "prior": [
+      5.6695,
+      2.6
+     ],
+     "validation": {
+      "n": 705,
+      "years_ahead_median": 1.3607,
+      "model": {
+       "rmse_m": 2.5793,
+       "bias_m": 0.059,
+       "mae_m": 1.8524
+      },
+      "persistence": {
+       "rmse_m": 2.5791,
+       "bias_m": -0.9342,
+       "mae_m": 1.6272
+      },
+      "skill_vs_persistence": -0.0002,
+      "observed_growth_m_yr_median": 0.325,
+      "predicted_growth_m_yr_median": 0.7647,
+      "prior_theta_by_fold": [
+       [
+        5.6592,
+        2.6
+       ],
+       [
+        5.6645,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 105,
+       "years_ahead_median": 1.3607,
+       "model": {
+        "rmse_m": 3.1223,
+        "bias_m": -1.1013,
+        "mae_m": 2.159
+       },
+       "persistence": {
+        "rmse_m": 3.1011,
+        "bias_m": -1.0096,
+        "mae_m": 2.0061
+       },
+       "skill_vs_persistence": -0.0137,
+       "observed_growth_m_yr_median": 0.2316,
+       "predicted_growth_m_yr_median": 0.0152
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 856,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.1193,
+      "theta_p25": 0.1088,
+      "theta_p75": 0.1403,
+      "theta_sd_median": 0.0749,
+      "age_median": 63.3768,
+      "age_p25": 30.2687,
+      "age_p75": 115.4192,
+      "growth_m_yr_median": 0.0911,
+      "multi_epoch_share": 0.8283
+     },
+     "prior": [
+      0.1585,
+      0.096
+     ],
+     "validation": {
+      "n": 705,
+      "years_ahead_median": 1.3607,
+      "model": {
+       "rmse_m": 2.9941,
+       "bias_m": 1.472,
+       "mae_m": 2.5293
+      },
+      "persistence": {
+       "rmse_m": 2.5791,
+       "bias_m": -0.9342,
+       "mae_m": 1.6272
+      },
+      "skill_vs_persistence": -0.3478,
+      "observed_growth_m_yr_median": 0.325,
+      "predicted_growth_m_yr_median": 2.0304,
+      "prior_theta_by_fold": [
+       [
+        0.1626,
+        0.096
+       ],
+       [
+        0.1557,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 105,
+       "years_ahead_median": 1.3607,
+       "model": {
+        "rmse_m": 3.0257,
+        "bias_m": -0.0332,
+        "mae_m": 2.2411
+       },
+       "persistence": {
+        "rmse_m": 3.1011,
+        "bias_m": -1.0096,
+        "mae_m": 2.0061
+       },
+       "skill_vs_persistence": 0.0481,
+       "observed_growth_m_yr_median": 0.2316,
+       "predicted_growth_m_yr_median": 0.9531
+      }
+     }
+    }
+   }
+  },
+  "mid_devon": {
+   "name": "Exe valley, mid-Devon",
+   "landscape": "Pastoral Devon with hedgebanks, field oaks and riparian trees",
+   "tile": "SX9095",
+   "epochs": [
+    2005,
+    2016,
+    2020
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 6048,
+    "trees": 20735,
+    "canopy_area_ha": 161.163,
+    "agb_t": 10655.2222,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 3892,
+      "trees": 3892,
+      "canopy_area_ha": 20.9105,
+      "height_median_m": 6.3035,
+      "agb_t": 715.6043
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 1792,
+      "trees": 6391,
+      "canopy_area_ha": 43.048,
+      "height_median_m": 10.2315,
+      "agb_t": 1670.0223
+     },
+     {
+      "class": "small_woodland",
+      "objects": 364,
+      "trees": 10452,
+      "canopy_area_ha": 97.2045,
+      "height_median_m": 18.187,
+      "agb_t": 8269.5955
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 3355,
+    "median_m_yr": 0.0711,
+    "p05_m_yr": -0.2071,
+    "p95_m_yr": 0.6161,
+    "height_drops": 2644
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 6048,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 6.5847,
+      "theta_p25": 5.5062,
+      "theta_p75": 8.4627,
+      "theta_sd_median": 1.1577,
+      "age_median": 152.7255,
+      "age_p25": 76.0221,
+      "age_p75": 177.423,
+      "growth_m_yr_median": 0.0235,
+      "multi_epoch_share": 0.5547
+     },
+     "prior": [
+      6.529,
+      2.6
+     ],
+     "validation": {
+      "n": 2787,
+      "years_ahead_median": 14.2583,
+      "model": {
+       "rmse_m": 2.8525,
+       "bias_m": 0.249,
+       "mae_m": 2.1636
+      },
+      "persistence": {
+       "rmse_m": 3.013,
+       "bias_m": -1.2381,
+       "mae_m": 2.013
+      },
+      "skill_vs_persistence": 0.1037,
+      "observed_growth_m_yr_median": 0.0669,
+      "predicted_growth_m_yr_median": 0.1703,
+      "prior_theta_by_fold": [
+       [
+        6.4083,
+        2.6
+       ],
+       [
+        6.6887,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 1186,
+       "years_ahead_median": 3.3252,
+       "model": {
+        "rmse_m": 2.1003,
+        "bias_m": 0.4833,
+        "mae_m": 1.6495
+       },
+       "persistence": {
+        "rmse_m": 1.9108,
+        "bias_m": -0.5064,
+        "mae_m": 1.3554
+       },
+       "skill_vs_persistence": -0.2082,
+       "observed_growth_m_yr_median": 0.0636,
+       "predicted_growth_m_yr_median": 0.3059
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 6048,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.0879,
+      "theta_p25": 0.0715,
+      "theta_p75": 0.1182,
+      "theta_sd_median": 0.0493,
+      "age_median": 73.7283,
+      "age_p25": 26.3518,
+      "age_p75": 150.3545,
+      "growth_m_yr_median": 0.0584,
+      "multi_epoch_share": 0.5547
+     },
+     "prior": [
+      0.087,
+      0.096
+     ],
+     "validation": {
+      "n": 2787,
+      "years_ahead_median": 14.2583,
+      "model": {
+       "rmse_m": 2.9861,
+       "bias_m": 1.2222,
+       "mae_m": 2.4468
+      },
+      "persistence": {
+       "rmse_m": 3.013,
+       "bias_m": -1.2381,
+       "mae_m": 2.013
+      },
+      "skill_vs_persistence": 0.0178,
+      "observed_growth_m_yr_median": 0.0669,
+      "predicted_growth_m_yr_median": 0.2501,
+      "prior_theta_by_fold": [
+       [
+        0.0845,
+        0.096
+       ],
+       [
+        0.0903,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 1186,
+       "years_ahead_median": 3.3252,
+       "model": {
+        "rmse_m": 2.2811,
+        "bias_m": 1.1524,
+        "mae_m": 1.9032
+       },
+       "persistence": {
+        "rmse_m": 1.9108,
+        "bias_m": -0.5064,
+        "mae_m": 1.3554
+       },
+       "skill_vs_persistence": -0.4252,
+       "observed_growth_m_yr_median": 0.0636,
+       "predicted_growth_m_yr_median": 0.538
+      }
+     }
+    }
+   }
+  },
+  "somerset_levels": {
+   "name": "Somerset Levels",
+   "landscape": "Grazing marsh and rhynes: pollard willows and lines of trees",
+   "tile": "ST3535",
+   "epochs": [
+    2003,
+    2015,
+    2021
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 6462,
+    "trees": 16066,
+    "canopy_area_ha": 102.1874,
+    "agb_t": 4600.0149,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 4623,
+      "trees": 4623,
+      "canopy_area_ha": 20.7396,
+      "height_median_m": 5.63,
+      "agb_t": 547.0054
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 1627,
+      "trees": 5959,
+      "canopy_area_ha": 35.1702,
+      "height_median_m": 8.129,
+      "agb_t": 1017.4447
+     },
+     {
+      "class": "small_woodland",
+      "objects": 212,
+      "trees": 5484,
+      "canopy_area_ha": 46.2776,
+      "height_median_m": 15.615,
+      "agb_t": 3035.5648
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 6273,
+    "median_m_yr": 0.1515,
+    "p05_m_yr": -0.0838,
+    "p95_m_yr": 0.8163,
+    "height_drops": 1373
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 6462,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 7.0687,
+      "theta_p25": 5.8886,
+      "theta_p75": 8.1326,
+      "theta_sd_median": 1.933,
+      "age_median": 69.0268,
+      "age_p25": 30.5546,
+      "age_p75": 131.7453,
+      "growth_m_yr_median": 0.0996,
+      "multi_epoch_share": 0.9708
+     },
+     "prior": [
+      7.1747,
+      2.6
+     ],
+     "validation": {
+      "n": 5088,
+      "years_ahead_median": 6.9945,
+      "model": {
+       "rmse_m": 2.7969,
+       "bias_m": -0.5038,
+       "mae_m": 2.0776
+      },
+      "persistence": {
+       "rmse_m": 3.4794,
+       "bias_m": -2.3283,
+       "mae_m": 2.533
+      },
+      "skill_vs_persistence": 0.3538,
+      "observed_growth_m_yr_median": 0.2557,
+      "predicted_growth_m_yr_median": 0.2444,
+      "prior_theta_by_fold": [
+       [
+        7.1267,
+        2.6
+       ],
+       [
+        7.2446,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 4141,
+       "years_ahead_median": 6.9945,
+       "model": {
+        "rmse_m": 2.7572,
+        "bias_m": -0.5864,
+        "mae_m": 2.0347
+       },
+       "persistence": {
+        "rmse_m": 3.4388,
+        "bias_m": -2.3046,
+        "mae_m": 2.5016
+       },
+       "skill_vs_persistence": 0.3571,
+       "observed_growth_m_yr_median": 0.2526,
+       "predicted_growth_m_yr_median": 0.2357
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 6462,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.113,
+      "theta_p25": 0.077,
+      "theta_p75": 0.1526,
+      "theta_sd_median": 0.0617,
+      "age_median": 31.3283,
+      "age_p25": 15.3136,
+      "age_p75": 66.7995,
+      "growth_m_yr_median": 0.12,
+      "multi_epoch_share": 0.9708
+     },
+     "prior": [
+      0.1089,
+      0.096
+     ],
+     "validation": {
+      "n": 5088,
+      "years_ahead_median": 6.9945,
+      "model": {
+       "rmse_m": 2.5828,
+       "bias_m": 0.177,
+       "mae_m": 1.9773
+      },
+      "persistence": {
+       "rmse_m": 3.4794,
+       "bias_m": -2.3283,
+       "mae_m": 2.533
+      },
+      "skill_vs_persistence": 0.449,
+      "observed_growth_m_yr_median": 0.2557,
+      "predicted_growth_m_yr_median": 0.3798,
+      "prior_theta_by_fold": [
+       [
+        0.1129,
+        0.096
+       ],
+       [
+        0.1094,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 4141,
+       "years_ahead_median": 6.9945,
+       "model": {
+        "rmse_m": 2.5353,
+        "bias_m": 0.1167,
+        "mae_m": 1.9315
+       },
+       "persistence": {
+        "rmse_m": 3.4388,
+        "bias_m": -2.3046,
+        "mae_m": 2.5016
+       },
+       "skill_vs_persistence": 0.4564,
+       "observed_growth_m_yr_median": 0.2526,
+       "predicted_growth_m_yr_median": 0.3588
+      }
+     }
+    }
+   }
+  },
+  "herefordshire": {
+   "name": "Wye valley, Herefordshire",
+   "landscape": "Mixed farming in the Welsh Marches: orchards, field and hedgerow oaks",
+   "tile": "SO5040",
+   "epochs": [
+    2002,
+    2006,
+    2019
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 10190,
+    "trees": 27704,
+    "canopy_area_ha": 154.7429,
+    "agb_t": 9123.4611,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 7026,
+      "trees": 7026,
+      "canopy_area_ha": 27.9915,
+      "height_median_m": 5.854,
+      "agb_t": 921.8218
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 2799,
+      "trees": 10899,
+      "canopy_area_ha": 56.9866,
+      "height_median_m": 8.378,
+      "agb_t": 2135.6416
+     },
+     {
+      "class": "small_woodland",
+      "objects": 365,
+      "trees": 9779,
+      "canopy_area_ha": 69.7648,
+      "height_median_m": 18.252,
+      "agb_t": 6065.9977
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 5545,
+    "median_m_yr": 0.1073,
+    "p05_m_yr": -0.1117,
+    "p95_m_yr": 0.6505,
+    "height_drops": 1042
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 10190,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 6.8768,
+      "theta_p25": 5.8532,
+      "theta_p75": 8.4635,
+      "theta_sd_median": 1.8146,
+      "age_median": 109.3343,
+      "age_p25": 38.5708,
+      "age_p75": 155.7044,
+      "growth_m_yr_median": 0.0593,
+      "multi_epoch_share": 0.5442
+     },
+     "prior": [
+      7.583,
+      2.6
+     ],
+     "validation": {
+      "n": 5370,
+      "years_ahead_median": 13.0383,
+      "model": {
+       "rmse_m": 3.8757,
+       "bias_m": 0.0082,
+       "mae_m": 2.9927
+      },
+      "persistence": {
+       "rmse_m": 4.3363,
+       "bias_m": -2.4256,
+       "mae_m": 2.9256
+      },
+      "skill_vs_persistence": 0.2011,
+      "observed_growth_m_yr_median": 0.1058,
+      "predicted_growth_m_yr_median": 0.1705,
+      "prior_theta_by_fold": [
+       [
+        7.7599,
+        2.6
+       ],
+       [
+        7.4575,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 661,
+       "years_ahead_median": 13.0383,
+       "model": {
+        "rmse_m": 3.5227,
+        "bias_m": -0.2079,
+        "mae_m": 2.6627
+       },
+       "persistence": {
+        "rmse_m": 3.966,
+        "bias_m": -2.2911,
+        "mae_m": 2.6808
+       },
+       "skill_vs_persistence": 0.2111,
+       "observed_growth_m_yr_median": 0.126,
+       "predicted_growth_m_yr_median": 0.176
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 10190,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.1008,
+      "theta_p25": 0.0856,
+      "theta_p75": 0.137,
+      "theta_sd_median": 0.0624,
+      "age_median": 45.8665,
+      "age_p25": 19.6082,
+      "age_p75": 117.9342,
+      "growth_m_yr_median": 0.0889,
+      "multi_epoch_share": 0.5442
+     },
+     "prior": [
+      0.1188,
+      0.096
+     ],
+     "validation": {
+      "n": 5370,
+      "years_ahead_median": 13.0383,
+      "model": {
+       "rmse_m": 3.8732,
+       "bias_m": 0.9228,
+       "mae_m": 3.1239
+      },
+      "persistence": {
+       "rmse_m": 4.3363,
+       "bias_m": -2.4256,
+       "mae_m": 2.9256
+      },
+      "skill_vs_persistence": 0.2022,
+      "observed_growth_m_yr_median": 0.1058,
+      "predicted_growth_m_yr_median": 0.2388,
+      "prior_theta_by_fold": [
+       [
+        0.1228,
+        0.096
+       ],
+       [
+        0.1163,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 661,
+       "years_ahead_median": 13.0383,
+       "model": {
+        "rmse_m": 3.3782,
+        "bias_m": 0.4782,
+        "mae_m": 2.6102
+       },
+       "persistence": {
+        "rmse_m": 3.966,
+        "bias_m": -2.2911,
+        "mae_m": 2.6808
+       },
+       "skill_vs_persistence": 0.2745,
+       "observed_growth_m_yr_median": 0.126,
+       "predicted_growth_m_yr_median": 0.2194
+      }
+     }
+    }
+   }
+  },
+  "leicestershire": {
+   "name": "Soar valley, Leicestershire",
+   "landscape": "Urban fringe of Leicester and Midlands clay farmland",
+   "tile": "SK6005",
+   "epochs": [
+    2001,
+    2014,
+    2018,
+    2022
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 10561,
+    "trees": 28024,
+    "canopy_area_ha": 155.3202,
+    "agb_t": 7866.307,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 7675,
+      "trees": 7675,
+      "canopy_area_ha": 29.5868,
+      "height_median_m": 6.664,
+      "agb_t": 900.682
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 2551,
+      "trees": 9574,
+      "canopy_area_ha": 54.2518,
+      "height_median_m": 9.72,
+      "agb_t": 1902.8809
+     },
+     {
+      "class": "small_woodland",
+      "objects": 335,
+      "trees": 10775,
+      "canopy_area_ha": 71.4816,
+      "height_median_m": 16.397,
+      "agb_t": 5062.7441
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 9540,
+    "median_m_yr": 0.1576,
+    "p05_m_yr": -0.3206,
+    "p95_m_yr": 1.2586,
+    "height_drops": 3639
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 10561,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 6.3879,
+      "theta_p25": 5.5086,
+      "theta_p75": 7.6572,
+      "theta_sd_median": 1.4314,
+      "age_median": 134.5504,
+      "age_p25": 67.7211,
+      "age_p75": 166.0072,
+      "growth_m_yr_median": 0.0369,
+      "multi_epoch_share": 0.9033
+     },
+     "prior": [
+      6.3835,
+      2.6
+     ],
+     "validation": {
+      "n": 6922,
+      "years_ahead_median": 3.9617,
+      "model": {
+       "rmse_m": 2.2259,
+       "bias_m": 0.0583,
+       "mae_m": 1.7095
+      },
+      "persistence": {
+       "rmse_m": 2.0717,
+       "bias_m": -1.0771,
+       "mae_m": 1.4298
+      },
+      "skill_vs_persistence": -0.1544,
+      "observed_growth_m_yr_median": 0.1949,
+      "predicted_growth_m_yr_median": 0.2979,
+      "prior_theta_by_fold": [
+       [
+        6.3296,
+        2.6
+       ],
+       [
+        6.4331,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 6576,
+       "years_ahead_median": 3.9617,
+       "model": {
+        "rmse_m": 2.2083,
+        "bias_m": 0.0541,
+        "mae_m": 1.6955
+       },
+       "persistence": {
+        "rmse_m": 2.0539,
+        "bias_m": -1.0701,
+        "mae_m": 1.4217
+       },
+       "skill_vs_persistence": -0.1559,
+       "observed_growth_m_yr_median": 0.1964,
+       "predicted_growth_m_yr_median": 0.2953
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 10561,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.1008,
+      "theta_p25": 0.0755,
+      "theta_p75": 0.1298,
+      "theta_sd_median": 0.0538,
+      "age_median": 51.1808,
+      "age_p25": 23.8077,
+      "age_p75": 122.9246,
+      "growth_m_yr_median": 0.0819,
+      "multi_epoch_share": 0.9033
+     },
+     "prior": [
+      0.0922,
+      0.096
+     ],
+     "validation": {
+      "n": 6922,
+      "years_ahead_median": 3.9617,
+      "model": {
+       "rmse_m": 2.1631,
+       "bias_m": 0.7573,
+       "mae_m": 1.7285
+      },
+      "persistence": {
+       "rmse_m": 2.0717,
+       "bias_m": -1.0771,
+       "mae_m": 1.4298
+      },
+      "skill_vs_persistence": -0.0902,
+      "observed_growth_m_yr_median": 0.1949,
+      "predicted_growth_m_yr_median": 0.507,
+      "prior_theta_by_fold": [
+       [
+        0.0922,
+        0.096
+       ],
+       [
+        0.0911,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 6576,
+       "years_ahead_median": 3.9617,
+       "model": {
+        "rmse_m": 2.1423,
+        "bias_m": 0.7398,
+        "mae_m": 1.7082
+       },
+       "persistence": {
+        "rmse_m": 2.0539,
+        "bias_m": -1.0701,
+        "mae_m": 1.4217
+       },
+       "skill_vs_persistence": -0.0879,
+       "observed_growth_m_yr_median": 0.1964,
+       "predicted_growth_m_yr_median": 0.5001
+      }
+     }
+    }
+   }
+  },
+  "vale_of_york": {
+   "name": "Vale of York",
+   "landscape": "Flat arable and Derwent floodplain: hedgerow trees and farm copses",
+   "tile": "SE6045",
+   "epochs": [
+    2000,
+    2010,
+    2020
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 5766,
+    "trees": 19424,
+    "canopy_area_ha": 132.6666,
+    "agb_t": 8100.891,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 3955,
+      "trees": 3955,
+      "canopy_area_ha": 22.0868,
+      "height_median_m": 6.694,
+      "agb_t": 872.3757
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 1498,
+      "trees": 5774,
+      "canopy_area_ha": 36.7817,
+      "height_median_m": 10.3995,
+      "agb_t": 1562.7347
+     },
+     {
+      "class": "small_woodland",
+      "objects": 313,
+      "trees": 9695,
+      "canopy_area_ha": 73.7981,
+      "height_median_m": 17.604,
+      "agb_t": 5665.7806
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 3728,
+    "median_m_yr": 0.1733,
+    "p05_m_yr": -0.0495,
+    "p95_m_yr": 0.5631,
+    "height_drops": 282
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 5766,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 10.1059,
+      "theta_p25": 8.9339,
+      "theta_p75": 11.4019,
+      "theta_sd_median": 2.1236,
+      "age_median": 46.1411,
+      "age_p25": 24.9368,
+      "age_p75": 116.2615,
+      "growth_m_yr_median": 0.1777,
+      "multi_epoch_share": 0.6465
+     },
+     "prior": [
+      10.9571,
+      2.6
+     ],
+     "validation": {
+      "n": 3728,
+      "years_ahead_median": 20.8524,
+      "model": {
+       "rmse_m": 4.2176,
+       "bias_m": -0.3621,
+       "mae_m": 3.2793
+      },
+      "persistence": {
+       "rmse_m": 5.7452,
+       "bias_m": -4.1747,
+       "mae_m": 4.421
+      },
+      "skill_vs_persistence": 0.4611,
+      "observed_growth_m_yr_median": 0.1733,
+      "predicted_growth_m_yr_median": 0.189,
+      "prior_theta_by_fold": [
+       [
+        10.9678,
+        2.6
+       ],
+       [
+        10.9877,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 5766,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.1918,
+      "theta_p25": 0.1754,
+      "theta_p75": 0.2297,
+      "theta_sd_median": 0.0844,
+      "age_median": 29.6364,
+      "age_p25": 13.6361,
+      "age_p75": 71.774,
+      "growth_m_yr_median": 0.1764,
+      "multi_epoch_share": 0.6465
+     },
+     "prior": [
+      0.2345,
+      0.096
+     ],
+     "validation": {
+      "n": 3728,
+      "years_ahead_median": 20.8524,
+      "model": {
+       "rmse_m": 4.1464,
+       "bias_m": 0.9259,
+       "mae_m": 3.3688
+      },
+      "persistence": {
+       "rmse_m": 5.7452,
+       "bias_m": -4.1747,
+       "mae_m": 4.421
+      },
+      "skill_vs_persistence": 0.4791,
+      "observed_growth_m_yr_median": 0.1733,
+      "predicted_growth_m_yr_median": 0.255,
+      "prior_theta_by_fold": [
+       [
+        0.2336,
+        0.096
+       ],
+       [
+        0.2382,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    }
+   }
+  },
+  "cheshire": {
+   "name": "Cheshire plain near Chester",
+   "landscape": "Dairy pasture with marl pits and many field oaks",
+   "tile": "SJ4065",
+   "epochs": [
+    2001,
+    2015,
+    2021
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 18376,
+    "trees": 41967,
+    "canopy_area_ha": 192.7761,
+    "agb_t": 9043.0811,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 13098,
+      "trees": 13098,
+      "canopy_area_ha": 44.9959,
+      "height_median_m": 5.986,
+      "agb_t": 1425.8722
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 4912,
+      "trees": 19199,
+      "canopy_area_ha": 90.2327,
+      "height_median_m": 9.9705,
+      "agb_t": 3532.4145
+     },
+     {
+      "class": "small_woodland",
+      "objects": 366,
+      "trees": 9670,
+      "canopy_area_ha": 57.5475,
+      "height_median_m": 17.0655,
+      "agb_t": 4084.7944
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 8828,
+    "median_m_yr": 0.1402,
+    "p05_m_yr": -0.1089,
+    "p95_m_yr": 0.7379,
+    "height_drops": 593
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 18376,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 6.5644,
+      "theta_p25": 5.7241,
+      "theta_p75": 8.2233,
+      "theta_sd_median": 1.7213,
+      "age_median": 115.0434,
+      "age_p25": 50.5626,
+      "age_p75": 156.3768,
+      "growth_m_yr_median": 0.0535,
+      "multi_epoch_share": 0.4804
+     },
+     "prior": [
+      7.4166,
+      2.6
+     ],
+     "validation": {
+      "n": 8828,
+      "years_ahead_median": 19.9891,
+      "model": {
+       "rmse_m": 3.4208,
+       "bias_m": 0.0638,
+       "mae_m": 2.6936
+      },
+      "persistence": {
+       "rmse_m": 4.0877,
+       "bias_m": -2.5983,
+       "mae_m": 3.0023
+      },
+      "skill_vs_persistence": 0.2997,
+      "observed_growth_m_yr_median": 0.1402,
+      "predicted_growth_m_yr_median": 0.1671,
+      "prior_theta_by_fold": [
+       [
+        7.3344,
+        2.6
+       ],
+       [
+        7.5213,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 18376,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.1006,
+      "theta_p25": 0.0881,
+      "theta_p75": 0.1237,
+      "theta_sd_median": 0.0623,
+      "age_median": 40.7417,
+      "age_p25": 20.2261,
+      "age_p75": 109.377,
+      "growth_m_yr_median": 0.1071,
+      "multi_epoch_share": 0.4804
+     },
+     "prior": [
+      0.1209,
+      0.096
+     ],
+     "validation": {
+      "n": 8828,
+      "years_ahead_median": 19.9891,
+      "model": {
+       "rmse_m": 3.3543,
+       "bias_m": 1.0596,
+       "mae_m": 2.7225
+      },
+      "persistence": {
+       "rmse_m": 4.0877,
+       "bias_m": -2.5983,
+       "mae_m": 3.0023
+      },
+      "skill_vs_persistence": 0.3267,
+      "observed_growth_m_yr_median": 0.1402,
+      "predicted_growth_m_yr_median": 0.2154,
+      "prior_theta_by_fold": [
+       [
+        0.1198,
+        0.096
+       ],
+       [
+        0.1226,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    }
+   }
+  },
+  "oxford": {
+   "name": "Oxford and the Thames",
+   "landscape": "City, parks and colleges, and Thames floodplain meadows",
+   "tile": "SP5005",
+   "epochs": [
+    2005,
+    2016,
+    2020,
+    2023
+   ],
+   "p_conifer": 0.08,
+   "inventory": {
+    "objects": 16933,
+    "trees": 36042,
+    "canopy_area_ha": 230.1707,
+    "agb_t": 15572.0943,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 12040,
+      "trees": 12040,
+      "canopy_area_ha": 45.8318,
+      "height_median_m": 7.2385,
+      "agb_t": 1866.9063
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 4380,
+      "trees": 13118,
+      "canopy_area_ha": 90.9576,
+      "height_median_m": 12.354,
+      "agb_t": 4816.3714
+     },
+     {
+      "class": "small_woodland",
+      "objects": 513,
+      "trees": 10884,
+      "canopy_area_ha": 93.3813,
+      "height_median_m": 19.609,
+      "agb_t": 8888.8167
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 10500,
+    "median_m_yr": 0.0922,
+    "p05_m_yr": -0.5883,
+    "p95_m_yr": 1.3076,
+    "height_drops": 10537
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 16933,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 6.3808,
+      "theta_p25": 5.384,
+      "theta_p75": 8.8324,
+      "theta_sd_median": 1.0266,
+      "age_median": 159.8827,
+      "age_p25": 116.3049,
+      "age_p75": 181.2066,
+      "growth_m_yr_median": 0.019,
+      "multi_epoch_share": 0.6201
+     },
+     "prior": [
+      6.0291,
+      2.6
+     ],
+     "validation": {
+      "n": 6396,
+      "years_ahead_median": 3.0476,
+      "model": {
+       "rmse_m": 2.4782,
+       "bias_m": 0.0874,
+       "mae_m": 1.7608
+      },
+      "persistence": {
+       "rmse_m": 2.2462,
+       "bias_m": -0.6945,
+       "mae_m": 1.4109
+      },
+      "skill_vs_persistence": -0.2172,
+      "observed_growth_m_yr_median": 0.1198,
+      "predicted_growth_m_yr_median": 0.2745,
+      "prior_theta_by_fold": [
+       [
+        5.9838,
+        2.6
+       ],
+       [
+        6.069,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 3892,
+       "years_ahead_median": 3.0476,
+       "model": {
+        "rmse_m": 2.513,
+        "bias_m": -0.2469,
+        "mae_m": 1.706
+       },
+       "persistence": {
+        "rmse_m": 2.3179,
+        "bias_m": -0.747,
+        "mae_m": 1.4274
+       },
+       "skill_vs_persistence": -0.1754,
+       "observed_growth_m_yr_median": 0.1356,
+       "predicted_growth_m_yr_median": 0.1874
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 16933,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.0981,
+      "theta_p25": 0.0743,
+      "theta_p75": 0.1285,
+      "theta_sd_median": 0.0492,
+      "age_median": 102.9344,
+      "age_p25": 38.2579,
+      "age_p75": 158.661,
+      "growth_m_yr_median": 0.048,
+      "multi_epoch_share": 0.6201
+     },
+     "prior": [
+      0.0854,
+      0.096
+     ],
+     "validation": {
+      "n": 6396,
+      "years_ahead_median": 3.0476,
+      "model": {
+       "rmse_m": 2.5983,
+       "bias_m": 0.988,
+       "mae_m": 2.0322
+      },
+      "persistence": {
+       "rmse_m": 2.2462,
+       "bias_m": -0.6945,
+       "mae_m": 1.4109
+      },
+      "skill_vs_persistence": -0.338,
+      "observed_growth_m_yr_median": 0.1198,
+      "predicted_growth_m_yr_median": 0.6023,
+      "prior_theta_by_fold": [
+       [
+        0.0829,
+        0.096
+       ],
+       [
+        0.089,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 3892,
+       "years_ahead_median": 3.0476,
+       "model": {
+        "rmse_m": 2.5174,
+        "bias_m": 0.5443,
+        "mae_m": 1.8501
+       },
+       "persistence": {
+        "rmse_m": 2.3179,
+        "bias_m": -0.747,
+        "mae_m": 1.4274
+       },
+       "skill_vs_persistence": -0.1795,
+       "observed_growth_m_yr_median": 0.1356,
+       "predicted_growth_m_yr_median": 0.4736
+      }
+     }
+    }
+   }
+  },
+  "tyne_valley": {
+   "name": "Tyne valley near Hexham",
+   "landscape": "Upland-fringe pasture: riparian alders, field ash and sycamore",
+   "tile": "NY9065",
+   "epochs": [
+    2005,
+    2016,
+    2019
+   ],
+   "p_conifer": 0.15,
+   "inventory": {
+    "objects": 5737,
+    "trees": 18485,
+    "canopy_area_ha": 120.7155,
+    "agb_t": 9273.9992,
+    "by_class": [
+     {
+      "class": "lone_tree",
+      "objects": 3828,
+      "trees": 3828,
+      "canopy_area_ha": 20.0558,
+      "height_median_m": 6.5475,
+      "agb_t": 957.3297
+     },
+     {
+      "class": "group_of_trees",
+      "objects": 1636,
+      "trees": 6369,
+      "canopy_area_ha": 38.9483,
+      "height_median_m": 12.331,
+      "agb_t": 2173.6575
+     },
+     {
+      "class": "small_woodland",
+      "objects": 273,
+      "trees": 8288,
+      "canopy_area_ha": 61.7114,
+      "height_median_m": 19.68,
+      "agb_t": 6143.012
+     }
+    ]
+   },
+   "observed_growth": {
+    "n": 1977,
+    "median_m_yr": 0.5417,
+    "p05_m_yr": -0.5677,
+    "p95_m_yr": 4.4098,
+    "height_drops": 503
+   },
+   "models": {
+    "size_age": {
+     "calibration": {
+      "n": 5737,
+      "theta_name": "site index (height at 50 years, m)",
+      "theta_median": 10.3317,
+      "theta_p25": 9.5237,
+      "theta_p75": 11.1667,
+      "theta_sd_median": 2.771,
+      "age_median": 65.0385,
+      "age_p25": 29.3418,
+      "age_p75": 144.0571,
+      "growth_m_yr_median": 0.1658,
+      "multi_epoch_share": 0.3446
+     },
+     "prior": [
+      11.557,
+      2.6
+     ],
+     "validation": {
+      "n": 1977,
+      "years_ahead_median": 2.2894,
+      "model": {
+       "rmse_m": 4.1259,
+       "bias_m": -0.3334,
+       "mae_m": 3.0004
+      },
+      "persistence": {
+       "rmse_m": 4.6555,
+       "bias_m": -2.6484,
+       "mae_m": 3.0256
+      },
+      "skill_vs_persistence": 0.2146,
+      "observed_growth_m_yr_median": 0.5417,
+      "predicted_growth_m_yr_median": 0.6111,
+      "prior_theta_by_fold": [
+       [
+        11.8995,
+        2.6
+       ],
+       [
+        11.2601,
+        2.6
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    },
+    "crown_lue": {
+     "calibration": {
+      "n": 5737,
+      "theta_name": "light-use efficiency multiplier (0-1)",
+      "theta_median": 0.3163,
+      "theta_p25": 0.308,
+      "theta_p75": 0.3233,
+      "theta_sd_median": 0.1033,
+      "age_median": 16.006,
+      "age_p25": 7.4967,
+      "age_p75": 44.1735,
+      "growth_m_yr_median": 0.3095,
+      "multi_epoch_share": 0.3446
+     },
+     "prior": [
+      0.3516,
+      0.096
+     ],
+     "validation": {
+      "n": 1977,
+      "years_ahead_median": 2.2894,
+      "model": {
+       "rmse_m": 3.9242,
+       "bias_m": -0.187,
+       "mae_m": 2.8982
+      },
+      "persistence": {
+       "rmse_m": 4.6555,
+       "bias_m": -2.6484,
+       "mae_m": 3.0256
+      },
+      "skill_vs_persistence": 0.2895,
+      "observed_growth_m_yr_median": 0.5417,
+      "predicted_growth_m_yr_median": 0.9691,
+      "prior_theta_by_fold": [
+       [
+        0.3551,
+        0.096
+       ],
+       [
+        0.3465,
+        0.096
+       ]
+      ],
+      "trained_on_2plus_epochs": {
+       "n": 0
+      }
+     }
+    }
+   }
+  }
+ }
+}
