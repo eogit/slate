@@ -12,12 +12,11 @@ of the ESA Biomass CCI v7.0 tiles by ``scripts/extract_cci_pilots.py``.
 
 Climate
 -------
-3-PG needs monthly climate. Following the decision to calibrate on Biomass CCI v7 only,
-DT4 does not download gridded climate. Each landscape carries a monthly 1991-2020 style
-climatology typed in from nearby Met Office stations (Santon Downham for Thetford; Kielder
-Castle and Redesdale for Kielder). The values are rounded approximations, good enough for a
-growth model whose productivity is then calibrated to CCI, but they are not HadUK-Grid.
-Replacing them with HadUK-Grid or UKCP18 is a later step.
+3-PG needs monthly climate. Each landscape's climate is the HadUK-Grid 1991-2020 monthly
+average over its window, extracted by ``scripts/extract_haduk_climate.py`` from the Met Office
+Climate Data Portal into ``data/haduk_<key>.json`` (Open Government Licence v3.0). Global
+radiation, which HadUK-Grid lacks, is estimated from the diurnal temperature range
+(Hargreaves-Samani) and monthly frost days from the annual air-frost count; see that script.
 
 Solar radiation is global horizontal irradiation in MJ m-2 day-1, monthly means.
 Available soil water capacity and soil texture class are a priori values for the dominant
@@ -26,8 +25,12 @@ soils (Breckland sands; Kielder peaty gleys).
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
 
+DATA_DIR = Path(__file__).resolve().parent / "data"
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 DAYS_IN_MONTH = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
@@ -68,8 +71,27 @@ class Landscape:
     species: str                             # dominant species code (see forest.species)
     max_asw_mm: float                        # available soil water capacity of the root zone
     soil_class: str                          # 3-PG soil texture class: sand, sandy_loam, clay_loam, clay
-    climate: Climate
     notes: tuple[str, ...] = field(default_factory=tuple)
+
+    @property
+    def climate(self) -> Climate:
+        """HadUK-Grid 1991-2020 monthly climate of the landscape (from data/haduk_<key>.json)."""
+        return load_climate(self.key)
+
+
+def haduk_path(key: str) -> Path:
+    return DATA_DIR / f"haduk_{key}.json"
+
+
+@lru_cache(maxsize=16)
+def load_climate(key: str) -> Climate:
+    path = haduk_path(key)
+    if not path.exists():
+        raise FileNotFoundError(f"{path.name} is missing; run scripts/extract_haduk_climate.py")
+    d = json.loads(path.read_text())
+    return Climate(tmax_c=tuple(d["tmax_c"]), tmin_c=tuple(d["tmin_c"]), rain_mm=tuple(d["rain_mm"]),
+                   solar_mj_m2_d=tuple(d["solar_mj_m2_d"]), frost_days=tuple(d["frost_days"]),
+                   source=d["source"])
 
 
 THETFORD = Landscape(
@@ -82,14 +104,6 @@ THETFORD = Landscape(
     species="CP",
     max_asw_mm=90.0,
     soil_class="sand",
-    climate=Climate(
-        tmax_c=(7.5, 8.2, 11.2, 14.3, 17.7, 20.7, 23.3, 23.1, 19.9, 15.2, 10.5, 7.9),
-        tmin_c=(0.9, 0.8, 2.0, 3.7, 6.7, 9.7, 11.8, 11.6, 9.3, 6.8, 3.5, 1.3),
-        rain_mm=(52, 40, 38, 40, 45, 52, 54, 58, 52, 61, 58, 54),
-        solar_mj_m2_d=(2.7, 5.0, 8.9, 13.5, 17.0, 18.5, 18.0, 15.0, 10.8, 6.4, 3.3, 2.1),
-        frost_days=(12, 12, 8, 5, 1, 0, 0, 0, 0, 2, 6, 11),
-        source="Approximate 1991-2020 monthly climatology, Santon Downham area (rounded)",
-    ),
     notes=("Planted from the 1920s; now a mosaic of second-rotation stands of all ages.",
            "Corsican pine is the main timber species; Scots pine is the second."),
 )
@@ -104,14 +118,6 @@ KIELDER = Landscape(
     species="SS",
     max_asw_mm=180.0,
     soil_class="clay_loam",
-    climate=Climate(
-        tmax_c=(5.6, 6.0, 8.0, 10.9, 14.2, 16.8, 18.6, 18.2, 15.6, 11.9, 8.2, 5.8),
-        tmin_c=(-0.5, -0.6, 0.4, 1.8, 4.2, 7.1, 9.0, 8.8, 6.9, 4.4, 1.7, -0.3),
-        rain_mm=(140, 105, 100, 70, 70, 75, 85, 95, 95, 125, 140, 140),
-        solar_mj_m2_d=(2.0, 4.0, 7.6, 12.0, 15.8, 16.5, 15.6, 13.0, 9.0, 5.0, 2.6, 1.5),
-        frost_days=(15, 14, 12, 7, 2, 0, 0, 0, 0, 3, 9, 14),
-        source="Approximate 1991-2020 monthly climatology, Kielder Castle and Redesdale (rounded)",
-    ),
     notes=("Planted mostly 1926-1970s; clearfelled and restocked on a 40-60 year rotation.",
            "Sitka spruce covers about three quarters of the forest; lodgepole pine and Norway "
            "spruce make up most of the rest."),

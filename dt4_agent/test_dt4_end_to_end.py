@@ -11,7 +11,8 @@ models?", is sent to the DT4 MCP server over every transport an orchestrator mig
 The query is two tool calls: ``get_agb`` (state) and ``management_scenario`` (response).
 Every answer must equal what the ``forest`` package gives when it is run directly with the
 same inputs: the CCI v7 area statistics for the AGB, and the scenario engine with the
-calibrated productivity for each regime and growth model.
+calibrated productivity of Sitka spruce (Kielder's dominant species) for each regime and
+growth model, starting from the CCI v7 AGB of the Sitka spruce pixels.
 """
 
 import json
@@ -32,7 +33,7 @@ HERE = Path(__file__).resolve().parent
 SERVER = HERE / "dt4_server.py"
 sys.path.insert(0, str(HERE))
 
-from forest import cci, landscapes, make_model, scenario, state  # noqa: E402
+from forest import cci, inventory, landscapes, make_model, scenario, state  # noqa: E402
 
 AGB_QUERY = {"landscape": "kielder", "year": 2024}
 SCENARIO_QUERY = {"landscape": "kielder", "horizon_years": 40, "n_members": 20, "seed": 7,
@@ -49,7 +50,8 @@ def reference_agb():
 
 def reference_scenario():
     ls = landscapes.get("kielder")
-    st = reference_agb()
+    cube = cci.load("kielder")
+    st = cci.area_stats(cube, 2024, cube.woodland & (inventory.load("kielder").species == "SS"))
     out = {}
     for m in ("yield_curve", "3pg"):
         b = state.baseline("kielder", m)
@@ -60,6 +62,7 @@ def reference_scenario():
                                   agb0=st["agb_mean_mg_ha"], agb0_sd=st["agb_sd_mg_ha"],
                                   regime=regime, n_members=20, seed=7)
             cum = r.net_flux_co2[1:].sum(axis=0)
+            out["agb0"] = st["agb_mean_mg_ha"]
             out[(m, regime)] = {"cum": [cum.mean(), np.percentile(cum, 5), np.percentile(cum, 95)],
                                 "removals": r.removals_dm.sum(axis=0).mean(),
                                 "final_c": r.total_c[-1].mean()}
@@ -68,18 +71,20 @@ def reference_scenario():
 
 REF_AGB = reference_agb()
 REF_SCENARIO = reference_scenario()
+REF_SCENARIO_AGB0 = REF_SCENARIO.pop("agb0")
 
 
 def check_agb(answer):
     for k in ("agb_mean_mg_ha", "agb_sd_mg_ha", "area_ha", "n_pixels"):
         assert answer[k] == pytest.approx(REF_AGB[k], rel=1e-12), k
-    assert answer["agb_mean_mg_ha"] == pytest.approx(116.7961, abs=1e-3)
+    assert answer["agb_mean_mg_ha"] == pytest.approx(81.3853, abs=1e-3)
     assert answer["ebcf_role"] == "state"
     assert "CCI v7" in answer["provenance"]["observations"]
 
 
 def check_scenario(answer):
-    assert answer["start_agb_mg_ha"] == pytest.approx(REF_AGB["agb_mean_mg_ha"])
+    assert answer["species"] == "SS"
+    assert answer["start_agb_mg_ha"] == pytest.approx(REF_SCENARIO_AGB0)
     assert len(answer["outcomes"]) == 6
     for o in answer["outcomes"]:
         ref = REF_SCENARIO[(o["growth_model"], o["regime"])]

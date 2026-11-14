@@ -6,13 +6,23 @@ and projects it with two growth models side by side, **Chapman-Richards yield cu
 **3-PG** process model, under management and disturbance scenarios.
 
 Pilot landscapes: **Thetford** (lowland Corsican pine on Breckland sands) and **Kielder**
-(upland Sitka spruce on peaty gleys).
+(upland Sitka spruce on peaty gleys). Woodland, species and stand ages come from the
+**National Forest Inventory** woodland map and the **Forestry England sub-compartment
+database**; every species group recorded there is modelled and calibrated on its own. Climate
+for 3-PG is **HadUK-Grid** 1991–2020.
 
 ## Decisions this build follows
 
 - **Biomass CCI v7 only.** Both growth models are calibrated against ESA Biomass CCI v7.0
   (100 m AGB and per-pixel SD, 18 annual maps: 2005–2012 and 2015–2024). No GEDI, ICESat-2,
-  lidar, Sentinel-2 or NFI plots are used. The woodland mask is derived from CCI too.
+  lidar or Sentinel-2 data are used. The inventory supplies *where* the woodland is, *which*
+  species grows there and *how old* the stands are; productivity is fitted to CCI alone.
+  Forestry England's own yield class is kept only as an independent check.
+- **HadUK-Grid instead of station data** for the 3-PG climate.
+- **National Forest Inventory and species.** The Forest Research NFI products that are open
+  are the woodland map (no species) and, for the public forest estate, the Forestry England
+  sub-compartment database (species, planting year, yield class). The NFI field-plot species
+  data are not public, so species come from the sub-compartments (details below).
 - **Two growth models for comparison.** Every scenario tool can run the yield curves, 3-PG,
   or both, and `validate` scores both on years they have not seen.
 - **Pilot landscapes Thetford and Kielder** (the suggestion in the concept; no other areas were
@@ -22,11 +32,12 @@ Pilot landscapes: **Thetford** (lowland Corsican pine on Breckland sands) and **
 
 | Path | What it is |
 |---|---|
-| `dt4_server.py` | MCP server named `dt4` (16 tools) |
+| `dt4_server.py` | MCP server named `dt4` (17 tools) |
 | `forest/` | the model package, server-safe (no plotting, no prints, no global state) |
-| `forest/cci.py` | CCI v7 cubes, woodland mask, area statistics with honest uncertainty, change |
-| `forest/landscapes.py` | pilot windows, dominant species, soils, monthly climate |
-| `forest/species.py` | Sitka spruce, Corsican pine, Scots pine, oak: yield-curve shape, wood density, BEF, 3-PG parameters |
+| `forest/cci.py` | CCI v7 cubes, NFI woodland mask, saturation level, area statistics with honest uncertainty, change |
+| `forest/inventory.py` | NFI woodland and Forestry England sub-compartments on the CCI grid: species group, stand age, FE yield class |
+| `forest/landscapes.py` | pilot windows, dominant species, soils, HadUK-Grid monthly climate |
+| `forest/species.py` | 11 species groups: yield-curve shape, wood density, BEF, 3-PG parameters |
 | `forest/yield_curves.py` | empirical growth: yield class = peak mean annual increment |
 | `forest/threepg.py` | process growth: 3-PG on a monthly step (Landsberg & Waring 1997; Sands & Landsberg 2002) |
 | `forest/management.py` | regimes: no intervention, thin and fell, clearfell, continuous cover |
@@ -37,9 +48,11 @@ Pilot landscapes: **Thetford** (lowland Corsican pine on Breckland sands) and **
 | `forest/assimilation.py` | ensemble Kalman filter that learns a site's productivity |
 | `forest/change.py` | change significance and Living Earth EBCF impact (pressure) attribution |
 | `forest/state.py` | calibrated and learned productivity per site (`DT4_STATE_FILE` to persist) |
-| `forest/data/` | CCI v7 cubes for both pilots (2.8 MB) and the shipped calibration |
-| `scripts/extract_cci_pilots.py` | re-extracts the CCI cubes from CEDA (the only networked step) |
-| `scripts/calibrate_pilots.py` | regenerates `forest/data/calibration_cci_v7.json` (about 15 s) |
+| `forest/data/` | CCI v7 cubes (2.8 MB), inventory rasters (0.1 MB), HadUK-Grid climate and the shipped calibration |
+| `scripts/extract_cci_pilots.py` | re-extracts the CCI cubes from CEDA |
+| `scripts/extract_inventory.py` | rasterises the NFI woodland map and FE sub-compartments onto the CCI grid |
+| `scripts/extract_haduk_climate.py` | HadUK-Grid 1991–2020 monthly climate from the Met Office Climate Data Portal |
+| `scripts/calibrate_pilots.py` | regenerates `forest/data/calibration_cci_v7.json` (about 1.5 min) |
 | `dt4_agent.ipynb` | acts as the orchestrator: launches the server and calls every tool (executed) |
 | `test_*.py`, `claude_orchestrator_check.py` | tests, see below |
 
@@ -51,6 +64,33 @@ share), because averaging 30,000 pixels does not really shrink a SAR biomass err
 Changes are called significant only when they exceed 1.645 × the combined SD, and changes
 across the 2012/2015 gap are flagged because the sensors change there (ALOS/Envisat →
 ALOS-2/Sentinel-1).
+
+**Know the forest.** `forest/inventory.py` puts two Forestry Commission datasets on the CCI
+100 m grid (a pixel takes the polygon that contains its centre):
+
+- the *NFI woodland map GB 2024* gives the woodland mask (category "Woodland", which keeps
+  felled and young stands) and the interpreted forest type;
+- the *Forestry England sub-compartment database* gives, on the public forest estate, each
+  stand's main species, planting year and FE yield class.
+
+Species names are grouped into 11 DT4 species groups: Sitka spruce (SS), Norway and other
+spruces (NS), Corsican pine (CP), Scots pine (SP), lodgepole pine (LP), Douglas fir and other
+conifers (DF), larches (LA), oak (OK), beech (BE), birch (BI) and mixed broadleaves (MB:
+sycamore, ash, alder, poplar, chestnut and the rest). Woodland pixels outside the estate, or
+with no species recorded, take a group from the NFI forest type: conifer, felled and young
+types the landscape's dominant conifer, broadleaved types MB.
+
+| Landscape | NFI woodland | In the FE estate | With species and planting year | Composition (area share) |
+|---|---|---|---|---|
+| Thetford | 13,670 ha | 75 % | 68 % | CP 56 %, MB 15 %, SP 15 %, DF 5 %, BE 4 %, LA 2 %, BI 2 %, OK 1 % |
+| Kielder | 26,521 ha | 88 % | 65 % | SS 84 %, NS 6 %, MB 4 %, BI 2 %, LP 1 %, SP 1 %, DF 1 % |
+
+**Climate.** 3-PG runs on the HadUK-Grid 1991–2020 monthly averages of each landscape window,
+from the Met Office Climate Data Portal: mean temperature, rainfall and air-frost days on the
+portal's ~2 km grid, and maximum and minimum temperature from the 12 km grid shifted to the
+~2 km mean. HadUK-Grid has no radiation, so global radiation comes from the diurnal temperature
+range (Hargreaves–Samani, kRs 0.16). Thetford: 648 mm, 10.2 °C, 62 air-frost days; Kielder:
+1,389 mm, 7.3 °C, 89 air-frost days.
 
 **Grow.** Both growth models share one interface, so the scenario engine, calibration and
 Kalman filter treat them alike.
@@ -65,9 +105,25 @@ Kalman filter treat them alike.
 
 **Calibrate.** Each landscape is a mosaic of stand ages, so its mean AGB says little about
 growth (Thetford's barely moves in 20 years because felling balances growth). Calibration is
-therefore pixel by pixel: every sampled woodland pixel gets the productivity and age that best
-fit its own CCI trajectory, weighted by the CCI SD. Pixels with a clearfell or windthrow
-detected in CCI are fitted from the year of the loss, as a restocked stand.
+therefore pixel by pixel and species by species: for every species group with at least 300
+woodland pixels, a sample of up to 2,000 pixels each gets the productivity that best fits its
+own CCI trajectory, weighted by the CCI SD. Where Forestry England records a planting year the
+stand age is fixed (±2 years) and only productivity is fitted; elsewhere age is fitted too.
+Pixels with a clearfell or windthrow detected in CCI are fitted from the year of the loss, as a
+restocked stand.
+
+*CCI saturates.* Plotting CCI against the recorded stand age shows it plainly: AGB climbs to
+about 150 Mg/ha by age 30 and then stays flat for stands of any age, in both forests and for
+every conifer. CCI also reads 10–20-year-old stands high (about 100 Mg/ha).
+
+| Stand age (years) | 10–19 | 20–29 | 30–39 | 40–49 | 50–59 | 60–69 |
+|---|---|---|---|---|---|---|
+| Thetford Corsican pine, median CCI 2020 (Mg/ha) | 108 | 138 | 154 | 155 | 160 | 149 |
+| Kielder Sitka spruce, median CCI 2020 (Mg/ha) | 102 | 147 | 166 | 147 | 140 | 138 |
+
+So the fit compares CCI with what CCI can see, min(model AGB, 150 Mg/ha), while the model
+itself keeps growing. Without this, stands of known age either take implausibly low
+productivity to match the plateau or overshoot in later years.
 
 **Assimilate.** `assimilate_agb` runs an ensemble Kalman filter with AGB and productivity in
 the state, so the site's productivity is learned from data (CCI for an area, or values you
@@ -79,54 +135,79 @@ change plus the carbon handed to soil), forest plus wood products, positive = em
 
 ## Calibration and model comparison (shipped results)
 
-From `forest/data/calibration_cci_v7.json`: 2,000 woodland pixels per landscape; validation
-fitted on 2005–2017 and scored on 2018–2024 (pixels felled in those years excluded).
+From `forest/data/calibration_cci_v7.json`. Validation is fitted on 2005–2017 and scored on
+2018–2024 (pixels felled or restocked in those years excluded). Hold-out RMSE is given for
+yield curve / 3-PG, with inventory ages and, for comparison, with ages fitted from CCI alone
+(the previous version of DT4). FE YC is Forestry England's yield class of the same pixels, and
+r its pixel-by-pixel correlation with the CCI-calibrated yield class; neither is used in the
+fit.
 
-| Landscape | Model | Productivity (median, IQR) | Stand age 2024 | Hold-out RMSE | Hold-out bias | Hold-out R² |
-|---|---|---|---|---|---|---|
-| Thetford | yield curve | YC 4 (3–8) | 58 | 38.4 Mg/ha | +13.7 | 0.54 |
-| Thetford | 3-PG | FR 0.10 (0.05–0.35) | 62 | 38.0 Mg/ha | +14.6 | 0.55 |
-| Kielder | yield curve | YC 6 (3–9) | 50 | 42.6 Mg/ha | +0.9 | 0.27 |
-| Kielder | 3-PG | FR 0.20 (0.05–0.35) | 53 | 43.7 Mg/ha | +1.8 | 0.24 |
+| Landscape | Species | Area | Age 2024 | CCI yield class (IQR) | FE YC | r | 3-PG FR | Hold-out RMSE, inventory ages | Hold-out RMSE, CCI ages |
+|---|---|---|---|---|---|---|---|---|---|
+| Thetford | CP | 56 % | 38 | YC 14 (7–22) | 14 | 0.08 | 0.55 | 37.2 / 35.7 | 34.2 / 33.5 |
+| Thetford | MB | 15 % | 44 | YC 2 (2–4) | 4 | 0.01 | 0.35 | 30.2 / 28.8 | 27.9 / 26.5 |
+| Thetford | SP | 15 % | 43 | YC 8 (3–15) | 10 | 0.01 | 0.50 | 45.9 / 43.3 | 38.9 / 37.4 |
+| Thetford | DF | 5 % | 23 | YC 14 (4–17) | 12 | −0.14 | 0.50 | 41.5 / 41.2 | 38.5 / 38.7 |
+| Thetford | BE | 4 % | 78 | YC 3 (2–6) | 6 | −0.13 | 0.35 | 47.7 / 51.4 | 37.6 / 38.2 |
+| Thetford | LA | 2 % | 18 | YC 9 (6–17) | 10 | 0.35 | 0.50 | 63.8 / 52.6 | 56.0 / 56.8 |
+| Thetford | BI | 2 % | 21 | YC 6 (3–9) | 4 | 0.04 | 0.50 | 35.6 / 36.5 | 33.9 / 35.2 |
+| Thetford | OK | 1 % | 82 | YC 2 (2–4) | 4 | −0.03 | 0.35 | 42.9 / 46.5 | 29.9 / 31.1 |
+| Kielder | SS | 84 % | 28 | YC 8 (2–17) | 12 | 0.38 | 0.20 | 32.5 / 31.2 | 33.1 / 33.5 |
+| Kielder | NS | 6 % | 25 | YC 4 (2–13) | 10 | 0.35 | 0.10 | 30.1 / 29.2 | 34.9 / 35.7 |
+| Kielder | MB | 4 % | 19 | YC 2 (2–3) | 2 | 0.05 | 0.15 | 23.4 / 18.8 | 18.0 / 18.0 |
+| Kielder | BI | 2 % | 12 | YC 3 (2–4) | 4 | −0.08 | 0.40 | 34.9 / 20.8 | 47.5 / 45.0 |
+| Kielder | LP | 1 % | 59 | YC 3 (2–6) | 6 | 0.41 | 0.10 | 37.5 / 30.5 | 31.4 / 32.6 |
+| Kielder | SP | 1 % | 64 | YC 3 (2–8) | 10 | 0.25 | 0.10 | 42.2 / 37.8 | 35.0 / 34.5 |
+| Kielder | DF | 1 % | 46 | YC 3 (2–14) | 8 | 0.13 | 0.05 | 31.7 / 30.6 | 50.9 / 53.6 |
 
-What this says:
+RMSE in Mg/ha. What this says:
 
-- The two models predict unseen CCI years about equally well: 3-PG is marginally better at
-  Thetford, the yield curves marginally better at Kielder. The difference is far smaller than the
-  CCI pixel error (about 40–60 Mg/ha).
-- **CCI-calibrated productivity is low** compared with Forest Research yield classes (typically
-  YC 10–14 for Corsican pine at Thetford and YC 12–16 for Sitka at Kielder). The likely causes are
-  C- and L-band saturation in dense stands, thinning in the real forest (the fitted stand is an
-  unthinned one), and flat, noisy pixel trajectories. Absolute growth and carbon removals from
-  scenarios are therefore probably conservative. This is the main reason to bring in another
-  constraint later (NFI or lidar), if you decide to.
-- Thetford's positive hold-out bias means both models expect more growth after 2017 than CCI
-  shows; the CCI mean there declines slightly from 2015 to 2024.
+- **Known ages fix the productivity of the main species.** With ages from the sub-compartment
+  database and the saturation cap, CCI alone gives Corsican pine at Thetford a median YC 14,
+  exactly Forestry England's median, and Sitka spruce at Kielder YC 8 against FE's 12. Fitting
+  age from CCI made Thetford's pine stands about 50–90 years old (they are 38) and pushed yield
+  classes down to 3–4.
+- At Kielder the CCI yield class also tracks FE's from stand to stand (r ≈ 0.35–0.41 for the
+  conifers); at Thetford it does not (r ≈ 0), likely because thinning, which an unthinned stand
+  model cannot see, dominates the pixel trajectories there.
+- **Hold-out skill is mixed.** Inventory ages improve it for Kielder Sitka and Norway spruce,
+  birch and Douglas fir (by up to 20 Mg/ha), and make it worse by 2–13 Mg/ha for most Thetford
+  species and the old broadleaves: a flat CCI trajectory is easiest to match with an old stand
+  on the flat part of its curve, whether or not the stand is old. The inventory ages are kept
+  because they are observed, not inferred.
+- **3-PG and the yield curves remain close**; 3-PG has the lower hold-out RMSE for 12 of the
+  15 species–landscape pairs, by 1–2 Mg/ha for the main species and most clearly for Kielder
+  birch and lodgepole pine.
+- Above ~150 Mg/ha CCI carries no information, so the productivity of dense older stands rests
+  on their younger years and the prior; the spread (IQR) of calibrated yield classes is wide
+  and up to a third of pixels sit at the edge of the productivity grid for some species.
 
 ## Tools
 
 | Tool | EBCF role | What it returns |
 |---|---|---|
 | `list_species` | | species parameters, regimes, disturbance types, growth models |
-| `list_landscapes` | | pilot landscapes, woodland area, climate, calibration of both models |
-| `get_agb` | state | CCI v7 AGB of a landscape, box or point (+ radius) in one year, with 90 % range |
+| `list_landscapes` | | pilot landscapes, NFI woodland area, species composition, climate, calibration of every species group |
+| `forest_inventory` | state | species composition, stand ages and FE yield class of a landscape or area, with the CCI calibration per species |
+| `get_agb` | state | CCI v7 AGB of a landscape, box or point (+ radius) in one year, with 90 % range; optionally one species group |
 | `agb_timeseries` | state | the 18-year series and the 2015–2024 trend |
 | `carbon_stock` | state | living carbon (above + below ground), per ha and in total, t C and t CO2e |
 | `biomass_change` | impact | change between two years, significance, impact term, loss/gain/conversion areas |
 | `attribute_change` | pressure | loss split among pressures where supplied evidence overlaps it; the rest unattributed |
 | `simulate_stand` | response | one stand with yield curves, 3-PG or both: AGB, carbon pools, products, net CO2 |
-| `management_scenario` | response | regimes compared for the landscape's typical stand from its 2024 CCI AGB |
+| `management_scenario` | response | regimes compared for a species group's typical stand from its 2024 CCI AGB |
 | `afforestation_scenario` | response | carbon from new planting, per ha and for an area (for DT10) |
-| `calibrate_site` | | pixel calibration of either or both models for a landscape or area |
-| `validate` | | hold-out skill of both models |
-| `assimilate_agb` | state | Kalman filter on CCI or supplied AGB; learns and stores the site's productivity |
-| `get_parameters`, `reset_parameters` | | a site's productivity and where it came from |
+| `calibrate_site` | | pixel calibration of either or both models for one species group in a landscape or area, with the FE yield-class check |
+| `validate` | | hold-out skill of both models for every species group, inventory ages against CCI-fitted ages |
+| `assimilate_agb` | state | Kalman filter on CCI or supplied AGB; learns and stores the site's productivity per species |
+| `get_parameters`, `reset_parameters` | | a site's productivity per species and where it came from |
 | `self_learn_synthetic` | | recovery of a known productivity from a wrong prior |
 
-Areas are `{"bbox": [W, S, E, N]}` or `{"point": [lon, lat], "radius_m": r}` in degrees
+Species are the group codes above; tools that model a stand default to the landscape's
+dominant species (CP at Thetford, SS at Kielder). Areas are `{"bbox": [W, S, E, N]}` or `{"point": [lon, lat], "radius_m": r}` in degrees
 (EPSG:4326). All tools take and return typed JSON with input validation and output schemas, and
-every result carries provenance (model version, CCI citation and licence, parameter source,
-assumptions). Positive fluxes are emissions; a growing forest has a negative net flux.
+every result carries provenance (model version, CCI and inventory citations and licences,
+parameter source, assumptions). Positive fluxes are emissions; a growing forest has a negative net flux.
 
 ## Run
 
@@ -140,10 +221,13 @@ DT4_STATE_FILE=~/.dt4/state.json python dt4_agent/dt4_server.py   # keep learned
 
 Register with Claude Code: `claude mcp add dt4 -- python /path/to/dt4_agent/dt4_server.py`
 
-Rebuild the data (needs network access to dap.ceda.ac.uk and `pip install rasterio`):
+Rebuild the data (needs network access to dap.ceda.ac.uk, services.arcgis.com and
+services2.arcgis.com, and `pip install rasterio`):
 
 ```bash
 python dt4_agent/scripts/extract_cci_pilots.py
+python dt4_agent/scripts/extract_inventory.py
+python dt4_agent/scripts/extract_haduk_climate.py
 python dt4_agent/scripts/calibrate_pilots.py
 ```
 
@@ -151,21 +235,22 @@ python dt4_agent/scripts/calibrate_pilots.py
 
 ```bash
 pip install pytest
-pytest dt4_agent        # 60 tests, about 35 s
+pytest dt4_agent        # 73 tests, about 2 min (most of it the calibration rerun)
 ```
 
 - `test_forest_models.py`: yield class equals peak MAI for every species; 3-PG responds to
   fertility and drought and obeys self-thinning; clearfell logs reach the product pools; net flux
   equals stock change plus soil input; disturbances replace stands; pinned CCI v7 numbers for both
-  landscapes; change significance and the evidence rule for attribution; calibration recovers
-  known pixels; **rerunning `calibrate_pilots.py` reproduces the shipped calibration exactly**;
+  landscapes on the NFI mask; the inventory species mapping, composition and ages; the HadUK-Grid
+  climate; change significance and the evidence rule for attribution; calibration recovers
+  known pixels, holds recorded ages, and recovers yield class from saturated data; **rerunning `calibrate_pilots.py` reproduces the shipped calibration exactly**;
   the Kalman filter learns a known productivity for both models; the package imports no plotting
   library, prints nothing and writes no files.
 - `test_dt4_server.py`: every tool in memory, bad inputs come back as tool errors, learning is per
   site, and over stdio a learned value survives a restart with `DT4_STATE_FILE`.
 - `test_dt4_end_to_end.py`: the agentic path. An orchestrator query with input parameters
   (Kielder's 2024 AGB, then three regimes over 40 years with both models, 20 members, seed 7)
-  goes to `get_agb` and `management_scenario` in memory, over stdio, over streamable HTTP, and
+  goes to `get_agb` and `management_scenario` (Sitka spruce) in memory, over stdio, over streamable HTTP, and
   as raw JSON-RPC 2.0 over stdio and HTTP without the MCP client library. Every answer must equal
   the `forest` package run directly with the same inputs.
 
@@ -182,12 +267,23 @@ python dt4_agent/claude_orchestrator_check.py --out run.json
 
 ## Assumptions and limitations
 
-- **Climate for 3-PG** is a monthly 1991–2020-style climatology typed in from nearby Met Office
-  stations (rounded), not HadUK-Grid or UKCP18. It is used as a driver, not for calibration.
-- **One species per landscape** (Corsican pine at Thetford, Sitka spruce at Kielder). Other
-  species can be simulated with a priori productivity, and results say so.
-- **Woodland mask** from CCI (median AGB 2015–2024 ≥ 20 Mg/ha or peak ≥ 60 Mg/ha), not the NFI
-  map, following the CCI-only decision.
+- **Climate for 3-PG** is the HadUK-Grid 1991–2020 average from the Met Office Climate Data
+  Portal (~2 km for temperature, rain and frost; 12 km for Tmax and Tmin), not the 1 km monthly
+  series on CEDA, which needs a CEDA login. Radiation is estimated from the temperature range
+  (Hargreaves–Samani), which tends to overestimate UK radiation by roughly 10–15 %; 3-PG
+  productivity absorbs this in calibration. Climate is a driver only, never calibrated against.
+- **Species where Forestry England records none** (32 % of Thetford's and 35 % of Kielder's
+  woodland: private woods, open ground, felled areas) are inferred
+  from the NFI forest type, so "CP" there means "conifer at Thetford". Mixed stands are
+  represented by their main species. NFI field-plot species data are not public.
+- **Stand ages** come from the FE planting year of the current stand. Where CCI shows a
+  stand-replacing loss the CCI date wins, because the record may predate the felling.
+- **Saturation level** (150 Mg/ha) is read off the CCI-against-age plateau of the pilot
+  conifers; it is one number for both forests and all species.
+- **Each pixel is fitted as an unthinned even-aged stand.** Thinning in the real forest is the
+  likely reason the stand-to-stand agreement with FE yield class is weak at Thetford.
+- **Assimilation** (`assimilate_agb`) compares the filter with observations directly, without
+  the saturation cap; use it with observations below ~150 Mg/ha, or for young stands.
 - **Yield curves** reproduce the defining property of yield class but are not the Forest Research
   yield tables, which are not openly licensed as code.
 - **Continuous cover** harvests rejuvenate the stand's effective age (regeneration in gaps). This
@@ -198,6 +294,9 @@ python dt4_agent/claude_orchestrator_check.py --out run.json
   defaults and British practice.
 - **Soil carbon** belongs to DT7. DT4 reports the litter and deadwood carbon passed to soil each
   year (`litter_and_deadwood_to_soil_t_c_ha_yr`) as DT7's input.
+- **Inventory licence**: NFI Woodland GB 2024 and Forestry England Subcompartments, Forestry
+  Commission open data, Open Government Licence v3.0. **Climate licence**: HadUK-Grid via the
+  Met Office Climate Data Portal, Open Government Licence v3.0.
 - **Data licence**: ESA CCI Biomass terms and conditions v2 (free and open, citation required).
   Cite: Santoro, M.; Cartus, O. (2026): ESA Biomass Climate Change Initiative (Biomass_cci):
   Global datasets of forest above-ground biomass for the years 2005-2012 and 2015-2024, v7.0.

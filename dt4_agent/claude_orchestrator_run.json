@@ -4,7 +4,7 @@
     {
       "tool": "ToolSearch",
       "arguments": {
-        "query": "select:mcp__dt4__get_agb,mcp__dt4__management_scenario,mcp__dt4__validate,mcp__dt4__list_landscapes,mcp__dt4__carbon_stock",
+        "query": "select:mcp__dt4__get_agb,mcp__dt4__management_scenario,mcp__dt4__validate,mcp__dt4__forest_inventory,mcp__dt4__list_landscapes",
         "max_results": 5
       },
       "result": ""
@@ -19,29 +19,30 @@
         "landscape": "kielder",
         "area": "whole landscape",
         "year": 2024,
-        "agb_mean_mg_ha": 116.79607877770908,
-        "agb_sd_mg_ha": 17.95401695562279,
-        "agb_p05_mg_ha": 87.26351628740515,
-        "agb_p95_mg_ha": 146.328641268013,
-        "pixel_sd_mean_mg_ha": 59.578144779063265,
-        "pixel_agb_p10_mg_ha": 35,
-        "pixel_agb_p90_mg_ha": 178,
-        "n_pixels": 33969,
-        "area_ha": 18978.567275225007,
-        "agb_total_mg": 2216622.2385652317,
+        "agb_mean_mg_ha": 81.38532999094184,
+        "agb_sd_mg_ha": 12.501205726771243,
+        "agb_p05_mg_ha": 60.822096690975826,
+        "agb_p95_mg_ha": 101.94856329090786,
+        "pixel_sd_mean_mg_ha": 41.47681742537549,
+        "pixel_agb_p10_mg_ha": 0,
+        "pixel_agb_p90_mg_ha": 172,
+        "n_pixels": 47471,
+        "area_ha": 26520.788390509406,
+        "agb_total_mg": 2158403.1147815473,
         "ebcf_role": "state",
         "provenance": {
-          "model": "DT4 forest biomass twin 0.1.0",
+          "model": "DT4 forest biomass twin 0.2.0",
           "observations": "ESA Biomass CCI v7.0 (100 m AGB and SD), https://catalogue.ceda.ac.uk/uuid/6429d1aafe1e43b9b414e4a5a7f8b903",
           "citation": "Santoro, M.; Cartus, O. (2026): ESA Biomass Climate Change Initiative (Biomass_cci): Global datasets of forest above-ground biomass for the years 2005-2012 and 2015-2024, v7.0. NERC EDS Centre for Environmental Data Analysis.",
           "licence": "ESA CCI Biomass terms and conditions v2: free and open, citation required",
+          "inventory": "National Forest Inventory Woodland GB 2024 and Forestry England Subcompartments, Forestry Commission open data. Contains, or is based on, information supplied by the Forestry Commission; Open Government Licence v3.0.",
           "parameters": "observation only",
           "assumptions": [
             "Calibrated on ESA Biomass CCI v7 only (no GEDI, ICESat-2, lidar or other satellite data).",
-            "Woodland mask derived from CCI v7 (median AGB 2015-2024 >= 20 or peak >= 60 Mg/ha), not the NFI map.",
-            "One dominant species per pilot landscape: Corsican pine (Thetford), Sitka spruce (Kielder).",
-            "3-PG climate: approximate 1991-2020 station climatology typed in per landscape, not HadUK-Grid.",
-            "SAR saturation and thinning bias CCI-calibrated productivity low relative to Forest Research yield classes."
+            "Woodland mask from the NFI woodland map GB 2024; species groups, planting years (stand ages) and Forestry England yield classes from the FE sub-compartment database. FE yield class is only an independent check, never used in calibration.",
+            "Pixels outside the FE estate take a species group from the NFI forest type (conifer, felled and young types: the landscape's dominant conifer; broadleaved types: mixed broadleaves).",
+            "3-PG climate: HadUK-Grid 1991-2020 monthly averages (Met Office portal, ~2 km and 12 km grids); radiation estimated from the diurnal temperature range (Hargreaves-Samani).",
+            "CCI v7 saturates at about 150 Mg/ha in these forests; calibration compares CCI with min(model AGB, 150). Each pixel is treated as an unthinned even-aged stand."
           ]
         }
       }
@@ -57,121 +58,121 @@
         "species": "SS",
         "start_year": 2024,
         "horizon_years": 40,
-        "start_age": 50,
-        "start_agb_mg_ha": 116.79607877770908,
+        "start_age": 28,
+        "start_agb_mg_ha": 86.7864735749481,
         "start_agb_source": "CCI v7 2024, whole landscape",
         "outcomes": [
           {
             "regime": "no_intervention",
             "growth_model": "yield_curve",
             "cumulative_net_t_co2_ha": [
-              -239.29,
-              -342.311,
-              -138.806
+              -490.017,
+              -936.624,
+              -153.547
             ],
-            "mean_annual_net_t_co2_ha_yr": -5.9822,
+            "mean_annual_net_t_co2_ha_yr": -12.2504,
             "removals_total_t_dm_ha": 0,
-            "final_total_c_t_ha": 129.26933352902398,
+            "final_total_c_t_ha": 175.04083632698257,
             "final_wood_products_c_t_ha": 0,
-            "final_agb_mg_ha": 173.657
+            "final_agb_mg_ha": 240.176
           },
           {
             "regime": "thin_and_fell",
             "growth_model": "yield_curve",
             "cumulative_net_t_co2_ha": [
-              -19.389,
-              -205.524,
-              133.265
+              -142.596,
+              -439.888,
+              80.2
             ],
-            "mean_annual_net_t_co2_ha_yr": -0.4847,
-            "removals_total_t_dm_ha": 144.013,
-            "final_total_c_t_ha": 78.12108615102186,
-            "final_wood_products_c_t_ha": 28.494293233198732,
-            "final_agb_mg_ha": 44.643
+            "mean_annual_net_t_co2_ha_yr": -3.5649,
+            "removals_total_t_dm_ha": 143.484,
+            "final_total_c_t_ha": 89.24147131992,
+            "final_wood_products_c_t_ha": 30.741270618310853,
+            "final_agb_mg_ha": 55.962
           },
           {
             "regime": "clearfell_no_thin",
             "growth_model": "yield_curve",
             "cumulative_net_t_co2_ha": [
-              -114.219,
-              -368.02,
-              104.886
+              -205.742,
+              -548.669,
+              41.312
             ],
-            "mean_annual_net_t_co2_ha_yr": -2.8555,
-            "removals_total_t_dm_ha": 101.75,
-            "final_total_c_t_ha": 103.60285869610169,
-            "final_wood_products_c_t_ha": 16.92642432040752,
-            "final_agb_mg_ha": 109.65
+            "mean_annual_net_t_co2_ha_yr": -5.1436,
+            "removals_total_t_dm_ha": 140.904,
+            "final_total_c_t_ha": 103.76441001286899,
+            "final_wood_products_c_t_ha": 33.51317820406997,
+            "final_agb_mg_ha": 73.694
           },
           {
             "regime": "continuous_cover",
             "growth_model": "yield_curve",
             "cumulative_net_t_co2_ha": [
-              -277.891,
-              -603.387,
-              -0.75
+              -524.291,
+              -1274.338,
+              -46.398
             ],
-            "mean_annual_net_t_co2_ha_yr": -6.9473,
-            "removals_total_t_dm_ha": 90.918,
-            "final_total_c_t_ha": 139.99776094290092,
-            "final_wood_products_c_t_ha": 22.085810982139392,
-            "final_agb_mg_ha": 144.596
+            "mean_annual_net_t_co2_ha_yr": -13.1073,
+            "removals_total_t_dm_ha": 98.943,
+            "final_total_c_t_ha": 184.7452263170865,
+            "final_wood_products_c_t_ha": 25.166397438377473,
+            "final_agb_mg_ha": 203.314
           },
           {
             "regime": "no_intervention",
             "growth_model": "3pg",
             "cumulative_net_t_co2_ha": [
-              -183.171,
-              -408.289,
-              -37.395
+              -495.783,
+              -1059.082,
+              -137.245
             ],
-            "mean_annual_net_t_co2_ha_yr": -4.5793,
+            "mean_annual_net_t_co2_ha_yr": -12.3946,
             "removals_total_t_dm_ha": 0,
-            "final_total_c_t_ha": 128.95226407975966,
+            "final_total_c_t_ha": 189.3185963860825,
             "final_wood_products_c_t_ha": 0,
-            "final_agb_mg_ha": 199.556
+            "final_agb_mg_ha": 280.602
           },
           {
             "regime": "thin_and_fell",
             "growth_model": "3pg",
             "cumulative_net_t_co2_ha": [
-              -25.696,
-              -240.109,
-              161.863
+              -168.774,
+              -538.031,
+              89.372
             ],
-            "mean_annual_net_t_co2_ha_yr": -0.6424,
-            "removals_total_t_dm_ha": 149.353,
-            "final_total_c_t_ha": 81.72114007743215,
-            "final_wood_products_c_t_ha": 29.906738079610804,
-            "final_agb_mg_ha": 51.73
+            "mean_annual_net_t_co2_ha_yr": -4.2193,
+            "removals_total_t_dm_ha": 169.087,
+            "final_total_c_t_ha": 98.9937228901204,
+            "final_wood_products_c_t_ha": 36.79009432706957,
+            "final_agb_mg_ha": 63.211
           },
           {
             "regime": "clearfell_no_thin",
             "growth_model": "3pg",
             "cumulative_net_t_co2_ha": [
-              -86.369,
-              -346.329,
-              142.615
+              -212.538,
+              -598.296,
+              53.905
             ],
-            "mean_annual_net_t_co2_ha_yr": -2.1592,
-            "removals_total_t_dm_ha": 102.439,
-            "final_total_c_t_ha": 98.62317812479309,
-            "final_wood_products_c_t_ha": 17.0410749368194,
-            "final_agb_mg_ha": 110.984
+            "mean_annual_net_t_co2_ha_yr": -5.3134,
+            "removals_total_t_dm_ha": 155.645,
+            "final_total_c_t_ha": 110.30650868476886,
+            "final_wood_products_c_t_ha": 37.01919737409819,
+            "final_agb_mg_ha": 82.645
           },
           {
             "regime": "continuous_cover",
             "growth_model": "3pg",
             "cumulative_net_t_co2_ha": [
-              -141.248,
-              -400.985,
-              46.945
+              -410.949,
+              -971.8,
+              -54.479
             ],
-            "mean_annual_net_t_co2_ha_yr": -3.5312,
-            "removals_total_t_dm_ha": 86.878,
-            "final_total_c_t_ha": 115.35640284655936,
-            "final_wood_products_c_t_ha": 20.924505947643343,
-            "final_agb_mg_ha": 128.588
+            "mean_annual_net_t_co2_ha_yr": -10.2737,
+            "removals_total_t_dm_ha": 97.756,
+            "final_total_c_t_ha": 166.67472596114604,
+            "final_wood_products_c_t_ha": 24.819765405105745,
+            "final_agb_mg_ha": 200.864
           }
         ],
         "best_for_carbon": {
@@ -182,17 +183,18 @@
         "ebcf_role": "response",
         "note": "Scenario outcomes are management responses, not observations.",
         "provenance": {
-          "model": "DT4 forest biomass twin 0.1.0",
+          "model": "DT4 forest biomass twin 0.2.0",
           "observations": "ESA Biomass CCI v7.0 (100 m AGB and SD), https://catalogue.ceda.ac.uk/uuid/6429d1aafe1e43b9b414e4a5a7f8b903",
           "citation": "Santoro, M.; Cartus, O. (2026): ESA Biomass Climate Change Initiative (Biomass_cci): Global datasets of forest above-ground biomass for the years 2005-2012 and 2015-2024, v7.0. NERC EDS Centre for Environmental Data Analysis.",
           "licence": "ESA CCI Biomass terms and conditions v2: free and open, citation required",
-          "parameters": "yield_curve: calibrated baseline: Biomass CCI v7 pixel calibration of kielder; 3pg: calibrated baseline: Biomass CCI v7 pixel calibration of kielder",
+          "inventory": "National Forest Inventory Woodland GB 2024 and Forestry England Subcompartments, Forestry Commission open data. Contains, or is based on, information supplied by the Forestry Commission; Open Government Licence v3.0.",
+          "parameters": "yield_curve: calibrated baseline: Biomass CCI v7 pixel calibration of SS in kielder; 3pg: calibrated baseline: Biomass CCI v7 pixel calibration of SS in kielder",
           "assumptions": [
             "Calibrated on ESA Biomass CCI v7 only (no GEDI, ICESat-2, lidar or other satellite data).",
-            "Woodland mask derived from CCI v7 (median AGB 2015-2024 >= 20 or peak >= 60 Mg/ha), not the NFI map.",
-            "One dominant species per pilot landscape: Corsican pine (Thetford), Sitka spruce (Kielder).",
-            "3-PG climate: approximate 1991-2020 station climatology typed in per landscape, not HadUK-Grid.",
-            "SAR saturation and thinning bias CCI-calibrated productivity low relative to Forest Research yield classes."
+            "Woodland mask from the NFI woodland map GB 2024; species groups, planting years (stand ages) and Forestry England yield classes from the FE sub-compartment database. FE yield class is only an independent check, never used in calibration.",
+            "Pixels outside the FE estate take a species group from the NFI forest type (conifer, felled and young types: the landscape's dominant conifer; broadleaved types: mixed broadleaves).",
+            "3-PG climate: HadUK-Grid 1991-2020 monthly averages (Met Office portal, ~2 km and 12 km grids); radiation estimated from the diurnal temperature range (Hargreaves-Samani).",
+            "CCI v7 saturates at about 150 Mg/ha in these forests; calibration compares CCI with min(model AGB, 150). Each pixel is treated as an unthinned even-aged stand."
           ]
         }
       }
@@ -230,85 +232,550 @@
         "rows": [
           {
             "landscape": "kielder",
+            "species": "SS",
             "growth_model": "yield_curve",
-            "productivity_median": 5,
+            "productivity_median": 9,
             "holdout": {
-              "rmse_mg_ha": 42.5796,
-              "bias_mg_ha": 0.8555,
-              "r2": 0.2748,
-              "n": 13972
+              "rmse_mg_ha": 32.4733,
+              "bias_mg_ha": 0.9141,
+              "r2": 0.7851,
+              "n": 13146
             },
-            "pixels_excluded_for_harvest": 4,
+            "pixels_excluded_for_harvest": 122,
             "holdout_landscape_mean_observed": [
-              112.1042,
-              112.5907,
-              117.1874,
-              119.0701,
-              120.7069,
-              120.3878,
-              117.7445
+              80,
+              80.8307,
+              84.5362,
+              87.1683,
+              89.2556,
+              89.9207,
+              87.639
             ],
             "holdout_landscape_mean_model": [
-              109.8726,
-              112.6169,
-              115.337,
-              118.0295,
-              120.6914,
-              123.32,
-              125.9129
-            ]
+              78.7493,
+              81.5848,
+              84.3221,
+              86.8675,
+              89.2451,
+              91.4582,
+              93.5222
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 33.0743,
+              "bias_mg_ha": 2.4759,
+              "r2": 0.7729,
+              "n": 13972
+            }
           },
           {
             "landscape": "kielder",
+            "species": "SS",
+            "growth_model": "3pg",
+            "productivity_median": 0.25,
+            "holdout": {
+              "rmse_mg_ha": 31.2084,
+              "bias_mg_ha": 2.3983,
+              "r2": 0.8015,
+              "n": 13146
+            },
+            "pixels_excluded_for_harvest": 122,
+            "holdout_landscape_mean_observed": [
+              80,
+              80.8307,
+              84.5362,
+              87.1683,
+              89.2556,
+              89.9207,
+              87.639
+            ],
+            "holdout_landscape_mean_model": [
+              81.2,
+              83.6902,
+              86.0693,
+              88.295,
+              90.381,
+              92.3372,
+              94.1655
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 33.5156,
+              "bias_mg_ha": 2.1909,
+              "r2": 0.7668,
+              "n": 13972
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "NS",
+            "growth_model": "yield_curve",
+            "productivity_median": 5,
+            "holdout": {
+              "rmse_mg_ha": 30.0983,
+              "bias_mg_ha": 3.0756,
+              "r2": 0.7405,
+              "n": 11200
+            },
+            "pixels_excluded_for_harvest": 400,
+            "holdout_landscape_mean_observed": [
+              55.0594,
+              55.865,
+              58.8469,
+              61.7587,
+              65.3819,
+              68.0637,
+              67.1175
+            ],
+            "holdout_landscape_mean_model": [
+              56.0677,
+              58.9414,
+              61.8548,
+              64.7798,
+              67.7354,
+              70.6917,
+              73.5513
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 34.9085,
+              "bias_mg_ha": 13.119,
+              "r2": 0.6194,
+              "n": 13923
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "NS",
+            "growth_model": "3pg",
+            "productivity_median": 0.2,
+            "holdout": {
+              "rmse_mg_ha": 29.2409,
+              "bias_mg_ha": 3.9199,
+              "r2": 0.7551,
+              "n": 11200
+            },
+            "pixels_excluded_for_harvest": 400,
+            "holdout_landscape_mean_observed": [
+              55.0594,
+              55.865,
+              58.8469,
+              61.7587,
+              65.3819,
+              68.0637,
+              67.1175
+            ],
+            "holdout_landscape_mean_model": [
+              57.6867,
+              60.4813,
+              63.2106,
+              65.8451,
+              68.3507,
+              70.7981,
+              73.1598
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 35.7317,
+              "bias_mg_ha": 13.6175,
+              "r2": 0.6012,
+              "n": 13923
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "MB",
+            "growth_model": "yield_curve",
+            "productivity_median": 3,
+            "holdout": {
+              "rmse_mg_ha": 23.4228,
+              "bias_mg_ha": 7.7081,
+              "r2": 0.7263,
+              "n": 13223
+            },
+            "pixels_excluded_for_harvest": 59,
+            "holdout_landscape_mean_observed": [
+              22.846,
+              23.3298,
+              23.4378,
+              25.7014,
+              26.6104,
+              25.5881,
+              26.676
+            ],
+            "holdout_landscape_mean_model": [
+              27.2753,
+              28.9303,
+              30.6635,
+              32.4634,
+              34.3258,
+              36.2473,
+              38.2406
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 18.0359,
+              "bias_mg_ha": 6.842,
+              "r2": 0.8406,
+              "n": 13615
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "MB",
+            "growth_model": "3pg",
+            "productivity_median": 0.25,
+            "holdout": {
+              "rmse_mg_ha": 18.8495,
+              "bias_mg_ha": 4.3677,
+              "r2": 0.8227,
+              "n": 13223
+            },
+            "pixels_excluded_for_harvest": 59,
+            "holdout_landscape_mean_observed": [
+              22.846,
+              23.3298,
+              23.4378,
+              25.7014,
+              26.6104,
+              25.5881,
+              26.676
+            ],
+            "holdout_landscape_mean_model": [
+              25.3885,
+              26.6626,
+              27.9639,
+              29.26,
+              30.5535,
+              31.8366,
+              33.0984
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 18.0476,
+              "bias_mg_ha": 0.8279,
+              "r2": 0.8404,
+              "n": 13615
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "BI",
+            "growth_model": "yield_curve",
+            "productivity_median": 3,
+            "holdout": {
+              "rmse_mg_ha": 34.9468,
+              "bias_mg_ha": 17.0696,
+              "r2": 0.5463,
+              "n": 1813
+            },
+            "pixels_excluded_for_harvest": 546,
+            "holdout_landscape_mean_observed": [
+              29.5019,
+              31.2471,
+              30.5907,
+              32.749,
+              34.2973,
+              32.3977,
+              33.417
+            ],
+            "holdout_landscape_mean_model": [
+              44.0401,
+              45.6119,
+              47.2622,
+              48.9843,
+              50.7701,
+              52.5886,
+              54.4309
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 47.5265,
+              "bias_mg_ha": 30.7731,
+              "r2": -0.0726,
+              "n": 5621
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "BI",
+            "growth_model": "3pg",
+            "productivity_median": 0.4,
+            "holdout": {
+              "rmse_mg_ha": 20.7861,
+              "bias_mg_ha": 0.8229,
+              "r2": 0.8395,
+              "n": 1813
+            },
+            "pixels_excluded_for_harvest": 546,
+            "holdout_landscape_mean_observed": [
+              29.5019,
+              31.2471,
+              30.5907,
+              32.749,
+              34.2973,
+              32.3977,
+              33.417
+            ],
+            "holdout_landscape_mean_model": [
+              29.1278,
+              30.2506,
+              31.452,
+              32.7342,
+              34.0727,
+              35.4607,
+              36.8629
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 44.9914,
+              "bias_mg_ha": 23.5643,
+              "r2": 0.0388,
+              "n": 5621
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "LP",
+            "growth_model": "yield_curve",
+            "productivity_median": 3,
+            "holdout": {
+              "rmse_mg_ha": 37.4589,
+              "bias_mg_ha": 0.9211,
+              "r2": 0.6538,
+              "n": 4599
+            },
+            "pixels_excluded_for_harvest": 19,
+            "holdout_landscape_mean_observed": [
+              74.2527,
+              81.0502,
+              82.0426,
+              81.6575,
+              89.9346,
+              94.0137,
+              88.9787
+            ],
+            "holdout_landscape_mean_model": [
+              80.702,
+              82.3047,
+              83.9097,
+              85.5116,
+              87.0966,
+              88.6607,
+              90.192
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 31.44,
+              "bias_mg_ha": 2.5843,
+              "r2": 0.7534,
+              "n": 4732
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "LP",
+            "growth_model": "3pg",
+            "productivity_median": 0.1,
+            "holdout": {
+              "rmse_mg_ha": 30.5433,
+              "bias_mg_ha": -1.0947,
+              "r2": 0.7698,
+              "n": 4599
+            },
+            "pixels_excluded_for_harvest": 19,
+            "holdout_landscape_mean_observed": [
+              74.2527,
+              81.0502,
+              82.0426,
+              81.6575,
+              89.9346,
+              94.0137,
+              88.9787
+            ],
+            "holdout_landscape_mean_model": [
+              78.2359,
+              80.0319,
+              81.8054,
+              83.5481,
+              85.2454,
+              86.8998,
+              88.5008
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 32.5907,
+              "bias_mg_ha": 4.1179,
+              "r2": 0.735,
+              "n": 4732
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "SP",
+            "growth_model": "yield_curve",
+            "productivity_median": 4.5,
+            "holdout": {
+              "rmse_mg_ha": 42.1507,
+              "bias_mg_ha": 5.2394,
+              "r2": 0.489,
+              "n": 3752
+            },
+            "pixels_excluded_for_harvest": 106,
+            "holdout_landscape_mean_observed": [
+              61.3172,
+              62.1045,
+              65.1325,
+              70.2127,
+              73.1884,
+              74.4851,
+              74.7537
+            ],
+            "holdout_landscape_mean_model": [
+              66.186,
+              68.8408,
+              71.5056,
+              74.0853,
+              76.6444,
+              79.1332,
+              81.4744
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 35.006,
+              "bias_mg_ha": 7.6572,
+              "r2": 0.6218,
+              "n": 4487
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "SP",
+            "growth_model": "3pg",
+            "productivity_median": 0.1,
+            "holdout": {
+              "rmse_mg_ha": 37.8397,
+              "bias_mg_ha": -2.6396,
+              "r2": 0.5881,
+              "n": 3752
+            },
+            "pixels_excluded_for_harvest": 106,
+            "holdout_landscape_mean_observed": [
+              61.3172,
+              62.1045,
+              65.1325,
+              70.2127,
+              73.1884,
+              74.4851,
+              74.7537
+            ],
+            "holdout_landscape_mean_model": [
+              59.2174,
+              61.6007,
+              63.9605,
+              66.2717,
+              68.4749,
+              70.5755,
+              72.6159
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 34.4926,
+              "bias_mg_ha": 7.3549,
+              "r2": 0.6328,
+              "n": 4487
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "DF",
+            "growth_model": "yield_curve",
+            "productivity_median": 6,
+            "holdout": {
+              "rmse_mg_ha": 31.6799,
+              "bias_mg_ha": 0.0744,
+              "r2": 0.7363,
+              "n": 1414
+            },
+            "pixels_excluded_for_harvest": 236,
+            "holdout_landscape_mean_observed": [
+              66.2129,
+              66.4752,
+              68.4802,
+              72.3465,
+              77.8663,
+              80.5842,
+              80.6485
+            ],
+            "holdout_landscape_mean_model": [
+              64.0879,
+              67.0538,
+              70.0516,
+              73.1104,
+              76.2805,
+              79.5803,
+              82.9702
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 50.8692,
+              "bias_mg_ha": 25.7888,
+              "r2": 0.0348,
+              "n": 3066
+            }
+          },
+          {
+            "landscape": "kielder",
+            "species": "DF",
             "growth_model": "3pg",
             "productivity_median": 0.15,
             "holdout": {
-              "rmse_mg_ha": 43.6841,
-              "bias_mg_ha": 1.7807,
-              "r2": 0.2367,
-              "n": 13972
+              "rmse_mg_ha": 30.5893,
+              "bias_mg_ha": 1.2386,
+              "r2": 0.7541,
+              "n": 1414
             },
-            "pixels_excluded_for_harvest": 4,
+            "pixels_excluded_for_harvest": 236,
             "holdout_landscape_mean_observed": [
-              112.1042,
-              112.5907,
-              117.1874,
-              119.0701,
-              120.7069,
-              120.3878,
-              117.7445
+              66.2129,
+              66.4752,
+              68.4802,
+              72.3465,
+              77.8663,
+              80.5842,
+              80.6485
             ],
             "holdout_landscape_mean_model": [
-              110.385,
-              113.2381,
-              116.0823,
-              118.9165,
-              121.7396,
-              124.5503,
-              127.3446
-            ]
+              65.5579,
+              68.4787,
+              71.4362,
+              74.4108,
+              77.4253,
+              80.4548,
+              83.5206
+            ],
+            "holdout_free_age": {
+              "rmse_mg_ha": 53.5732,
+              "bias_mg_ha": 28.9358,
+              "r2": -0.0705,
+              "n": 3066
+            }
           }
         ],
         "better_model": {
-          "kielder": "yield_curve"
+          "kielder/SS": "3pg",
+          "kielder/NS": "3pg",
+          "kielder/MB": "3pg",
+          "kielder/BI": "3pg",
+          "kielder/LP": "3pg",
+          "kielder/SP": "3pg",
+          "kielder/DF": "3pg"
         },
-        "method": "Pixel-by-pixel fit of productivity and age on a fixed sample of 2000 woodland pixels per landscape; scores are over pixel-years in the hold-out period.",
+        "method": "Pixel-by-pixel fit of productivity (and age where the inventory has no planting year) on a fixed sample of up to 2000 woodland pixels per species group, comparing CCI with min(model AGB, saturation level); scores are over pixel-years in the hold-out period.",
         "provenance": {
-          "model": "DT4 forest biomass twin 0.1.0",
+          "model": "DT4 forest biomass twin 0.2.0",
           "observations": "ESA Biomass CCI v7.0 (100 m AGB and SD), https://catalogue.ceda.ac.uk/uuid/6429d1aafe1e43b9b414e4a5a7f8b903",
           "citation": "Santoro, M.; Cartus, O. (2026): ESA Biomass Climate Change Initiative (Biomass_cci): Global datasets of forest above-ground biomass for the years 2005-2012 and 2015-2024, v7.0. NERC EDS Centre for Environmental Data Analysis.",
           "licence": "ESA CCI Biomass terms and conditions v2: free and open, citation required",
+          "inventory": "National Forest Inventory Woodland GB 2024 and Forestry England Subcompartments, Forestry Commission open data. Contains, or is based on, information supplied by the Forestry Commission; Open Government Licence v3.0.",
           "parameters": "shipped calibration (scripts/calibrate_pilots.py)",
           "assumptions": [
             "Calibrated on ESA Biomass CCI v7 only (no GEDI, ICESat-2, lidar or other satellite data).",
-            "Woodland mask derived from CCI v7 (median AGB 2015-2024 >= 20 or peak >= 60 Mg/ha), not the NFI map.",
-            "One dominant species per pilot landscape: Corsican pine (Thetford), Sitka spruce (Kielder).",
-            "3-PG climate: approximate 1991-2020 station climatology typed in per landscape, not HadUK-Grid.",
-            "SAR saturation and thinning bias CCI-calibrated productivity low relative to Forest Research yield classes."
+            "Woodland mask from the NFI woodland map GB 2024; species groups, planting years (stand ages) and Forestry England yield classes from the FE sub-compartment database. FE yield class is only an independent check, never used in calibration.",
+            "Pixels outside the FE estate take a species group from the NFI forest type (conifer, felled and young types: the landscape's dominant conifer; broadleaved types: mixed broadleaves).",
+            "3-PG climate: HadUK-Grid 1991-2020 monthly averages (Met Office portal, ~2 km and 12 km grids); radiation estimated from the diurnal temperature range (Hargreaves-Samani).",
+            "CCI v7 saturates at about 150 Mg/ha in these forests; calibration compares CCI with min(model AGB, 150). Each pixel is treated as an unthinned even-aged stand."
           ]
         }
       }
     }
   ],
-  "answer": "I ran three dt4 calls: `get_agb` for Kielder in 2024, `management_scenario` for Kielder over 40 years with both growth models and all four regimes, and `validate` for Kielder.\n\n## 1. Kielder above-ground biomass in 2024 (ESA Biomass CCI v7, role: observed stock)\n\n| | Value |\n|---|---|\n| Mean AGB | **116.8 Mg/ha** (\u00b1 18.0 Mg/ha SD of the area mean) |\n| 90 % range of the mean | **87.3 \u2013 146.3 Mg/ha** |\n| Woodland area | 18,979 ha (33,969 pixels of 100 m) |\n| Total AGB | **\u2248 2.22 Mt dry matter** (2,216,622 Mg) |\n\nThat uncertainty is for the landscape mean. Single pixels vary much more: the average per-pixel SD is 59.6 Mg/ha, and 80 % of pixels fall between 35 and 178 Mg/ha. Scaling the 90 % range by the area gives a total of about **1.66 \u2013 2.78 Mt**. That is my own multiplication, not a tool output.\n\n## 2. Which regime removes the most CO2 over 40 years (2024\u20132064)\n\nThe model's \"typical stand\" is Sitka spruce, aged 50, starting at the 2024 CCI value of 116.8 Mg/ha. Negative numbers mean CO2 taken out of the atmosphere. Each figure is the cumulative net t CO2/ha with its 90 % range.\n\n| Regime | Yield curve | 3-PG |\n|---|---|---|\n| Continuous cover | **\u2212277.9** (\u2212603.4 to \u22120.8) | \u2212141.2 (\u2212401.0 to +46.9) |\n| No intervention | \u2212239.3 (\u2212342.3 to \u2212138.8) | **\u2212183.2** (\u2212408.3 to \u221237.4) |\n| Clearfell, no thinning | \u2212114.2 (\u2212368.0 to +104.9) | \u221286.4 (\u2212346.3 to +142.6) |\n| Thin and fell | \u221219.4 (\u2212205.5 to +133.3) | \u221225.7 (\u2212240.1 to +161.9) |\n\n- **Yield-curve model: continuous cover is best**, at about \u2212278 t CO2/ha, or \u22126.95 t CO2/ha/yr. It ends with 140.0 t C/ha, of which 22.1 t C/ha is in wood products.\n- **3-PG: no intervention is best**, at about \u2212183 t CO2/ha, or \u22124.58 t CO2/ha/yr. It ends with 129.0 t C/ha.\n\nThe two models disagree on the winner, and in both the top two regimes' 90 % ranges overlap a lot. The firm result is that both models agree on the bottom of the list. Under each model, the regimes that keep more standing biomass remove the most CO2, and the two clearfell regimes remove the least. Thin and fell removes almost nothing net over 40 years. These are management scenarios (role: response), not observations.\n\n## 3. Which model predicted the 2018\u20132024 hold-out years better\n\nBoth models were fitted on CCI data for 2005\u20132017 and scored on 2018\u20132024. The score covers 13,972 pixel-years; 4 pixels felled in that period were left out.\n\n| | RMSE | Bias | R\u00b2 |\n|---|---|---|---|\n| **Yield curve** | **42.6 Mg/ha** | **+0.86** | **0.275** |\n| 3-PG | 43.7 Mg/ha | +1.78 | 0.237 |\n\n**The yield-curve model did better**, but only just, and neither model explains much of the pixel-to-pixel variation. Both match the landscape mean well up to 2022: observed 120.7 Mg/ha, yield curve 120.7, 3-PG 121.7. Neither picks up the CCI dip afterwards. In 2024 the observed mean is 117.7 Mg/ha, against 125.9 for the yield curve and 127.3 for 3-PG.\n\n## Limits to keep in mind\n- Both growth models were calibrated on CCI v7 alone, with no lidar or ground-plot data. The tool says radar saturation and thinning push the fitted productivity below Forest Research yield classes.\n- The woodland area comes from a CCI-derived mask, not the National Forest Inventory map. The model assumes a single species, Sitka spruce.\n- The 3-PG climate is an approximate long-term average typed in for Kielder, not gridded Met Office data."
+  "answer": "**Short answer:** Kielder held about **81 Mg/ha** of above-ground biomass in 2024 (90 % range 61\u2013102), roughly **2.16 Mt** in total. Over 40 years the yield-curve model favours **continuous cover** and 3-PG favours **no intervention**, though the two are close. **3-PG** predicted the 2018\u20132024 hold-out years slightly better for Sitka spruce, but the margin is small.\n\n## 1. Above-ground biomass in 2024 (ESA Biomass CCI v7, observed)\n\n| | Value |\n|---|---|\n| Mean AGB | **81.4 Mg/ha** |\n| Uncertainty of the mean | SD 12.5 Mg/ha; **90 % range 60.8\u2013101.9 Mg/ha** |\n| Woodland area | 26,521 ha (47,471 pixels of 100 m) |\n| **Total AGB** | **2.16 Mt dry matter** (about 1.61\u20132.70 Mt across the 90 % range, my own scaling) |\n\nThe \u00b112.5 Mg/ha is the uncertainty of the landscape mean. Individual pixels vary far more: the mean pixel SD is 41.5 Mg/ha and pixel values run from 0 to 172 Mg/ha (10th\u201390th percentile).\n\n## 2. Best management regime for CO\u2082 over 40 years\n\nThis is for a typical Sitka spruce stand: age 28, starting from the 2024 CCI value for spruce pixels of 86.8 Mg/ha. Figures are cumulative net CO\u2082 in t CO\u2082/ha, with the 90 % range in brackets; negative means CO\u2082 removed from the atmosphere.\n\n| Regime | Yield curve | 3-PG |\n|---|---|---|\n| Continuous cover | **\u2212524** (\u22121274 to \u221246) \u2705 best | \u2212411 (\u2212972 to \u221254) |\n| No intervention | \u2212490 (\u2212937 to \u2212154) | **\u2212496** (\u22121059 to \u2212137) \u2705 best |\n| Clearfell, no thinning | \u2212206 (\u2212549 to +41) | \u2212213 (\u2212598 to +54) |\n| Thin and fell | \u2212143 (\u2212440 to +80) | \u2212169 (\u2212538 to +89) |\n\n- **Yield-curve model:** continuous cover removes the most, about 13.1 t CO\u2082/ha/yr, and ends with 185 t C/ha including 25 t C/ha in wood products.\n- **3-PG:** no intervention removes the most, about 12.4 t CO\u2082/ha/yr, and ends with 189 t C/ha.\n- **How firm this is:** the winner depends on the model, and the top two regimes are within about 35 t CO\u2082/ha of each other in the yield-curve model and 85 in 3-PG, with heavily overlapping ranges. The firm result is that both models put continuous cover and no intervention well ahead of the clearfell regimes. The clearfell regimes' ranges reach net emission (positive values).\n- **Caveat on the projections:** unmanaged biomass is projected to reach 240\u2013281 Mg/ha. CCI v7 saturates at about 150 Mg/ha in these forests, so the satellite data cannot check biomass that high.\n- These are management scenarios, not observations.\n\n## 3. Which model predicted 2018\u20132024 better?\n\nBoth models were fitted on 2005\u20132017 and scored on 2018\u20132024; 122 harvested pixels were left out. For Sitka spruce, Kielder's dominant species:\n\n| Model | RMSE | Bias | R\u00b2 |\n|---|---|---|---|\n| **3-PG** | **31.2 Mg/ha** | +2.40 | **0.80** |\n| Yield curve | 32.5 Mg/ha | **+0.91** | 0.79 |\n\n3-PG wins on RMSE and R\u00b2 for Sitka spruce and for all 7 Kielder species groups. The gap is largest for birch (RMSE 20.8 vs 34.9) and mixed broadleaves (18.8 vs 23.4).\n\nThree things weaken the Sitka spruce result:\n- **Bias:** the yield curve has the lower bias.\n- **Ages fitted from CCI instead of the inventory:** the yield curve does slightly better (RMSE 33.1 vs 33.5).\n- **The 2024 dip:** observed biomass fell from 89.9 to 87.6 Mg/ha in 2024. Neither model caught it; both overshoot (yield curve 93.5, 3-PG 94.2).\n\nSo 3-PG is the better model for Sitka spruce, but only marginally.\n\nAll results are calibrated on ESA Biomass CCI v7 alone (no lidar or GEDI), with stand ages and species from the Forestry England sub-compartment database."
 }

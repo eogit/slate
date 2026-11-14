@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-MODEL_VERSION = "0.1.0"
+MODEL_VERSION = "0.2.0"
 GROWTH_MODELS = ("yield_curve", "3pg")
 
 

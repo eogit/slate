@@ -5,11 +5,13 @@ biomass (AGB, Mg dry matter ha-1) and its per-pixel standard deviation (SD) on t
 100 m grid (0.000888 degrees, EPSG:4326) for 2005-2012 and 2015-2024. There are no maps for
 2013 and 2014. They were cut from the CEDA archive by ``scripts/extract_cci_pilots.py``.
 
-Woodland mask. On Heiko's instruction DT4 uses Biomass CCI v7 only, so the woodland mask is
-also derived from CCI rather than the NFI woodland map: a pixel is woodland if its median
-AGB over 2015-2024 is at least ``WOODLAND_MEDIAN_MG_HA`` (20 Mg/ha) or it held at least
-``WOODLAND_PEAK_MG_HA`` (60 Mg/ha) in any year, which keeps recently felled stands in the
-mask. This is an assumption to revisit when the NFI map is brought in.
+Woodland mask. The woodland mask comes from the National Forest Inventory woodland map GB
+2024 (pixels whose centre lies in an NFI polygon of category "Woodland", which includes
+felled and young stands), rasterised onto the CCI grid by ``scripts/extract_inventory.py``.
+The map only defines *where* the woodland is; it is not used for calibration. If the
+inventory file is missing, a CCI-only mask is used instead: a pixel is woodland if its
+median AGB over 2015-2024 is at least ``WOODLAND_MEDIAN_MG_HA`` (20 Mg/ha) or it held at
+least ``WOODLAND_PEAK_MG_HA`` (60 Mg/ha) in any year. ``Cube.woodland_source`` says which.
 
 Uncertainty of area means. CCI per-pixel errors are spatially correlated, so averaging *n*
 pixels does not shrink the error by sqrt(n). DT4 uses an effective sample size
@@ -50,6 +52,7 @@ WOODLAND_MEDIAN_MG_HA = 20.0
 WOODLAND_PEAK_MG_HA = 60.0
 CORRELATION_PIXELS = 25.0
 SYSTEMATIC_FRACTION = 0.30
+SATURATION_MG_HA = 150.0    # CCI v7 plateau in the pilot conifer stands (calibration.py)
 SD_FLOOR_MG_HA = 10.0      # minimum observation error used in fitting
 Z90 = 1.6449               # two-sided 90 % interval / one-sided 95 % test
 
@@ -64,6 +67,7 @@ class Cube:
     years: tuple[int, ...]
     transform: tuple[float, ...]  # affine (a, b, c, d, e, f): lon = c + a*col, lat = f + e*row
     woodland: np.ndarray          # (row, col) bool
+    woodland_source: str = "NFI woodland GB 2024"
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -105,10 +109,17 @@ def load(key: str) -> Cube:
     sd = d["agb_sd"].astype(float)
     years = tuple(int(y) for y in d["years"])
     post = np.array([y >= EPOCH_BREAK[1] for y in years])
-    woodland = (np.median(agb[post], axis=0) >= WOODLAND_MEDIAN_MG_HA) | \
-               (agb.max(axis=0) >= WOODLAND_PEAK_MG_HA)
+    inv_path = DATA_DIR / f"{key}_inventory.npz"
+    if inv_path.exists():
+        woodland = np.load(inv_path)["nfi_woodland"].astype(bool)
+        source = "NFI woodland GB 2024"
+    else:
+        woodland = (np.median(agb[post], axis=0) >= WOODLAND_MEDIAN_MG_HA) | \
+                   (agb.max(axis=0) >= WOODLAND_PEAK_MG_HA)
+        source = "CCI v7 (median AGB 2015-2024 >= 20 or peak >= 60 Mg/ha)"
     return Cube(key=key, agb=agb, sd=sd, years=years,
-                transform=tuple(float(x) for x in d["transform"]), woodland=woodland)
+                transform=tuple(float(x) for x in d["transform"]), woodland=woodland,
+                woodland_source=source)
 
 
 # --------------------------------------------------------------------------- #

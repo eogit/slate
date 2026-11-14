@@ -5,6 +5,9 @@ with ESA Biomass CCI v7 (the only data it is calibrated against), grows stands f
 two interchangeable growth models, empirical yield curves and the process-based 3-PG model,
 applies management and disturbance scenarios, and keeps the carbon books (living biomass,
 deadwood, litter, harvested wood products). Pilot landscapes: Thetford and Kielder.
+Woodland, species and stand ages come from the National Forest Inventory woodland map and
+the Forestry England sub-compartment database; climate for 3-PG from HadUK-Grid 1991-2020.
+Every species group recorded in a pilot forest is calibrated to CCI v7 on its own.
 
 An orchestrator (or any MCP client) can launch it over stdio:
 
@@ -40,17 +43,22 @@ from forest import carbon as m_c  # noqa: E402
 from forest import cci  # noqa: E402
 from forest import change as m_chg  # noqa: E402
 from forest import disturbance as m_dist  # noqa: E402
+from forest import inventory as m_inv  # noqa: E402
 from forest import landscapes as m_ls  # noqa: E402
 from forest import management as m_mg  # noqa: E402
 from forest import scenario as m_sc  # noqa: E402
 from forest import species as m_sp  # noqa: E402
-from forest.state import ParameterStore, calibration as shipped_calibration  # noqa: E402
+from forest.state import ParameterStore, calibrated_species  # noqa: E402
+from forest.state import calibration as shipped_calibration  # noqa: E402
 
 VERSION = MODEL_VERSION
 store = ParameterStore(os.environ.get("DT4_STATE_FILE") or None)
 
 LandscapeKey = Literal["thetford", "kielder"]
-SpeciesCode = Literal["SS", "CP", "SP", "OK"]
+SpeciesCode = Literal["SS", "NS", "CP", "SP", "LP", "DF", "LA", "OK", "BE", "BI", "MB"]
+SPECIES_HELP = ("DT4 species group: SS Sitka spruce, NS Norway and other spruces, CP Corsican "
+                "pine, SP Scots pine, LP lodgepole pine, DF Douglas fir and other conifers, LA "
+                "larches, OK oak, BE beech, BI birch, MB mixed broadleaves.")
 ModelName = Literal["yield_curve", "3pg"]
 ModelChoice = Literal["yield_curve", "3pg", "both"]
 RegimeName = Literal["no_intervention", "thin_and_fell", "clearfell_no_thin", "continuous_cover"]
@@ -62,10 +70,16 @@ Site = Annotated[str, Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.
 
 ASSUMPTIONS = [
     "Calibrated on ESA Biomass CCI v7 only (no GEDI, ICESat-2, lidar or other satellite data).",
-    "Woodland mask derived from CCI v7 (median AGB 2015-2024 >= 20 or peak >= 60 Mg/ha), not the NFI map.",
-    "One dominant species per pilot landscape: Corsican pine (Thetford), Sitka spruce (Kielder).",
-    "3-PG climate: approximate 1991-2020 station climatology typed in per landscape, not HadUK-Grid.",
-    "SAR saturation and thinning bias CCI-calibrated productivity low relative to Forest Research yield classes.",
+    "Woodland mask from the NFI woodland map GB 2024; species groups, planting years (stand "
+    "ages) and Forestry England yield classes from the FE sub-compartment database. FE yield "
+    "class is only an independent check, never used in calibration.",
+    "Pixels outside the FE estate take a species group from the NFI forest type (conifer, "
+    "felled and young types: the landscape's dominant conifer; broadleaved types: mixed "
+    "broadleaves).",
+    "3-PG climate: HadUK-Grid 1991-2020 monthly averages (Met Office portal, ~2 km and 12 km "
+    "grids); radiation estimated from the diurnal temperature range (Hargreaves-Samani).",
+    "CCI v7 saturates at about 150 Mg/ha in these forests; calibration compares CCI with "
+    "min(model AGB, 150). Each pixel is treated as an unthinned even-aged stand.",
 ]
 
 
@@ -74,6 +88,7 @@ class Provenance(BaseModel):
     observations: str = f"ESA Biomass CCI v{cci.CCI_VERSION} (100 m AGB and SD), {cci.CATALOGUE}"
     citation: str = cci.CITATION
     licence: str = cci.LICENCE
+    inventory: str = m_inv.NFI_CITATION
     parameters: str = Field(default="", description="Where the productivity came from.")
     assumptions: list[str] = Field(default_factory=lambda: list(ASSUMPTIONS))
 
@@ -100,8 +115,10 @@ server = MCPServer(
         "DT4 forest biomass agent: above-ground biomass (AGB) and carbon of British woodland, "
         "observed with ESA Biomass CCI v7 (100 m, 2005-2012 and 2015-2024) and projected with "
         "two growth models (empirical yield curves and the 3-PG process model) under "
-        "management and disturbance scenarios. Pilot landscapes: thetford (Corsican pine) and "
-        "kielder (Sitka spruce). Results carry uncertainty (90 % ranges) and an EBCF role: "
+        "management and disturbance scenarios. Pilot landscapes: thetford (mainly Corsican "
+        "pine) and kielder (mainly Sitka spruce); every species group in the Forestry England "
+        "sub-compartment database is modelled and calibrated separately (forest_inventory "
+        "lists them). Results carry uncertainty (90 % ranges) and an EBCF role: "
         "'state' (observed stock), 'impact' (observed change), 'pressure' (attributed cause, "
         "only with evidence) or 'response' (management scenario, not an observation). "
         "Sign convention: positive flux = emission to the atmosphere."),
@@ -113,10 +130,20 @@ def _area(spec: AreaSpec | None) -> cci.Area:
     return spec.to_area() if spec else cci.Area()
 
 
-def _mask(landscape: str, spec: AreaSpec | None):
+def _mask(landscape: str, spec: AreaSpec | None, species: str | None = None):
+    """CCI cube, woodland mask of the area (optionally one species group) and the area."""
     cube = cci.load(landscape)
     area = _area(spec)
-    return cube, cci.select(cube, area), area
+    mask = cci.select(cube, area)
+    if species:
+        mask = mask & (m_inv.load(landscape).species == species)
+        if not mask.any():
+            raise ValueError(f"no {species} woodland pixels in {area.describe()} of {landscape}")
+    return cube, mask, area
+
+
+SpeciesFilter = Annotated[SpeciesCode | None, Field(description=(
+    "Only the woodland pixels of this species group (from the inventory). " + SPECIES_HELP))]
 
 
 # --------------------------------------------------------------------------- #
@@ -175,6 +202,7 @@ class ModelSkill(BaseModel):
 
 
 class CalibrationSummary(BaseModel):
+    species: str
     growth_model: str
     productivity_name: str
     productivity_median: float
@@ -183,6 +211,26 @@ class CalibrationSummary(BaseModel):
     stand_age_median_2024: float
     fit_all_years: ModelSkill
     holdout_2018_2024: ModelSkill | None = None
+    holdout_2018_2024_free_age: ModelSkill | None = Field(default=None, description=(
+        "Hold-out skill when stand ages are fitted from CCI instead of taken from the inventory."))
+    fe_yield_class_median: float | None = Field(default=None, description=(
+        "Forestry England yield class of the same pixels (independent check, not fitted)."))
+    fe_yield_class_pearson_r: float | None = None
+
+
+class SpeciesShare(BaseModel):
+    species: str
+    name: str
+    area_ha: float
+    share: float
+    recorded_share: float = Field(description="Share of the pixels whose species comes from a "
+                                              "sub-compartment record (rest from NFI forest type).")
+    age_median: float | None
+    age_p25: float | None
+    age_p75: float | None
+    fe_yield_class_median: float | None
+    n_pixels: int
+    calibrated: bool
 
 
 class LandscapeInfo(BaseModel):
@@ -193,6 +241,8 @@ class LandscapeInfo(BaseModel):
     dominant_species: str
     woodland_area_ha: float
     woodland_pixels: int
+    woodland_source: str
+    composition: list[SpeciesShare]
     cci_years: list[int]
     annual_rain_mm: float
     mean_temperature_c: float
@@ -206,26 +256,43 @@ class LandscapeList(BaseModel):
     provenance: Provenance
 
 
+def _skill(h: dict | None) -> ModelSkill | None:
+    return ModelSkill(**{k: h[k] for k in ("rmse_mg_ha", "bias_mg_ha", "r2", "n")}) if h else None
+
+
 def _cal_summaries(key: str) -> list[CalibrationSummary]:
     out = []
-    for name in GROWTH_MODELS:
-        entry = shipped_calibration().get(key, {}).get(name)
-        if not entry:
-            continue
-        c, v = entry["calibration"], entry["validation"]
-        h = v.get("holdout")
-        out.append(CalibrationSummary(
-            growth_model=name, productivity_name=c["productivity_name"],
-            productivity_median=c["theta_median"], productivity_p25=c["theta_p25"],
-            productivity_p75=c["theta_p75"], stand_age_median_2024=c["age_median_last_cci_year"],
-            fit_all_years=ModelSkill(**c["fit"]),
-            holdout_2018_2024=ModelSkill(**{k: h[k] for k in ("rmse_mg_ha", "bias_mg_ha", "r2", "n")})
-            if h else None))
+    for code, models in shipped_calibration().get(key, {}).get("species", {}).items():
+        for name in GROWTH_MODELS:
+            entry = models.get(name)
+            if not entry:
+                continue
+            c, v = entry["calibration"], entry["validation"]
+            fe = c.get("fe_yield_class_check", {})
+            out.append(CalibrationSummary(
+                species=code, growth_model=name, productivity_name=c["productivity_name"],
+                productivity_median=c["theta_median"], productivity_p25=c["theta_p25"],
+                productivity_p75=c["theta_p75"],
+                stand_age_median_2024=c["age_median_last_cci_year"],
+                fit_all_years=ModelSkill(**c["fit"]), holdout_2018_2024=_skill(v.get("holdout")),
+                holdout_2018_2024_free_age=_skill(entry["validation_free_age"].get("holdout")),
+                fe_yield_class_median=fe.get("fe_median"),
+                fe_yield_class_pearson_r=fe.get("pearson_r")))
     return out
 
 
-@server.tool(description="List the pilot landscapes with their woodland area, CCI v7 years, "
-                         "climate and the CCI calibration of both growth models.")
+def _composition(key: str, mask=None) -> list[SpeciesShare]:
+    cube = cci.load(key)
+    inv = m_inv.load(key)
+    mask = cube.woodland if mask is None else mask
+    cal = set(calibrated_species(key))
+    return [SpeciesShare(name=m_sp.get(r["species"]).name, calibrated=r["species"] in cal, **r)
+            for r in m_inv.composition(inv, mask, cube.pixel_area_ha(), cube.years[-1])]
+
+
+@server.tool(description="List the pilot landscapes with their woodland area, species "
+                         "composition, CCI v7 years, climate and the CCI calibration of both "
+                         "growth models for every species group.")
 def list_landscapes() -> LandscapeList:
     items = []
     for key, ls in m_ls.LANDSCAPES.items():
@@ -234,11 +301,39 @@ def list_landscapes() -> LandscapeList:
             key=key, name=ls.name, description=ls.description, bbox_wsen=list(ls.bbox),
             dominant_species=ls.species,
             woodland_area_ha=float(cube.pixel_area_ha()[cube.woodland].sum()),
-            woodland_pixels=int(cube.woodland.sum()), cci_years=list(cube.years),
+            woodland_pixels=int(cube.woodland.sum()), woodland_source=cube.woodland_source,
+            composition=_composition(key), cci_years=list(cube.years),
             annual_rain_mm=ls.climate.annual_rain_mm, mean_temperature_c=ls.climate.mean_temp_c,
             climate_source=ls.climate.source, calibration=_cal_summaries(key),
             notes=list(ls.notes)))
     return LandscapeList(landscapes=items, provenance=Provenance(parameters="shipped calibration"))
+
+
+class InventoryResult(BaseModel):
+    landscape: str
+    area: str
+    year_of_ages: int
+    woodland_area_ha: float
+    composition: list[SpeciesShare]
+    calibration: list[CalibrationSummary] = Field(description=(
+        "CCI v7 calibration of each species group over the whole landscape."))
+    sources: str = m_inv.NFI_CITATION
+    ebcf_role: str = "state"
+    provenance: Provenance
+
+
+@server.tool(description=(
+    "Forest inventory of a landscape or area: woodland area by species group with stand ages "
+    "(from Forestry England planting years) and Forestry England yield class, plus the CCI v7 "
+    "calibrated productivity of each species group and how it compares with that yield class."))
+def forest_inventory(landscape: LandscapeKey, area: AreaSpec | None = None) -> InventoryResult:
+    cube, mask, a = _mask(landscape, area)
+    comp = _composition(landscape, mask)
+    return InventoryResult(
+        landscape=landscape, area=a.describe(), year_of_ages=cube.years[-1],
+        woodland_area_ha=float(sum(r.area_ha for r in comp)), composition=comp,
+        calibration=_cal_summaries(landscape),
+        provenance=Provenance(parameters="shipped calibration (scripts/calibrate_pilots.py)"))
 
 
 # --------------------------------------------------------------------------- #
@@ -265,8 +360,9 @@ class AGBResult(BaseModel):
 @server.tool(description=(
     "Observed above-ground biomass (Mg/ha) of the woodland in a landscape, or part of it, in "
     "one year from Biomass CCI v7, with the uncertainty of the area mean and the woodland area."))
-def get_agb(landscape: LandscapeKey, year: CCIYear, area: AreaSpec | None = None) -> AGBResult:
-    cube, mask, a = _mask(landscape, area)
+def get_agb(landscape: LandscapeKey, year: CCIYear, area: AreaSpec | None = None,
+            species: SpeciesFilter = None) -> AGBResult:
+    cube, mask, a = _mask(landscape, area, species)
     st = cci.area_stats(cube, year, mask)
     return AGBResult(landscape=landscape, area=a.describe(), provenance=Provenance(
         parameters="observation only"), **st)
@@ -295,8 +391,9 @@ class TimeseriesResult(BaseModel):
 
 @server.tool(description="Annual CCI v7 AGB of a landscape or area for every year with a map "
                          "(2005-2012, 2015-2024), with uncertainty and the 2015-2024 trend.")
-def agb_timeseries(landscape: LandscapeKey, area: AreaSpec | None = None) -> TimeseriesResult:
-    cube, mask, a = _mask(landscape, area)
+def agb_timeseries(landscape: LandscapeKey, area: AreaSpec | None = None,
+                   species: SpeciesFilter = None) -> TimeseriesResult:
+    cube, mask, a = _mask(landscape, area, species)
     rows = [cci.area_stats(cube, y, mask) for y in cube.years]
     post = [(r["year"], r["agb_mean_mg_ha"]) for r in rows if r["year"] >= 2015]
     slope = float(np.polyfit([p[0] for p in post], [p[1] for p in post], 1)[0])
@@ -331,11 +428,11 @@ class CarbonStockResult(BaseModel):
 
 @server.tool(description="Living biomass carbon (above- and below-ground) of a landscape or "
                          "area in a CCI year, per hectare and in total, in t C and t CO2e.")
-def carbon_stock(landscape: LandscapeKey, year: CCIYear,
-                 area: AreaSpec | None = None) -> CarbonStockResult:
-    cube, mask, a = _mask(landscape, area)
+def carbon_stock(landscape: LandscapeKey, year: CCIYear, area: AreaSpec | None = None,
+                 species: SpeciesFilter = None) -> CarbonStockResult:
+    cube, mask, a = _mask(landscape, area, species)
     i = cube.year_index(year)
-    conifer = m_sp.get(m_ls.get(landscape).species).conifer
+    conifer = m_sp.get(species or m_ls.get(landscape).species).conifer
     agb_px = cube.agb[i][mask]
     ac_px, bc_px = m_c.living_carbon(agb_px, conifer)
     st = cci.area_stats(cube, year, mask)
@@ -500,9 +597,9 @@ def _theta_for(model_name: str, species: str, landscape: str, site: str,
                override: float | None) -> tuple[float, float, str]:
     if override is not None:
         return float(override), 0.0, "given by the caller"
-    if species == m_ls.get(landscape).species:
-        p = store.get(site, landscape, model_name)
-        return p["theta"], p["theta_sd"], store.source(site, landscape, model_name)
+    if species in calibrated_species(landscape):
+        p = store.get(site, landscape, model_name, species)
+        return p["theta"], p["theta_sd"], store.source(site, landscape, model_name, species)
     sp = m_sp.get(species)
     if model_name == "yield_curve":
         return float(sp.yc_default), (sp.yc_max - sp.yc_min) / 4.0, \
@@ -573,7 +670,8 @@ def simulate_stand(
     age: Annotated[float, Field(ge=0, le=250, description="Stand age at the start (years).")],
     years: Annotated[int, Field(ge=1, le=150)] = 50,
     growth_model: ModelChoice = "both",
-    species: SpeciesCode | None = None,
+    species: Annotated[SpeciesCode | None, Field(description=SPECIES_HELP + " Defaults to "
+                                                 "the landscape's dominant species.")] = None,
     regime: RegimeName = "no_intervention",
     rotation_age: Annotated[int, Field(ge=10, le=250)] | None = None,
     yield_class: Annotated[float, Field(ge=2, le=30)] | None = None,
@@ -635,11 +733,15 @@ class ScenarioResult(BaseModel):
 
 
 @server.tool(description=(
-    "Compare management regimes for a landscape's typical stand (calibrated median age and "
-    "productivity, starting from the CCI v7 AGB of 2024) over a horizon: cumulative net CO2, "
-    "removals and final carbon per regime and growth model, and the best regime for carbon."))
+    "Compare management regimes for a landscape's typical stand of one species group "
+    "(calibrated median age and productivity, starting from the CCI v7 AGB of 2024 of that "
+    "species' pixels) over a horizon: cumulative net CO2, removals and final carbon per regime "
+    "and growth model, and the best regime for carbon."))
 def management_scenario(
     landscape: LandscapeKey,
+    species: Annotated[SpeciesCode | None, Field(description=SPECIES_HELP + " Must be "
+                                                 "calibrated in the landscape; defaults to the "
+                                                 "dominant species.")] = None,
     regimes: Annotated[list[RegimeName], Field(min_length=1, max_length=4)] = [
         "no_intervention", "thin_and_fell", "clearfell_no_thin", "continuous_cover"],
     horizon_years: Annotated[int, Field(ge=5, le=150)] = 60,
@@ -654,21 +756,25 @@ def management_scenario(
     site: Site | None = None,
 ) -> ScenarioResult:
     ls = m_ls.get(landscape)
+    species = species or ls.species
+    if species not in calibrated_species(landscape):
+        raise ValueError(f"{species} is not calibrated in {landscape}; calibrated: "
+                         f"{calibrated_species(landscape)}")
     site = site or landscape
     start_year = cci.CCI_YEARS[-1]
     agb0 = agb0_sd = None
     src = "model value at the start age"
     if start_from_cci:
-        cube, mask, a = _mask(landscape, area)
+        cube, mask, a = _mask(landscape, area, species)
         st = cci.area_stats(cube, start_year, mask)
         agb0, agb0_sd = st["agb_mean_mg_ha"], st["agb_sd_mg_ha"]
         src = f"CCI v7 {start_year}, {a.describe()}"
     outcomes, runs, best = [], [], {}
     for m in _models(growth_model):
-        a0 = age if age is not None else store.get(site, landscape, m)["age_median"]
+        a0 = age if age is not None else store.get(site, landscape, m, species)["age_median"]
         scores = {}
         for r in regimes:
-            run = _run(m, ls.species, landscape, site, None, age=a0, years=horizon_years,
+            run = _run(m, species, landscape, site, None, age=a0, years=horizon_years,
                        start_year=start_year, regime=r, events=[],
                        stochastic=stochastic_disturbance, n_members=n_members, seed=seed,
                        agb0=agb0, agb0_sd=agb0_sd or 0.0)
@@ -684,12 +790,13 @@ def management_scenario(
                 runs.append(run)
         best[m] = min(scores, key=scores.get)
     return ScenarioResult(
-        landscape=landscape, species=ls.species, start_year=start_year,
+        landscape=landscape, species=species, start_year=start_year,
         horizon_years=horizon_years,
-        start_age=age if age is not None else store.get(site, landscape, "yield_curve")["age_median"],
+        start_age=age if age is not None else store.get(site, landscape, "yield_curve",
+                                                        species)["age_median"],
         start_agb_mg_ha=agb0, start_agb_source=src, outcomes=outcomes, best_for_carbon=best,
         runs=runs or None, provenance=Provenance(parameters="; ".join(
-            f"{m}: {store.source(site, landscape, m)}" for m in _models(growth_model))))
+            f"{m}: {store.source(site, landscape, m, species)}" for m in _models(growth_model))))
 
 
 class AfforestationResult(BaseModel):
@@ -712,7 +819,7 @@ class AfforestationResult(BaseModel):
     "land-use transitions)."))
 def afforestation_scenario(
     landscape: LandscapeKey,
-    species: SpeciesCode,
+    species: Annotated[SpeciesCode, Field(description=SPECIES_HELP)],
     area_ha: Annotated[float, Field(gt=0, le=1_000_000)] = 100.0,
     planting_year: Annotated[int, Field(ge=2000, le=2100)] = 2026,
     horizon_years: Annotated[int, Field(ge=5, le=150)] = 50,
@@ -752,6 +859,9 @@ class CalibrationResult(BaseModel):
     holdout_years: list[int]
     n_pixels: int
     n_restocked_in_fit: int
+    n_age_known: int = Field(description="Pixels whose stand age was fixed from the Forestry "
+                                         "England planting year.")
+    saturation_mg_ha: float | None = Field(description="CCI saturation level used in the fit.")
     productivity_median: float
     productivity_p25: float
     productivity_p75: float
@@ -761,6 +871,9 @@ class CalibrationResult(BaseModel):
     holdout: ModelSkill | None
     residual_mean_pre_2013_mg_ha: float | None
     residual_mean_post_2014_mg_ha: float | None
+    fe_yield_class_check: dict | None = Field(default=None, description=(
+        "Yield-curve model only: CCI-calibrated yield class against Forestry England's for the "
+        "same pixels. An independent check; FE yield class is not used in the fit."))
     stored_for_site: str | None
     provenance: Provenance
 
@@ -771,14 +884,15 @@ def _cal_result(landscape, area_desc, c, stored) -> CalibrationResult:
         landscape=landscape, area=area_desc, growth_model=c["model"], species=c["species"],
         productivity_name=c["productivity_name"], productivity_unit=c["productivity_unit"],
         fit_years=c["fit_years"], holdout_years=c["holdout_years"], n_pixels=c["n_pixels"],
-        n_restocked_in_fit=c["n_restocked_in_fit"], productivity_median=c["theta_median"],
+        n_restocked_in_fit=c["n_restocked_in_fit"], n_age_known=c["n_age_known"],
+        saturation_mg_ha=c["saturation_mg_ha"], productivity_median=c["theta_median"],
         productivity_p25=c["theta_p25"], productivity_p75=c["theta_p75"],
         productivity_at_grid_edge_frac=c["theta_at_grid_edge_frac"],
         stand_age_median_2024=c["age_median_last_cci_year"], fit=ModelSkill(**c["fit"]),
         holdout=ModelSkill(**{k: h[k] for k in ("rmse_mg_ha", "bias_mg_ha", "r2", "n")}) if h else None,
         residual_mean_pre_2013_mg_ha=c["residual_mean_pre_2013_mg_ha"],
         residual_mean_post_2014_mg_ha=c["residual_mean_post_2014_mg_ha"],
-        stored_for_site=stored, provenance=Provenance(parameters="fitted here to CCI v7"))
+        fe_yield_class_check=c.get("fe_yield_class_check"), stored_for_site=stored, provenance=Provenance(parameters="fitted here to CCI v7"))
 
 
 class CalibrationList(BaseModel):
@@ -786,12 +900,17 @@ class CalibrationList(BaseModel):
 
 
 @server.tool(description=(
-    "Calibrate the yield-curve model, 3-PG or both to Biomass CCI v7 pixel by pixel for a "
-    "landscape or area: productivity distribution, stand ages, fit skill and, with a fit end "
-    "year, hold-out skill. Optionally store the result as the site's productivity."))
+    "Calibrate the yield-curve model, 3-PG or both to Biomass CCI v7 pixel by pixel for one "
+    "species group in a landscape or area: productivity distribution, stand ages (fixed from "
+    "Forestry England planting years where recorded), fit skill, a comparison with Forestry "
+    "England yield class and, with a fit end year, hold-out skill. Optionally store the result "
+    "as the site's productivity for that species."))
 def calibrate_site(
     landscape: LandscapeKey,
     growth_model: ModelChoice = "both",
+    species: Annotated[SpeciesCode | None, Field(description=SPECIES_HELP + " Defaults to "
+                                                 "the landscape's dominant species.")] = None,
+    use_inventory_ages: bool = True,
     area: AreaSpec | None = None,
     fit_end_year: Annotated[int, Field(ge=2010, le=2024, description=(
         "Fit on CCI years up to this year; later years are held out for validation."))] = 2024,
@@ -799,72 +918,91 @@ def calibrate_site(
     store_for_site: Site | None = None,
     seed: int = 0,
 ) -> CalibrationList:
-    cube, mask, a = _mask(landscape, area)
     ls = m_ls.get(landscape)
+    species = species or ls.species
+    cube, mask, a = _mask(landscape, area, species)
+    inv = m_inv.load(landscape)
     fit_years = [y for y in cube.years if y <= fit_end_year]
     hold = [y for y in cube.years if y > fit_end_year]
     out = []
     for m in _models(growth_model):
-        model = make_model(m, ls.species, ls)
-        c = m_cal.calibrate(model, cube, mask, fit_years, hold, n_sample=n_sample, seed=seed)
+        model = make_model(m, species, ls)
+        c = m_cal.calibrate(model, cube, mask, fit_years, hold, n_sample=n_sample, seed=seed,
+                            planting_year=inv.planting_year if use_inventory_ages else None,
+                            fe_yield_class=inv.fe_yield_class)
         if store_for_site:
             store.set(store_for_site, landscape, m, {
                 "theta": c["theta_median"],
                 "theta_sd": max((c["theta_p75"] - c["theta_p25"]) / 1.349, 1e-6),
                 "age_median": c["age_median_last_cci_year"],
-                "age_ref_year": c["last_cci_year"], "species": ls.species},
-                note=f"calibrate_site on {a.describe()}, CCI {fit_years[0]}-{fit_years[-1]}")
+                "age_ref_year": c["last_cci_year"], "species": species},
+                note=f"calibrate_site on {a.describe()}, CCI {fit_years[0]}-{fit_years[-1]}",
+                species=species)
         out.append(_cal_result(landscape, a.describe(), c, store_for_site))
     return CalibrationList(results=out)
 
 
 class ValidationRow(BaseModel):
     landscape: str
+    species: str
     growth_model: str
     productivity_median: float
     holdout: ModelSkill
     pixels_excluded_for_harvest: int
     holdout_landscape_mean_observed: list[float]
     holdout_landscape_mean_model: list[float]
+    holdout_free_age: ModelSkill | None = Field(default=None, description=(
+        "Same test with stand ages fitted from CCI instead of the inventory."))
 
 
 class ValidationResult(BaseModel):
     fit_years: list[int]
     holdout_years: list[int]
     rows: list[ValidationRow]
-    better_model: dict[str, str] = Field(description="Per landscape, the model with lower "
+    better_model: dict[str, str] = Field(description="Per landscape and species "
+                                                     "('kielder/SS'), the model with lower "
                                                      "hold-out RMSE.")
     method: str
     provenance: Provenance
 
 
 @server.tool(description=(
-    "Hold-out validation of both growth models against Biomass CCI v7: fitted on 2005-2017, "
-    "scored on 2018-2024 (pixels felled in those years excluded). Compares yield curves and 3-PG."))
+    "Hold-out validation of both growth models against Biomass CCI v7 for every calibrated "
+    "species group (or one): fitted on 2005-2017, scored on 2018-2024 (pixels felled or "
+    "restocked in those years excluded). Compares yield curves and 3-PG, and inventory ages "
+    "with ages fitted from CCI."))
 def validate(landscapes: Annotated[list[LandscapeKey], Field(min_length=1, max_length=2)] = [
-        "thetford", "kielder"]) -> ValidationResult:
+        "thetford", "kielder"], species: SpeciesFilter = None) -> ValidationResult:
     rows, better = [], {}
     meta = None
     for key in landscapes:
-        best = None
-        for m in GROWTH_MODELS:
-            v = shipped_calibration()[key][m]["validation"]
-            meta = v
-            h = v["holdout"]
-            rows.append(ValidationRow(
-                landscape=key, growth_model=m, productivity_median=v["theta_median"],
-                holdout=ModelSkill(**{k: h[k] for k in ("rmse_mg_ha", "bias_mg_ha", "r2", "n")}),
-                pixels_excluded_for_harvest=h["pixels_excluded_for_harvest"],
-                holdout_landscape_mean_observed=v["holdout_landscape_mean_observed"],
-                holdout_landscape_mean_model=v["holdout_landscape_mean_model"]))
-            if best is None or h["rmse_mg_ha"] < best[1]:
-                best = (m, h["rmse_mg_ha"])
-        better[key] = best[0]
+        for code, models in shipped_calibration()[key]["species"].items():
+            if species and code != species:
+                continue
+            best = None
+            for m in GROWTH_MODELS:
+                v = models[m]["validation"]
+                meta = v
+                h = v["holdout"]
+                rows.append(ValidationRow(
+                    landscape=key, species=code, growth_model=m,
+                    productivity_median=v["theta_median"], holdout=_skill(h),
+                    pixels_excluded_for_harvest=h["pixels_excluded_for_harvest"],
+                    holdout_landscape_mean_observed=v["holdout_landscape_mean_observed"],
+                    holdout_landscape_mean_model=v["holdout_landscape_mean_model"],
+                    holdout_free_age=_skill(models[m]["validation_free_age"].get("holdout"))))
+                if best is None or h["rmse_mg_ha"] < best[1]:
+                    best = (m, h["rmse_mg_ha"])
+            better[f"{key}/{code}"] = best[0]
+    if meta is None:
+        raise ValueError(f"{species} is not calibrated in {landscapes}")
     return ValidationResult(
         fit_years=meta["fit_years"], holdout_years=meta["holdout_years"], rows=rows,
         better_model=better,
-        method="Pixel-by-pixel fit of productivity and age on a fixed sample of 2000 woodland "
-               "pixels per landscape; scores are over pixel-years in the hold-out period.",
+        method="Pixel-by-pixel fit of productivity (and age where the inventory has no planting "
+               "year) on a fixed sample of up to 2000 woodland pixels per species group, "
+               "comparing CCI with min(model AGB, saturation level); scores are over pixel-years "
+               "in the hold-out period.",
         provenance=Provenance(parameters="shipped calibration (scripts/calibrate_pilots.py)"))
 
 
@@ -890,6 +1028,7 @@ class AssimilationYear(BaseModel):
 class AssimilationResult(BaseModel):
     site: str
     landscape: str
+    species: str
     growth_model: str
     productivity_name: str
     data: str
@@ -905,11 +1044,11 @@ class AssimilationResult(BaseModel):
     provenance: Provenance
 
 
-def _assimilate(site, landscape, m, years, obs, sd, persist, data_desc, seed):
+def _assimilate(site, landscape, m, species, years, obs, sd, persist, data_desc, seed):
     ls = m_ls.get(landscape)
-    model = make_model(m, ls.species, ls)
-    prior = store.get(site, landscape, m)
-    bank = curve_bank(m, ls.species, landscape)
+    model = make_model(m, species, ls)
+    prior = store.get(site, landscape, m, species)
+    bank = curve_bank(m, species, landscape)
     r = m_da.enkf(model, years, obs, sd, prior_theta=prior["theta"],
                   prior_theta_sd=max(prior["theta_sd"], 0.05 * prior["theta"] + 1e-3),
                   start_year=min(years), n_members=100, seed=seed, bank=bank)
@@ -917,16 +1056,18 @@ def _assimilate(site, landscape, m, years, obs, sd, persist, data_desc, seed):
         store.set(site, landscape, m, {
             "theta": r["theta_mean"], "theta_sd": r["theta_sd"],
             "age_median": prior["age_median"], "age_ref_year": prior["age_ref_year"],
-            "species": ls.species}, note=f"EnKF on {data_desc}")
+            "species": species}, note=f"EnKF on {data_desc}", species=species)
     return AssimilationResult(
-        site=site, landscape=landscape, growth_model=m, productivity_name=model.productivity_name,
+        site=site, landscape=landscape, species=species, growth_model=m,
+        productivity_name=model.productivity_name,
         data=data_desc, prior_productivity=prior["theta"], prior_productivity_sd=prior["theta_sd"],
         posterior_productivity=r["theta_mean"], posterior_productivity_sd=r["theta_sd"],
         final_agb_mean_mg_ha=r["agb_mean"], final_agb_sd_mg_ha=r["agb_sd"],
         years=[AssimilationYear(productivity_mean=y["theta_mean"], productivity_sd=y["theta_sd"],
                                 **{k: v for k, v in y.items() if k not in ("theta_mean", "theta_sd", "gain")})
                for y in r["years"]],
-        persisted=persist, provenance=Provenance(parameters=store.source(site, landscape, m)))
+        persisted=persist,
+        provenance=Provenance(parameters=store.source(site, landscape, m, species)))
 
 
 class AssimilationList(BaseModel):
@@ -935,36 +1076,45 @@ class AssimilationList(BaseModel):
 
 @server.tool(description=(
     "Run the ensemble Kalman filter for a site: blend the growth model with AGB observations "
-    "(the CCI v7 series of an area by default, or your own values) and learn the site's "
-    "productivity. The learned value is stored for the site unless persist is false."))
+    "(the CCI v7 series of an area's pixels of one species group by default, or your own "
+    "values) and learn the site's productivity for that species. The learned value is stored "
+    "for the site unless persist is false."))
 def assimilate_agb(
     landscape: LandscapeKey,
     site: Site,
     growth_model: ModelChoice = "both",
+    species: Annotated[SpeciesCode | None, Field(description=SPECIES_HELP + " Must be "
+                                                 "calibrated in the landscape; defaults to the "
+                                                 "dominant species.")] = None,
     area: AreaSpec | None = None,
     observations: Annotated[list[ObservationIn], Field(max_length=200)] | None = None,
     persist: bool = True,
     seed: int = 0,
 ) -> AssimilationList:
+    species = species or m_ls.get(landscape).species
+    if species not in calibrated_species(landscape):
+        raise ValueError(f"{species} is not calibrated in {landscape}")
     if observations:
         years = [o.year for o in observations]
         obs = [o.agb_mg_ha for o in observations]
         sd = [o.sd_mg_ha for o in observations]
         desc = f"{len(observations)} supplied AGB observations"
     else:
-        cube, mask, a = _mask(landscape, area)
+        cube, mask, a = _mask(landscape, area, species)
         rows = [cci.area_stats(cube, y, mask) for y in cube.years]
         years = [r["year"] for r in rows]
         obs = [r["agb_mean_mg_ha"] for r in rows]
         sd = [r["agb_sd_mg_ha"] for r in rows]
         desc = f"CCI v7 {years[0]}-{years[-1]}, {a.describe()}"
-    return AssimilationList(results=[_assimilate(site, landscape, m, years, obs, sd, persist,
-                                                 desc, seed) for m in _models(growth_model)])
+    return AssimilationList(results=[_assimilate(site, landscape, m, species, years, obs, sd,
+                                                 persist, desc, seed)
+                                     for m in _models(growth_model)])
 
 
 class SiteParameters(BaseModel):
     site: str
     landscape: str
+    species: str
     growth_model: str
     productivity_name: str
     productivity: float
@@ -978,24 +1128,27 @@ class ParameterList(BaseModel):
     sites_with_learned_values: list[str]
 
 
-@server.tool(description="Show a site's current productivity for each growth model and where "
-                         "it came from (CCI calibration baseline or learned).")
-def get_parameters(landscape: LandscapeKey, site: Site | None = None) -> ParameterList:
+@server.tool(description="Show a site's current productivity for each growth model and species "
+                         "group and where it came from (CCI calibration baseline or learned).")
+def get_parameters(landscape: LandscapeKey, site: Site | None = None,
+                   species: SpeciesFilter = None) -> ParameterList:
     site = site or landscape
     ls = m_ls.get(landscape)
+    codes = [species] if species else calibrated_species(landscape)
     rows = []
-    for m in GROWTH_MODELS:
-        p = store.get(site, landscape, m)
-        rows.append(SiteParameters(site=site, landscape=landscape, growth_model=m,
-                                   productivity_name=make_model(m, ls.species, ls).productivity_name,
-                                   productivity=p["theta"], productivity_sd=p["theta_sd"],
-                                   stand_age_median=p["age_median"],
-                                   source=store.source(site, landscape, m)))
+    for code in codes:
+        for m in GROWTH_MODELS:
+            p = store.get(site, landscape, m, code)
+            rows.append(SiteParameters(
+                site=site, landscape=landscape, species=code, growth_model=m,
+                productivity_name=make_model(m, code, ls).productivity_name,
+                productivity=p["theta"], productivity_sd=p["theta_sd"],
+                stand_age_median=p["age_median"], source=store.source(site, landscape, m, code)))
     return ParameterList(parameters=rows, sites_with_learned_values=store.sites())
 
 
-@server.tool(description="Forget a site's learned productivity (one growth model or both) and "
-                         "return to the CCI calibration baseline.")
+@server.tool(description="Forget a site's learned productivity (one growth model or both, all "
+                         "species) and return to the CCI calibration baseline.")
 def reset_parameters(landscape: LandscapeKey, site: Site,
                      growth_model: ModelChoice = "both") -> ParameterList:
     for m in _models(growth_model):

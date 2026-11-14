@@ -21,7 +21,7 @@ sys.path.insert(0, str(HERE))
 TOOLS = {"list_species", "list_landscapes", "get_agb", "agb_timeseries", "carbon_stock",
          "biomass_change", "attribute_change", "simulate_stand", "management_scenario",
          "afforestation_scenario", "calibrate_site", "validate", "assimilate_agb",
-         "get_parameters", "reset_parameters", "self_learn_synthetic"}
+         "get_parameters", "reset_parameters", "self_learn_synthetic", "forest_inventory"}
 
 
 @pytest.fixture(scope="module")
@@ -54,25 +54,46 @@ def test_tool_catalogue(server):
     assert set(tools) == TOOLS
     for t in tools.values():
         assert t.description and t.output_schema, t.name
-    assert {"landscape", "year", "area"} <= set(tools["get_agb"].input_schema["properties"])
+    assert {"landscape", "year", "area", "species"} <= set(tools["get_agb"].input_schema["properties"])
+    assert "species" in tools["management_scenario"].input_schema["properties"]
 
 
 def test_catalogue_tools(server):
     s = ok(server, "list_species")
-    assert {x["code"] for x in s["species"]} == {"SS", "CP", "SP", "OK"}
+    assert {x["code"] for x in s["species"]} == {"SS", "NS", "CP", "SP", "LP", "DF", "LA",
+                                                 "OK", "BE", "BI", "MB"}
     assert {r["name"] for r in s["regimes"]} == {"no_intervention", "thin_and_fell",
                                                  "clearfell_no_thin", "continuous_cover"}
     ls = ok(server, "list_landscapes")
     keys = {x["key"]: x for x in ls["landscapes"]}
     assert set(keys) == {"thetford", "kielder"}
     assert keys["kielder"]["dominant_species"] == "SS"
-    assert len(keys["kielder"]["calibration"]) == 2
+    assert len(keys["kielder"]["calibration"]) == 2 * 7          # 7 species groups x 2 models
+    assert keys["kielder"]["woodland_source"] == "NFI woodland GB 2024"
+    assert keys["kielder"]["composition"][0]["species"] == "SS"
+    assert "HadUK-Grid" in keys["kielder"]["climate_source"]
     assert "Biomass CCI v7" in ls["provenance"]["assumptions"][0]
+    assert "Forestry Commission" in ls["provenance"]["inventory"]
+
+
+def test_forest_inventory(server):
+    inv = ok(server, "forest_inventory", {"landscape": "thetford"})
+    comp = {r["species"]: r for r in inv["composition"]}
+    assert inv["composition"][0]["species"] == "CP"
+    assert comp["CP"]["calibrated"] and comp["CP"]["age_median"] > 20
+    assert sum(r["share"] for r in inv["composition"]) == pytest.approx(1.0)
+    cp = next(c for c in inv["calibration"] if c["species"] == "CP" and c["growth_model"] == "yield_curve")
+    assert cp["fe_yield_class_median"] == 14.0 and cp["holdout_2018_2024_free_age"]["n"] > 0
+    part = ok(server, "forest_inventory", {"landscape": "kielder",
+                                           "area": {"point": [-2.55, 55.2], "radius_m": 1000}})
+    assert part["woodland_area_ha"] < 400
 
 
 def test_state_tools(server):
     a = ok(server, "get_agb", {"landscape": "thetford", "year": 2020})
-    assert a["agb_mean_mg_ha"] == pytest.approx(108.187, abs=1e-3)
+    assert a["agb_mean_mg_ha"] == pytest.approx(104.9151, abs=1e-3)
+    sp = ok(server, "get_agb", {"landscape": "thetford", "year": 2020, "species": "SP"})
+    assert sp["n_pixels"] < a["n_pixels"]
     assert a["agb_p05_mg_ha"] < a["agb_mean_mg_ha"] < a["agb_p95_mg_ha"]
     assert a["ebcf_role"] == "state"
     p = ok(server, "get_agb", {"landscape": "kielder", "year": 2024,
@@ -118,7 +139,12 @@ def test_scenarios(server):
     assert m["ebcf_role"] == "response"
     nothing = [o for o in m["outcomes"] if o["regime"] == "no_intervention"]
     assert all(o["removals_total_t_dm_ha"] == 0 for o in nothing)
-    af = ok(server, "afforestation_scenario", {"landscape": "thetford", "species": "OK",
+    sp = ok(server, "management_scenario", {"landscape": "kielder", "species": "NS",
+                                            "regimes": ["clearfell_no_thin"], "horizon_years": 20,
+                                            "growth_model": "yield_curve", "n_members": 5})
+    assert sp["species"] == "NS" and "NS in kielder" in sp["provenance"]["parameters"]
+    assert call(server, "management_scenario", {"landscape": "kielder", "species": "CP"}).is_error
+    af = ok(server, "afforestation_scenario", {"landscape": "thetford", "species": "SS",
                                                "area_ha": 10, "horizon_years": 30})
     for model, total in af["total_cumulative_net_t_co2"].items():
         per_ha = next(r for r in af["per_hectare"] if r["growth_model"] == model)
@@ -131,9 +157,14 @@ def test_calibrate_and_validate(server):
                                       "n_sample": 200})
     assert [r["growth_model"] for r in c["results"]] == ["yield_curve", "3pg"]
     assert all(r["holdout"]["n"] > 0 for r in c["results"])
+    assert all(r["species"] == "CP" and r["n_age_known"] > 0 for r in c["results"])
+    assert c["results"][0]["fe_yield_class_check"]["n"] > 0
+    assert c["results"][1]["fe_yield_class_check"] is None
     v = ok(server, "validate")
-    assert set(v["better_model"]) == {"thetford", "kielder"}
-    assert len(v["rows"]) == 4
+    assert {"thetford/CP", "kielder/SS", "kielder/NS"} <= set(v["better_model"])
+    assert len(v["rows"]) == 2 * (8 + 7)
+    one = ok(server, "validate", {"landscapes": ["kielder"], "species": "LP"})
+    assert len(one["rows"]) == 2 and one["rows"][0]["holdout_free_age"]["n"] > 0
 
 
 def test_learning_is_per_site(server):
@@ -143,7 +174,9 @@ def test_learning_is_per_site(server):
     r = a["results"][0]
     assert r["persisted"] and r["posterior_productivity_sd"] > 0
     pa = ok(server, "get_parameters", {"landscape": "kielder", "site": "plotA"})
-    yc = next(p for p in pa["parameters"] if p["growth_model"] == "yield_curve")
+    yc = next(p for p in pa["parameters"] if p["growth_model"] == "yield_curve" and p["species"] == "SS")
+    ns = next(p for p in pa["parameters"] if p["growth_model"] == "yield_curve" and p["species"] == "NS")
+    assert ns["source"].startswith("calibrated")
     assert yc["source"].startswith("learned")
     assert yc["productivity"] == pytest.approx(r["posterior_productivity"])
     other = ok(server, "get_parameters", {"landscape": "kielder", "site": "plotB"})
@@ -192,7 +225,8 @@ def test_stdio_state_survives_restart(tmp_path):
                                               "growth_model": "yield_curve",
                                               "observations": obs}).structured_content
     theta = learned["results"][0]["posterior_productivity"]
-    assert json.loads(state.read_text())["sites"]["restart"]["yield_curve"]["params"]["theta"] == theta
-    again = call(params, "get_parameters", {"landscape": "kielder", "site": "restart"}).structured_content
+    assert json.loads(state.read_text())["sites"]["restart"]["yield_curve/SS"]["params"]["theta"] == theta
+    again = call(params, "get_parameters", {"landscape": "kielder", "site": "restart",
+                                            "species": "SS"}).structured_content
     yc = next(p for p in again["parameters"] if p["growth_model"] == "yield_curve")
     assert yc["productivity"] == pytest.approx(theta) and yc["source"].startswith("learned")

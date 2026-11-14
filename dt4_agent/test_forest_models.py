@@ -178,10 +178,10 @@ def test_root_shoot_ratio_mokany():
 # CCI v7 data
 # --------------------------------------------------------------------------- #
 PINNED = {  # landscape: (shape, woodland pixels, woodland ha, {year: (mean, sd)})
-    "thetford": ((18, 158, 281), 23795, 14198.5,
-                 {2005: (113.0848, 10.8308), 2020: (108.187, 11.227), 2024: (106.4233, 12.8453)}),
-    "kielder": ((18, 191, 394), 33969, 18978.6,
-                {2005: (91.3228, 12.934), 2020: (115.5523, 19.4168), 2024: (116.7961, 17.954)}),
+    "thetford": ((18, 158, 281), 22909, 13670.1,
+                 {2005: (111.6992, 10.3029), 2020: (104.9151, 10.6986), 2024: (102.8817, 12.2347)}),
+    "kielder": ((18, 191, 394), 47471, 26520.8,
+                {2005: (63.7666, 9.0092), 2020: (80.5812, 13.5174), 2024: (81.3853, 12.5012)}),
 }
 
 
@@ -192,6 +192,7 @@ def test_cci_cube_pinned(key):
     assert c.agb.shape == shape
     assert c.years == cci.CCI_YEARS and 2013 not in c.years
     assert int(c.woodland.sum()) == n
+    assert c.woodland_source == "NFI woodland GB 2024"
     assert float(c.pixel_area_ha()[c.woodland].sum()) == pytest.approx(ha, abs=0.1)
     for y, (mean, sd) in years.items():
         s = cci.area_stats(c, y, c.woodland)
@@ -274,10 +275,53 @@ def test_calibration_recovers_synthetic_pixels():
     agb = np.stack([yc.agb(true_age + (y - years[0]), true_yc, "SS") for y in years])
     cube = cci.Cube(key="synthetic", agb=agb, sd=np.full_like(agb, 5.0), years=years,
                     transform=(0.000888, 0, 0, 0, -0.000888, 55), woodland=np.ones((rows, cols), bool))
-    fit = calibration.fit_pixels(m, cube, cube.woodland, years, n_sample=None, prior_sd=1e6)
+    fit = calibration.fit_pixels(m, cube, cube.woodland, years, n_sample=None, prior_sd=1e6,
+                                 saturation_mg_ha=None)
     assert np.allclose(fit["theta"], true_yc.ravel())
     assert np.allclose(fit["age_ref"], true_age.ravel())
     assert dataclasses.is_dataclass(cube)
+
+
+def _synthetic_cube(true_yc, true_age, cap=None):
+    years = cci.CCI_YEARS
+    agb = np.stack([yc.agb(true_age + (y - years[0]), true_yc, "SS") for y in years])
+    if cap is not None:
+        agb = np.minimum(agb, cap)
+    rows, cols = true_yc.shape
+    return cci.Cube(key="synthetic", agb=agb, sd=np.full_like(agb, 5.0), years=years,
+                    transform=(0.000888, 0, 0, 0, -0.000888, 55),
+                    woodland=np.ones((rows, cols), bool))
+
+
+def test_calibration_uses_known_ages_and_saturation():
+    """Saturated CCI-like data: with planting years and the saturation operator the true
+    yield classes come back; without the operator they are biased low."""
+    rng = np.random.default_rng(1)
+    true_yc = rng.integers(8, 20, (5, 5)).astype(float)
+    true_age = rng.integers(15, 45, (5, 5)).astype(float)
+    cube = _synthetic_cube(true_yc, true_age, cap=150.0)
+    planting = (2005 - true_age).astype(int)
+    m = yc.YieldCurveModel("SS")
+    fit = calibration.fit_pixels(m, cube, cube.woodland, cube.years, n_sample=None,
+                                 prior_sd=1e6, planting_year=planting, saturation_mg_ha=150.0)
+    assert fit["age_known"].all()
+    assert np.all(np.abs(fit["age_ref"] - true_age.ravel()) <= calibration.AGE_TOLERANCE)
+    young = (true_age.ravel() < 25)     # their curves stay below the cap for several years
+    assert np.median(np.abs(fit["theta"][young] - true_yc.ravel()[young])) <= 1.0
+    naive = calibration.fit_pixels(m, cube, cube.woodland, cube.years, n_sample=None,
+                                   prior_sd=1e6, planting_year=planting, saturation_mg_ha=None)
+    assert naive["theta"].mean() < fit["theta"].mean() - 1.0
+
+
+def test_planting_during_record_starts_the_fit_then():
+    true_yc = np.full((2, 2), 14.0)
+    true_age = np.array([[-5.0, -8.0], [30.0, 40.0]])     # two stands planted 2010 and 2013
+    cube = _synthetic_cube(true_yc, np.maximum(true_age, 0))
+    planting = (2005 - true_age).astype(int)
+    fit = calibration.fit_pixels(yc.YieldCurveModel("SS"), cube, cube.woodland, cube.years,
+                                 n_sample=None, planting_year=planting, saturation_mg_ha=None)
+    assert list(fit["ref_year"][:2]) == [2010, 2013]
+    assert np.all(fit["age_ref"][:2] <= calibration.AGE_TOLERANCE)
 
 
 def test_shipped_calibration_is_reproducible():
@@ -291,18 +335,63 @@ def test_shipped_calibration_is_reproducible():
 
 def test_shipped_calibration_summary():
     cal = state.calibration()
-    for key in ("thetford", "kielder"):
-        for m in ("yield_curve", "3pg"):
-            c, v = cal[key][m]["calibration"], cal[key][m]["validation"]
-            assert c["n_pixels"] == 2000
-            assert c["fit"]["r2"] > 0.6
-            assert v["holdout"]["rmse_mg_ha"] < 50
-            assert v["holdout_years"] == [2018, 2019, 2020, 2021, 2022, 2023, 2024]
+    assert state.calibrated_species("thetford") == ["CP", "MB", "SP", "DF", "BE", "LA", "BI", "OK"]
+    assert state.calibrated_species("kielder") == ["SS", "NS", "MB", "BI", "LP", "SP", "DF"]
+    for key, dom in (("thetford", "CP"), ("kielder", "SS")):
+        assert cal[key]["dominant_species"] == dom
+        assert cal[key]["composition"][0]["species"] == dom
+        for code, models in cal[key]["species"].items():
+            for m in ("yield_curve", "3pg"):
+                c, v = models[m]["calibration"], models[m]["validation"]
+                assert c["species"] == code and c["saturation_mg_ha"] == 150.0
+                assert c["n_age_known"] > 0
+                assert v["holdout"]["rmse_mg_ha"] < 70
+                assert v["holdout_years"] == [2018, 2019, 2020, 2021, 2022, 2023, 2024]
+                assert "holdout" in models[m]["validation_free_age"]
+            # FE yield class is reported as a check only
+            assert "fe_yield_class_check" in models["yield_curve"]["calibration"]
     # the numbers reported in the README
-    assert cal["thetford"]["yield_curve"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(38.39, abs=0.01)
-    assert cal["thetford"]["3pg"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(37.96, abs=0.01)
-    assert cal["kielder"]["yield_curve"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(42.58, abs=0.01)
-    assert cal["kielder"]["3pg"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(43.68, abs=0.01)
+    t, k = cal["thetford"]["species"], cal["kielder"]["species"]
+    assert t["CP"]["yield_curve"]["calibration"]["theta_median"] == 14.0
+    assert t["CP"]["yield_curve"]["calibration"]["fe_yield_class_check"]["fe_median"] == 14.0
+    assert k["SS"]["yield_curve"]["calibration"]["theta_median"] == 8.0
+    assert k["SS"]["yield_curve"]["calibration"]["fe_yield_class_check"]["pearson_r"] == pytest.approx(0.3776, abs=1e-4)
+    assert t["CP"]["yield_curve"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(37.2, abs=0.05)
+    assert t["CP"]["3pg"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(35.7, abs=0.05)
+    assert k["SS"]["yield_curve"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(32.5, abs=0.05)
+    assert k["SS"]["3pg"]["validation"]["holdout"]["rmse_mg_ha"] == pytest.approx(31.2, abs=0.05)
+
+
+def test_inventory_species_and_ages():
+    from forest import inventory
+
+    assert inventory.species_group("Sitka spruce") == "SS"
+    assert inventory.species_group("Hybrid larch") == "LA"
+    assert inventory.species_group("Sycamore") == "MB"
+    assert inventory.species_group("Some odd fir") == "DF"
+    assert inventory.species_group("") is None
+    assert set(inventory.SPECIES_MAP.values()) | {inventory.BROADLEAF_DEFAULT} <= set(species.SPECIES)
+    for key, dom in (("thetford", "CP"), ("kielder", "SS")):
+        inv = inventory.load(key)
+        c = cci.load(key)
+        assert inv.woodland.shape == c.woodland.shape
+        assert np.array_equal(inv.woodland, c.woodland)
+        assert set(inv.species[inv.woodland]) <= set(species.SPECIES) | {""}
+        comp = inventory.composition(inv, inv.woodland, c.pixel_area_ha(), 2024)
+        assert comp[0]["species"] == dom
+        assert sum(r["share"] for r in comp) == pytest.approx(1.0)
+        age = inv.age(2024)
+        assert age.max() < 400 and (age[inv.planting_year > 2024] == -1).all()
+
+
+def test_haduk_climate():
+    for ls, rain in ((THETFORD, (550, 750)), (KIELDER, (1200, 1600))):
+        c = ls.climate
+        assert "HadUK-Grid" in c.source
+        assert rain[0] < c.annual_rain_mm < rain[1]
+        assert all(a > b for a, b in zip(c.tmax_c, c.tmin_c))
+        assert max(c.solar_mj_m2_d) < 25 and min(c.solar_mj_m2_d) > 1
+    assert THETFORD.climate.mean_temp_c > KIELDER.climate.mean_temp_c + 1.5
 
 
 @pytest.mark.parametrize("model_name,truth,prior", [("yield_curve", 18.0, 9.0), ("3pg", 0.7, 0.3)])
@@ -328,6 +417,8 @@ def test_parameter_store_persists(tmp_path):
     again = state.ParameterStore(path)
     assert again.get("k1", "kielder", "3pg")["theta"] == 0.9
     assert again.source("k1", "kielder", "3pg").startswith("learned")
+    # species are kept apart: learning for SS leaves NS at its baseline
+    assert again.get("k1", "kielder", "3pg", "NS") == state.baseline("kielder", "3pg", "NS")
     assert again.get("k1", "thetford", "3pg")["theta"] == state.baseline("thetford", "3pg")["theta"]
     again.reset("k1")
     assert state.ParameterStore(path).get("k1", "kielder", "3pg") == base

@@ -10,6 +10,13 @@ Every species carries three parameter groups:
 * **3-PG parameters** (:mod:`forest.threepg`), named as in Sands & Landsberg (2002) and the
   3-PGpjs spreadsheet so they can be checked against the literature.
 
+Species groups. Besides the four original species, DT4 models every species group that the
+Forestry England sub-compartment database records in the pilot forests (see
+:mod:`forest.inventory` for the mapping from species names): Norway and other spruces (NS),
+lodgepole pine (LP), Douglas fir and the other shade-tolerant conifers (DF), the larches
+(LA), beech (BE), birch (BI) and a mixed-broadleaf group (MB) for sycamore, ash, alder,
+poplar, sweet chestnut and the rest. Larches and broadleaves are deciduous in 3-PG.
+
 Sources and status. All values are *a priori*: typical published figures for British
 conditions, rounded. The productivity parameter of each growth model (yield class or the
 3-PG fertility rating) is calibrated to Biomass CCI v7 per landscape, which absorbs much of
@@ -107,6 +114,43 @@ SPECIES: dict[str, Species] = {
                    aS=0.10, nS=2.40, pFS2=0.8, pFS20=0.12, SLA0=4.5, SLA1=3.0,
                    gammaF1=0.014, fullCanAge=15.0, MaxAge=200.0, MaxIntcptn=0.15),
     ),
+    "NS": Species(
+        code="NS", name="Norway spruce (and other spruces)", latin="Picea abies", conifer=True,
+        yc_min=6, yc_max=22, yc_default=12, culmination_age=55, cr_shape=3.0,
+        wood_density=0.36, bef=1.30, rotation_age=55, first_thin_age=25,
+        hazard_wind=0.005, hazard_fire=0.0002, hazard_biotic=0.002,
+        threepg=_p(Tmin=-3.0, Topt=14.0, Tmax=28.0, alphaCx=0.040, wSx1000=380.0,
+                   aS=0.08, nS=2.45, SLA0=5.0, SLA1=3.5, fullCanAge=14.0, MaxIntcptn=0.25),
+    ),
+    "LP": Species(
+        code="LP", name="Lodgepole pine", latin="Pinus contorta", conifer=True,
+        yc_min=4, yc_max=14, yc_default=8, culmination_age=45, cr_shape=3.0,
+        wood_density=0.39, bef=1.30, rotation_age=45, first_thin_age=20,
+        hazard_wind=0.004, hazard_fire=0.0005, hazard_biotic=0.002,
+        threepg=_p(Tmin=-4.0, Topt=13.0, Tmax=27.0, alphaCx=0.034, wSx1000=220.0,
+                   aS=0.10, nS=2.40, pFS2=0.8, pFS20=0.12, SLA0=4.5, SLA1=3.0,
+                   gammaF1=0.014, fullCanAge=12.0, MaxAge=120.0, MaxIntcptn=0.15),
+    ),
+    "DF": Species(
+        code="DF", name="Douglas fir and other conifers", latin="Pseudotsuga menziesii",
+        conifer=True,
+        yc_min=8, yc_max=24, yc_default=14, culmination_age=50, cr_shape=3.0,
+        wood_density=0.41, bef=1.25, rotation_age=55, first_thin_age=22,
+        hazard_wind=0.004, hazard_fire=0.0003, hazard_biotic=0.001,
+        threepg=_p(Tmin=-1.0, Topt=16.0, Tmax=30.0, alphaCx=0.046, wSx1000=420.0,
+                   aS=0.09, nS=2.45, SLA0=5.0, SLA1=4.0, fullCanAge=12.0, MaxAge=250.0,
+                   MaxIntcptn=0.25),
+    ),
+    "LA": Species(
+        code="LA", name="Larches (hybrid, European, Japanese)", latin="Larix spp.",
+        conifer=True,
+        yc_min=4, yc_max=14, yc_default=8, culmination_age=40, cr_shape=3.0,
+        wood_density=0.41, bef=1.25, rotation_age=50, first_thin_age=18,
+        hazard_wind=0.003, hazard_fire=0.0003, hazard_biotic=0.004,
+        threepg=_p(Tmin=-2.0, Topt=15.0, Tmax=30.0, alphaCx=0.060, wSx1000=300.0,
+                   aS=0.10, nS=2.40, pFS2=1.0, pFS20=0.15, SLA0=11.0, SLA1=11.0,
+                   fullCanAge=10.0, MaxAge=200.0, MaxIntcptn=0.12, deciduous=True),
+    ),
     "OK": Species(
         code="OK", name="Oak", latin="Quercus robur and Q. petraea", conifer=False,
         yc_min=2, yc_max=8, yc_default=4, culmination_age=80, cr_shape=3.0,
@@ -115,6 +159,37 @@ SPECIES: dict[str, Species] = {
         threepg=_p(Tmin=2.0, Topt=18.0, Tmax=32.0, alphaCx=0.065, wSx1000=600.0,
                    aS=0.12, nS=2.40, pFS2=0.6, pFS20=0.10, SLA0=14.0, SLA1=14.0,
                    fullCanAge=20.0, MaxAge=400.0, MaxIntcptn=0.15, deciduous=True,
+                   stems_planted=2250.0),
+    ),
+    "BE": Species(
+        code="BE", name="Beech", latin="Fagus sylvatica", conifer=False,
+        yc_min=4, yc_max=10, yc_default=6, culmination_age=75, cr_shape=3.0,
+        wood_density=0.56, bef=1.40, rotation_age=120, first_thin_age=30,
+        hazard_wind=0.002, hazard_fire=0.0001, hazard_biotic=0.002,
+        threepg=_p(Tmin=1.0, Topt=17.0, Tmax=31.0, alphaCx=0.060, wSx1000=600.0,
+                   aS=0.12, nS=2.40, pFS2=0.6, pFS20=0.10, SLA0=16.0, SLA1=16.0,
+                   fullCanAge=20.0, MaxAge=300.0, MaxIntcptn=0.15, deciduous=True,
+                   stems_planted=2250.0),
+    ),
+    "BI": Species(
+        code="BI", name="Birch (downy and silver)", latin="Betula pubescens and B. pendula",
+        conifer=False,
+        yc_min=2, yc_max=8, yc_default=4, culmination_age=35, cr_shape=3.0,
+        wood_density=0.53, bef=1.35, rotation_age=50, first_thin_age=20,
+        hazard_wind=0.002, hazard_fire=0.0002, hazard_biotic=0.002,
+        threepg=_p(Tmin=-3.0, Topt=15.0, Tmax=30.0, alphaCx=0.055, wSx1000=300.0,
+                   aS=0.12, nS=2.40, pFS2=0.6, pFS20=0.10, SLA0=14.0, SLA1=14.0,
+                   fullCanAge=10.0, MaxAge=100.0, MaxIntcptn=0.12, deciduous=True),
+    ),
+    "MB": Species(
+        code="MB", name="Mixed and other broadleaves", latin="sycamore, ash, alder, poplar, ...",
+        conifer=False,
+        yc_min=2, yc_max=10, yc_default=4, culmination_age=60, cr_shape=3.0,
+        wood_density=0.50, bef=1.40, rotation_age=100, first_thin_age=25,
+        hazard_wind=0.002, hazard_fire=0.0001, hazard_biotic=0.003,
+        threepg=_p(Tmin=1.0, Topt=17.0, Tmax=31.0, alphaCx=0.058, wSx1000=500.0,
+                   aS=0.12, nS=2.40, pFS2=0.6, pFS20=0.10, SLA0=14.0, SLA1=14.0,
+                   fullCanAge=15.0, MaxAge=250.0, MaxIntcptn=0.15, deciduous=True,
                    stems_planted=2250.0),
     ),
 }
