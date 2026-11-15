@@ -1,0 +1,15 @@
+{
+  "_comment": "Digital-twin agents the orchestrator may call. 'server' is relative to the repository root; agents whose server file is missing are skipped (DT4 and DT6 arrive with the forest pull request). 'url' may be given instead of 'server' for an agent served over streamable HTTP.",
+  "agents": [
+    {"id": "dt2", "name": "DT2 livestock methane", "server": "dt2_agent/dt2_server.py",
+     "domain": "Enteric and manure methane from cattle, sheep and goats in England (1 km), Living England grassland, farm-level methane, herd and management scenarios."},
+    {"id": "dt4", "name": "DT4 forest biomass", "server": "dt4_agent/dt4_server.py",
+     "domain": "Above-ground biomass and carbon of woodland at Thetford and Kielder from ESA Biomass CCI v7, yield-curve and 3-PG projections, management and disturbance scenarios."},
+    {"id": "dt6", "name": "DT6 trees outside woodland", "server": "dt6_agent/dt6_server.py",
+     "domain": "Biomass and carbon of hedgerow, lone and small-group trees in ten 5 km pilot tiles in England, from the Trees Outside Woodland map and EA lidar; planting and loss scenarios."},
+    {"id": "dt8", "name": "DT8 peatland greenhouse gases", "server": "dt8_agent/dt8_server.py",
+     "domain": "CO2, CH4 and N2O from drained agricultural peat in the East Anglian Fens per crop, water-table management scenarios, UK Peatland Inventory comparison."},
+    {"id": "dt1", "name": "DT1 hello world", "server": "dt1_agent/dt1_server.py", "enabled": false,
+     "domain": "Plumbing test only."}
+  ]
+}
