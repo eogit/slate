@@ -1,0 +1,84 @@
+# SLATE orchestrator
+
+The orchestrator is the agent people talk to. It takes a plain-language question from a farmer,
+a policy maker (Defra, the Environment Agency, Natural England, the Forestry Commission) or an
+NGO, works out which digital twins can answer it, asks a follow-up question if something
+essential is missing, states the assumptions it makes, calls the twins over MCP, and writes a
+short report with key findings, results, an interpretation, caveats and figures.
+
+It is a Claude agent (Claude Opus 5.5 through the Claude API, adaptive thinking, high effort)
+with a manual tool loop, so that every step can be logged and checked.
+
+## How a question is handled
+
+1. **Discover.** `agent_pool.py` launches every agent in `agents.json` (DT2 livestock methane,
+   DT4 forest biomass, DT6 trees outside woodland, DT8 peatland greenhouse gases) over stdio and
+   lists its tools. Tools are offered to Claude as `<agent>__<tool>`, e.g. `dt2__area_methane`.
+   Agents whose server is missing from the checkout are skipped and the model is told so, so it
+   can say that part of a question cannot be answered here.
+2. **Clarify or assume.** Claude may call `ask_user` with up to three short questions, each with
+   the default it would otherwise use. It is told to ask only when the answer would change the
+   result materially (typically the place, a farm's herd or crop, or which of two readings is
+   meant) and to assume otherwise. There are at most two rounds of questions per run; after that
+   the tool tells it to proceed on its defaults. Unanswered questions become recorded defaults.
+3. **State assumptions.** Before its first agent call Claude must call `record_assumptions`
+   (places and coordinates, years, scenario sizes, interpretation of vague terms, GWP choice,
+   which pilot landscape stands in for a wider area). The orchestrator refuses agent calls until
+   it has done so, so every report says what was assumed.
+4. **Call the twins.** Each result is tagged `[R1]`, `[R2]`... and kept in full; Claude sees a
+   compact copy (long lists trimmed) and cites the tags. Errors go back to the model to fix the
+   input.
+5. **Figures.** `make_figure` draws bar charts (baseline vs scenario, areas, groups), line
+   charts (trajectories) and point maps on an England outline (hotspots, sites) from numbers
+   the agents returned (`figures.py`).
+6. **Report.** `write_report` takes Claude's prose: title, audience, the question as
+   understood, key findings, results, "what this means", caveats and next steps. The
+   orchestrator then appends what it logged itself, not what the model says it did: the
+   follow-up questions and answers, the assumptions table, every agent call with its inputs and
+   outcome, and the data and model sources from each agent's provenance (`report.py`). The report
+   is written as Markdown and as a self-contained HTML page with the figures embedded.
+
+The system prompt (`prompts.py`) is built from the agents' own descriptions, and sets the rules
+for content: no numbers that did not come from an agent, scenarios are responses not
+observations, keep uncertainty ranges and EBCF roles, say what is outside an agent's coverage,
+and write for the audience.
+
+## Run
+
+```bash
+pip install -r orchestrator/requirements.txt -r dt2_agent/requirements.txt -r dt8_agent/requirements.txt
+export ANTHROPIC_API_KEY=...        # or: ant auth login
+python orchestrator/orchestrator.py "What would rewetting a potato field on the Fens to 30 cm do to its emissions?"
+python orchestrator/orchestrator.py --non-interactive --out reports/ "How much methane do sheep in the Lake District emit?"
+```
+
+In interactive mode follow-up questions appear on the terminal; press Enter to accept the
+suggested default. `--non-interactive` uses the defaults and records them. Reports go to
+`reports/` (or `--out`). `--agents other.json` uses another registry; an entry may give `url`
+instead of `server` for an agent served over streamable HTTP.
+
+To embed the orchestrator in another application, construct `Orchestrator(client, pool,
+ask=...)` with your own `ask` callback (sync or async; it receives the questions and returns
+the answers) and call `await orchestrator.run(question)`. The returned `RunResult` carries the
+report paths, the assumptions, the clarifications and every agent call with its full result.
+
+## Test
+
+```bash
+pytest orchestrator
+```
+
+The tests replace the language model with a scripted stand-in that issues the calls a model
+would (a follow-up question, an agent call before assumptions, which is refused, the
+assumptions, parallel agent calls including an invalid one, two figures, a second and a refused
+third question round, the report). The agents are the real MCP servers over stdio, so the test
+covers discovery, routing, results, figures and the rendered report. `test_live_claude` runs the
+real model end to end and is skipped unless `ANTHROPIC_API_KEY` is set.
+
+## Notes
+
+- With all four twins present the orchestrator offers 55 agent tools (about 21,000 tokens of
+  tool definitions). Tools and the system prompt are identical on every turn and cached.
+- The request opts into server-side refusal fallback (`fallbacks: "default"`), so a request
+  declined by a safety classifier is retried on a fallback model instead of failing.
+- DT1 (the hello-world agent) is in the registry but disabled.

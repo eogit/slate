@@ -1,0 +1,7 @@
+anthropic>=2.8
+mcp>=2.3,<3
+matplotlib>=3.7
+markdown>=3.5
+numpy>=1.24
+pyproj>=3.4
+# plus each agent's own requirements (dt2_agent/, dt8_agent/, ...)
