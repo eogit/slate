@@ -5,8 +5,11 @@ The orchestrator is a Claude agent (Claude API, tool use) whose tools are
 * every tool of every available digital-twin agent (DT2 livestock methane, DT4 forest biomass,
   DT6 trees outside woodland, DT8 peatland greenhouse gases), reached over MCP and named
   ``<agent>__<tool>``;
-* four tools of its own:
+* five tools of its own:
   - ``ask_user``: follow-up questions, each with the default it would otherwise assume;
+  - ``set_persona``: which of the personas it is trained for (policy-maker, farmer or land
+    manager, green finance manager; see ``personas.py``) the user is, or 'general'. It must be
+    called before the first agent call, unless the application fixed the persona;
   - ``record_assumptions``: the assumptions it makes to turn the question into agent inputs.
     It must be called before the first agent call, so every run states its assumptions;
   - ``make_figure``: bar and line charts and point maps of England from agent numbers;
@@ -20,6 +23,7 @@ Usage
     export ANTHROPIC_API_KEY=...            # or `ant auth login`
     python orchestrator/orchestrator.py "How much methane do the cattle around Crewe emit?"
     python orchestrator/orchestrator.py --non-interactive --out reports/ "..."
+    python orchestrator/orchestrator.py --persona farmer "..."
 
 Without a question it asks for one. In interactive mode follow-up questions are asked on the
 terminal (press Enter to accept the proposed default); with ``--non-interactive`` the defaults
@@ -42,6 +46,7 @@ from typing import Any, Awaitable, Callable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import figures as fig  # noqa: E402
+import personas as per  # noqa: E402
 import report as rep  # noqa: E402
 from agent_pool import AgentPool, CallRecord, result_text  # noqa: E402
 from prompts import system_prompt  # noqa: E402
@@ -73,6 +78,22 @@ LOCAL_TOOLS = [
                     "default_assumption": {"type": "string"}},
                 "required": ["question", "default_assumption"]}}},
             "required": ["questions"]},
+    },
+    {
+        "name": "set_persona",
+        "description": (
+            "Set the persona of the user (see 'User personas' in the instructions): 'policy' "
+            "(policy-maker in land use and agricultural policy), 'farmer' (farmer, owner or "
+            "tenant, or land manager), 'finance' (green finance manager, carbon and nature "
+            "credits, tokenisation) or 'general'. Must be called before the first agent call "
+            "unless the persona was fixed by the application."),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "persona": {"type": "string", "enum": per.PERSONA_IDS},
+                "rationale": {"type": "string",
+                              "description": "The cues in the question that point to it."}},
+            "required": ["persona", "rationale"]},
     },
     {
         "name": "record_assumptions",
@@ -137,6 +158,10 @@ LOCAL_TOOLS = [
                 "key_findings": {"type": "array", "items": {"type": "string"}, "minItems": 1},
                 "results_markdown": {"type": "string"},
                 "interpretation_markdown": {"type": "string"},
+                "persona_section_markdown": {
+                    "type": "string",
+                    "description": "The persona section (its title is added by the "
+                                   "orchestrator); required unless the persona is 'general'."},
                 "caveats": {"type": "array", "items": {"type": "string"}},
                 "figure_ids": {"type": "array", "items": {"type": "string"}},
                 "next_steps": {"type": "array", "items": {"type": "string"}}},
@@ -160,6 +185,9 @@ class RunResult:
     calls: list[CallRecord] = field(default_factory=list)
     figures: dict[str, rep.Figure] = field(default_factory=dict)
     assumptions_recorded: bool = False
+    persona: str | None = None              # a key of personas.PERSONAS or 'general'
+    persona_rationale: str = ""
+    persona_fixed: bool = False             # set by the application, not chosen by the model
     stop: str = ""
     usage: dict = field(default_factory=dict)
 
@@ -190,6 +218,7 @@ class Orchestrator:
     def __init__(self, client, pool: AgentPool, *, ask: AskFn = terminal_ask,
                  out_dir: Path = Path("reports"), model: str = MODEL, effort: str = EFFORT,
                  max_turns: int = MAX_TURNS, max_question_rounds: int = MAX_QUESTION_ROUNDS,
+                 persona: str | None = None,
                  log: Callable[[str], None] = lambda s: print(s, file=sys.stderr)):
         self.client = client
         self.pool = pool
@@ -199,6 +228,9 @@ class Orchestrator:
         self.effort = effort
         self.max_turns = max_turns
         self.max_question_rounds = max_question_rounds
+        if persona is not None:
+            per.get(persona)                         # raises on an unknown persona
+        self.persona = persona
         self.log = log
 
     # -- local tools --------------------------------------------------------
@@ -218,6 +250,21 @@ class Orchestrator:
             run.clarifications.append({"question": q["question"], "answer": shown})
             lines.append(f"Q: {q['question']}\nA: {given or '(no answer - use your default: ' + q['default_assumption'] + '; record it as an assumption)'}")
         return "\n\n".join(lines)
+
+    def _set_persona(self, run: RunResult, a: dict) -> tuple[str, bool]:
+        chosen = a["persona"]
+        if run.persona_fixed:
+            if chosen == run.persona:
+                return f"Persona is {run.persona} (fixed by the application).", False
+            return (f"The persona is fixed by the application as '{run.persona}'; keep "
+                    f"writing for that persona."), True
+        p = per.get(chosen)                          # raises on an unknown persona
+        run.persona, run.persona_rationale = chosen, a.get("rationale", "")
+        self.log(f"[persona] {chosen}: {run.persona_rationale}")
+        if p is None:
+            return "Persona set to general: no persona section in the report.", False
+        return (f"Persona set to {p.label}. Adapt questions, assumptions, framing and the "
+                f"report section '{p.section_title}' to it."), False
 
     def _make_figure(self, run: RunResult, a: dict) -> str:
         fid = str(len(run.figures) + 1)
@@ -246,15 +293,24 @@ class Orchestrator:
         return f"Figure {fid} created ({kind}: {a['title']}). List '{fid}' in figure_ids."
 
     def _write_report(self, run: RunResult, a: dict) -> str:
+        if run.persona is None:
+            run.persona, run.persona_rationale = per.GENERAL, "not set before the report"
+        persona = per.get(run.persona)
+        section = (a.get("persona_section_markdown") or "").strip()
+        if persona is not None and not section:
+            raise ValueError(f"persona_section_markdown is required for persona "
+                             f"'{run.persona}' (section '{persona.section_title}')")
         content = rep.ReportContent(
             title=a["title"], audience=a["audience"],
             question_as_understood=a["question_as_understood"],
             key_findings=a["key_findings"], results_markdown=a["results_markdown"],
             interpretation_markdown=a["interpretation_markdown"], caveats=a.get("caveats", []),
             figure_ids=[str(f) for f in a.get("figure_ids", [])],
-            next_steps=a.get("next_steps", []))
+            next_steps=a.get("next_steps", []), persona_section_markdown=section)
         md = rep.render_markdown(
             content, question=run.question, clarifications=run.clarifications,
+            persona=run.persona, persona_rationale=run.persona_rationale,
+            persona_fixed=run.persona_fixed,
             assumptions=run.assumptions, calls=run.calls, figures=run.figures,
             agents_used={k: v.name for k, v in self.pool.agents.items()})
         stem = f"{datetime.now(timezone.utc):%Y%m%d-%H%M}-{_slug(a['title'])}"
@@ -266,11 +322,19 @@ class Orchestrator:
     # -- the loop -----------------------------------------------------------
     async def run(self, question: str) -> RunResult:
         run = RunResult(question=question)
+        if self.persona is not None:
+            run.persona, run.persona_fixed = self.persona, True
+            run.persona_rationale = "set by the application"
         tools = LOCAL_TOOLS + self.pool.tool_definitions()
         system = system_prompt(self.pool.agents, self.pool.skipped)
         today = datetime.now(timezone.utc).strftime("%d %B %Y")
+        intro = f"Today is {today}."
+        if self.persona is not None:
+            p = per.get(self.persona)
+            intro += (f" The application has fixed the persona as '{self.persona}'"
+                      + (f" ({p.label})" if p else "") + "; do not call set_persona.")
         messages: list[dict] = [{"role": "user", "content":
-                                 f"Today is {today}. Question from the user:\n\n{question}"}]
+                                 f"{intro} Question from the user:\n\n{question}"}]
         rounds = [0]
         nudged = False
         for _ in range(self.max_turns):
@@ -316,6 +380,8 @@ class Orchestrator:
         try:
             if name == "ask_user":
                 return await self._ask_user(run, args, rounds), False
+            if name == "set_persona":
+                return self._set_persona(run, args)
             if name == "record_assumptions":
                 run.assumptions.extend(args.get("assumptions", []))
                 run.assumptions_recorded = True
@@ -329,9 +395,11 @@ class Orchestrator:
             if name == "write_report":
                 return self._write_report(run, args), False
             if self.pool.owns(name):
-                if not run.assumptions_recorded:
-                    return ("Call record_assumptions first (an empty list if you make none), "
-                            "then repeat this call."), True
+                missing = [s for s, ok in (("set_persona", run.persona is not None),
+                                           ("record_assumptions (an empty list if you make "
+                                            "none)", run.assumptions_recorded)) if not ok]
+                if missing:
+                    return f"Call {' and '.join(missing)} first, then repeat this call.", True
                 ref = f"R{len(run.calls) + 1}"
                 agent, tool = name.split("__", 1)
                 self.log(f"[{ref}] {agent}.{tool} {json.dumps(args)[:200]}")
@@ -367,6 +435,8 @@ async def main_async(argv: list[str] | None = None) -> int:
     p.add_argument("--out", default="reports", help="output folder (default: reports/)")
     p.add_argument("--non-interactive", action="store_true",
                    help="do not ask follow-up questions; use the defaults")
+    p.add_argument("--persona", choices=per.PERSONA_IDS,
+                   help="fix the user persona instead of letting the orchestrator infer it")
     p.add_argument("--agents", help="agent registry JSON (default: orchestrator/agents.json)")
     p.add_argument("--model", default=MODEL)
     p.add_argument("--effort", default=EFFORT, choices=["low", "medium", "high", "xhigh", "max"])
@@ -384,7 +454,7 @@ async def main_async(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         orch = Orchestrator(anthropic.AsyncAnthropic(), pool, out_dir=Path(a.out),
                             ask=no_answer if a.non_interactive else terminal_ask,
-                            model=a.model, effort=a.effort)
+                            model=a.model, effort=a.effort, persona=a.persona)
         try:
             result = await orch.run(question)
         except anthropic.AuthenticationError:

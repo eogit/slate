@@ -77,7 +77,9 @@ def script(state):
         # 2. an agent call before stating assumptions is refused
         lambda m: msg(tool_use(2, "dt2__area_methane", {"area": CREWE})),
         # 3. assumptions, then the calls in parallel
-        lambda m: (state.update(gate=last_results(m)["tu2"]), msg(tool_use(3, "record_assumptions", {
+        lambda m: (state.update(gate=last_results(m)["tu2"]), msg(tool_use(
+            30, "set_persona", {"persona": "general", "rationale": "the user is with an NGO"}),
+            tool_use(3, "record_assumptions", {
             "assumptions": [
                 {"topic": "Area", "assumption": "15 km radius around Crewe (53.10 N, 2.44 W)",
                  "rationale": "the user's answer"},
@@ -163,7 +165,7 @@ def test_request_shape(run_result):
     assert kw["model"] == "claude-opus-5-5"
     assert kw["thinking"] == {"type": "adaptive"}
     assert kw["fallbacks"] == "default"
-    assert [t["name"] for t in kw["tools"][:4]] == [t["name"] for t in LOCAL_TOOLS]
+    assert [t["name"] for t in kw["tools"][:len(LOCAL_TOOLS)]] == [t["name"] for t in LOCAL_TOOLS]
     # tools and system prompt identical on every turn (prompt caching)
     assert all(r["tools"] == kw["tools"] and r["system"] == kw["system"]
                for r in run_result.claude.requests)
@@ -181,6 +183,8 @@ def test_follow_up_questions_and_limits(run_result):
 def test_assumptions_are_required_before_agent_calls(run_result):
     gate = run_result.state["gate"]
     assert gate.get("is_error") and "record_assumptions" in gate["content"]
+    assert "set_persona" in gate["content"]
+    assert run_result.result.persona == "general" and not run_result.result.persona_fixed
     assert [a["topic"] for a in run_result.result.assumptions] == ["Area", "Scenario"]
     assert all(c.assumptions == ["Area", "Scenario"] for c in run_result.result.calls)
 
