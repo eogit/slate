@@ -26,9 +26,9 @@ from test_orchestrator import ScriptedClaude, last_results, msg, text, tool_use 
 # --------------------------------------------------------------------------- #
 # the profiles
 # --------------------------------------------------------------------------- #
-def test_three_personas_plus_general():
-    assert list(per.PERSONAS) == ["policy", "farmer", "finance"]
-    assert per.PERSONA_IDS == ["policy", "farmer", "finance", "general"]
+def test_four_personas_plus_general():
+    assert list(per.PERSONAS) == ["policy", "farmer", "finance", "research"]
+    assert per.PERSONA_IDS == ["policy", "farmer", "finance", "research", "general"]
     assert per.get("general") is None
     with pytest.raises(ValueError):
         per.get("banker")
@@ -66,6 +66,12 @@ def test_persona_knowledge_is_grounded():
     assert any("not carbon or nature credits" in c for c in fin.caveats)
     assert any("not investment" in c for c in fin.caveats)
     assert any("not financial, legal or agronomic advice" in c for c in farm.caveats)
+    res = per.PERSONAS["research"]
+    res_text = " ".join(f for f, _ in res.context)
+    for term in ("FAIR", "UKRI", "NERC", "Tier 1", "GWP100", "CEOS", "Gemini"):
+        assert term in res_text, term
+    assert any("parameter state" in c for c in res.caveats)
+    assert any("structural uncertainty" in c for c in res.caveats)
 
 
 def test_personas_in_system_prompt_and_tools():
@@ -87,7 +93,7 @@ def test_unknown_fixed_persona_is_rejected():
 # --------------------------------------------------------------------------- #
 # end-to-end runs per persona
 # --------------------------------------------------------------------------- #
-def run(steps, *, persona=None, answers=None, tmp):
+def run(steps, *, persona=None, answers=None, tmp, question=None):
     claude = ScriptedClaude(steps)
     asked = []
 
@@ -99,7 +105,7 @@ def run(steps, *, persona=None, answers=None, tmp):
         async with AgentPool() as pool:
             orch = Orchestrator(claude, pool, ask=ask, out_dir=tmp, persona=persona,
                                 log=lambda s: None)
-            return await orch.run(QUESTIONS[persona or "farmer"])
+            return await orch.run(question or QUESTIONS[persona or "farmer"])
 
     return SimpleNamespace(result=asyncio.run(go()), claude=claude, asked=asked)
 
@@ -109,6 +115,8 @@ QUESTIONS = {
               "cut my farm's emissions?",
     "finance": "We are looking at tokenising Peatland Code units from rewetted Fenland. What "
                "abatement per hectare could a rewetting project deliver?",
+    "research": "For a paper on Fenland peat rewetting: how sensitive is the net GHG balance "
+                "to the mean water-table depth, and how was the model validated?",
     "policy": "For the Land Use Framework, how much livestock methane comes from the area "
               "around Crewe?",
 }
@@ -235,3 +243,36 @@ def test_policy_persona_must_be_set_before_agent_calls(tmp_path):
     assert "Results from pilot landscapes are indicative" in md
     assert "Land Use Framework. https://www.gov.uk/government/publications/land-use-framework" \
         in md
+
+
+def test_research_persona_selected_by_model(tmp_path):
+    state = {}
+    steps = [
+        lambda m: msg(tool_use(1, "set_persona", {
+            "persona": "research", "rationale": "writing a paper; asks about sensitivity and "
+                                                "validation"})),
+        lambda m: msg(
+            tool_use(2, "record_assumptions", {"assumptions": [
+                {"topic": "Sensitivity design", "assumption": "one-at-a-time sweep of mean "
+                 "water-table depth, 0.05-0.9 m", "rationale": "persona default"}]}),
+            tool_use(3, "dt8__water_table_scenario", {"crop": "Potato",
+                                                      "mean_wtd_m": [0.05, 0.3, 0.6, 0.9]}),
+            tool_use(4, "dt8__validate_inventory", {})),
+        lambda m: (state.update(res=last_results(m)), msg(tool_use(5, "write_report", report_args(
+            "Sensitivity of the Fenland peat GHG balance to water-table depth",
+            section="DT8 three-gas model, calibrated parameters [R1]; inventory comparison "
+                    "[R2]. Reproduce with the logged calls.",
+            audience="a peatland researcher"))))[1],
+        lambda m: msg(text("Done."), stop="end_turn"),
+    ]
+    r = run(steps, persona=None, tmp=tmp_path, question=QUESTIONS["research"])
+    res = r.result
+    assert res.stop == "done" and res.persona == "research"
+    assert all(c.ok for c in res.calls) and len(res.calls) == 2
+    md = res.markdown
+    assert "(persona: Research scientist)" in md
+    assert "## Methods, uncertainty and reproducibility" in md
+    for c in per.PERSONAS["research"].caveats:
+        assert c in md
+    assert "https://doi.org/10.1038/sdata.2016.18" in md          # FAIR principles cited
+    assert "gwp100: IPCC AR6" in md                                 # agent provenance kept

@@ -8,8 +8,9 @@ The orchestrator is a Claude agent (Claude API, tool use) whose tools are
 * five tools of its own:
   - ``ask_user``: follow-up questions, each with the default it would otherwise assume;
   - ``set_persona``: which of the personas it is trained for (policy-maker, farmer or land
-    manager, green finance manager; see ``personas.py``) the user is, or 'general'. It must be
-    called before the first agent call, unless the application fixed the persona;
+    manager, green finance manager, research scientist; see ``personas.py``) the user is,
+    or 'general'. It must be called before the first agent call, unless the application
+    fixed the persona;
   - ``record_assumptions``: the assumptions it makes to turn the question into agent inputs.
     It must be called before the first agent call, so every run states its assumptions;
   - ``make_figure``: bar and line charts and point maps of England from agent numbers;
@@ -85,8 +86,9 @@ LOCAL_TOOLS = [
             "Set the persona of the user (see 'User personas' in the instructions): 'policy' "
             "(policy-maker in land use and agricultural policy), 'farmer' (farmer, owner or "
             "tenant, or land manager), 'finance' (green finance manager, carbon and nature "
-            "credits, tokenisation) or 'general'. Must be called before the first agent call "
-            "unless the persona was fixed by the application."),
+            "credits, tokenisation), 'research' (research scientist) or 'general'. Must be "
+            "called before the first agent call unless the persona was fixed by the "
+            "application."),
         "input_schema": {
             "type": "object",
             "properties": {

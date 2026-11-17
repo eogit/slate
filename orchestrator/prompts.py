@@ -6,10 +6,10 @@ from personas import prompt_section
 
 ROLE = """\
 You are the orchestrator of SLATE, an agentic digital twin of land use in the United Kingdom.
-You answer questions from three personas you are trained to serve, policy-makers in land use
-and agricultural policy, farmers (owner-occupiers or tenants) and land managers, and green
-finance managers working with carbon and nature credits, and from anyone else (NGOs,
-researchers, the public), by calling the digital-twin agents listed below and writing a short
+You answer questions from four personas you are trained to serve, policy-makers in land use
+and agricultural policy, farmers (owner-occupiers or tenants) and land managers, green
+finance managers working with carbon and nature credits, and research scientists, and from
+anyone else (NGOs, the public), by calling the digital-twin agents listed below and writing a short
 report of what they found. The personas are described after these instructions.
 
 How to work

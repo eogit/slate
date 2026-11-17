@@ -1,8 +1,9 @@
 # SLATE orchestrator
 
-The orchestrator is the agent people talk to. It is trained for three personas: a policy-maker
-in land use and agricultural policy, a farmer (owner-occupier or tenant) or land manager, and a
-green finance manager interested in tokenising carbon or nature credits (see
+The orchestrator is the agent people talk to. It is trained for four personas: a policy-maker
+in land use and agricultural policy, a farmer (owner-occupier or tenant) or land manager, a
+green finance manager interested in tokenising carbon or nature credits, and a research
+scientist (see
 [PERSONAS.md](PERSONAS.md)); anyone else is served as a general user. It takes a plain-language
 question, works out who is asking and which digital twins can answer it, asks a follow-up question if something
 essential is missing, states the assumptions it makes, calls the twins over MCP, and writes a
@@ -18,7 +19,7 @@ with a manual tool loop, so that every step can be logged and checked.
    lists its tools. Tools are offered to Claude as `<agent>__<tool>`, e.g. `dt2__area_methane`.
    Agents whose server is missing from the checkout are skipped and the model is told so, so it
    can say that part of a question cannot be answered here.
-2. **Persona.** Claude calls `set_persona` (`policy`, `farmer`, `finance` or `general`) with
+2. **Persona.** Claude calls `set_persona` (`policy`, `farmer`, `finance`, `research` or `general`) with
    the cues that point to it; the profiles in `personas.py` are part of the system prompt. An
    application that knows its user can fix the persona instead. Agent calls are refused until
    a persona is set. The persona shapes the follow-up questions, defaults, framing and the
@@ -40,8 +41,8 @@ with a manual tool loop, so that every step can be logged and checked.
    the agents returned (`figures.py`).
 7. **Report.** `write_report` takes Claude's prose: title, audience, the question as
    understood, key findings, results, "what this means", the persona section ("Policy
-   relevance", "What this could mean for your farm" or "Credit and market relevance"; required
-   for the three personas), caveats and next steps. The orchestrator adds the persona's
+   relevance", "What this could mean for your farm", "Credit and market relevance" or "Methods,
+   uncertainty and reproducibility"; required for the four personas), caveats and next steps. The orchestrator adds the persona's
    standard caveats (e.g. "model estimates are not carbon or nature credits" for finance) and
    then appends what it logged itself: the persona and how it was set, not what the model says it did: the
    follow-up questions and answers, the assumptions table, every agent call with its inputs and
@@ -88,7 +89,8 @@ covers discovery, routing, results, figures and the rendered report. `test_perso
 the persona profiles (completeness, sources, key facts) and runs each persona end to end: a
 farmer inferred by the model with a tenure follow-up, a finance persona fixed by the
 application (a change is refused, a report without the persona section is sent back), and a
-policy-maker whose agent call is refused until the persona is set. `test_live_claude` runs the
+policy-maker whose agent call is refused until the persona is set, and a research scientist
+running a water-table sensitivity sweep with an inventory comparison. `test_live_claude` runs the
 real model end to end and is skipped unless `ANTHROPIC_API_KEY` is set.
 
 ## Notes

@@ -162,6 +162,41 @@ SOURCES: dict[str, Source] = {s.key: s for s in [
     Source("pdaa", "Property (Digital Assets etc) Act 2025", "UK Parliament / Law Commission",
            "2025", "https://lawcom.gov.uk/news/the-property-digital-assets-etc-act-2025-has-"
            "received-royal-assent/"),
+    # --- research scientist -------------------------------------------------------------
+    Source("fair", "Wilkinson et al. The FAIR Guiding Principles for scientific data "
+           "management and stewardship. Scientific Data 3, 160018", "Scientific Data", "2016",
+           "https://doi.org/10.1038/sdata.2016.18"),
+    Source("ukrioa", "UKRI open access policy (peer-reviewed articles submitted from 1 April "
+           "2022 open on publication)", "UK Research and Innovation", "2021/2022",
+           "https://www.ukri.org/manage-your-award/publishing-your-research-findings/"
+           "making-your-research-publications-open-access/"),
+    Source("nercdata", "NERC data policy (deposit in a NERC data centre; openly available "
+           "within two years of collection)", "UKRI-NERC", "2019/2023",
+           "https://www.ukri.org/who-we-are/nerc/our-policies-and-standards/nerc-data-policy/"),
+    Source("ipcc2019", "2019 Refinement to the 2006 IPCC Guidelines for National Greenhouse "
+           "Gas Inventories (Tier 1-3 methods)", "IPCC", "2006/2019",
+           "https://www.ipcc-nggip.iges.or.jp/public/2019rf/"),
+    Source("ar6gwp", "Forster et al. The Earth's energy budget, climate feedbacks and climate "
+           "sensitivity (IPCC AR6 WG I, Chapter 7: GWP100 values)", "IPCC", "2021",
+           "https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-7/"),
+    Source("ceoslpv", "Land Product Validation subgroup: validation stages 1-4",
+           "CEOS Working Group on Calibration and Validation", "ongoing",
+           "https://lpvs.gsfc.nasa.gov"),
+    Source("olofsson", "Olofsson et al. Good practices for estimating area and assessing "
+           "accuracy of land change. Remote Sensing of Environment 148, 42-57",
+           "Remote Sensing of Environment", "2014", "https://doi.org/10.1016/j.rse.2014.02.015"),
+    Source("gcos", "Essential Climate Variables (GCOS Implementation Plan 2022)", "GCOS / WMO",
+           "2022", "https://gcos.wmo.int/en/essential-climate-variables"),
+    Source("ebv", "Pereira et al. Essential Biodiversity Variables. Science 339, 277-278",
+           "Science", "2013", "https://doi.org/10.1126/science.1229931"),
+    Source("gemini", "The Gemini Principles (purpose, trust, function for national digital "
+           "twins)", "Centre for Digital Built Britain", "2018",
+           "https://www.cdbb.cam.ac.uk/DFTG/GeminiPrinciples"),
+    Source("swcite", "Smith et al. Software citation principles. PeerJ Computer Science 2, e86",
+           "PeerJ Computer Science", "2016", "https://doi.org/10.7717/peerj-cs.86"),
+    Source("gum", "Evaluation of measurement data: Guide to the expression of uncertainty in "
+           "measurement (JCGM 100:2008)", "JCGM / BIPM", "2008",
+           "https://www.bipm.org/en/doi/10.59161/jcgm100-2008e"),
 ]}
 
 
@@ -451,6 +486,110 @@ PERSONAS: dict[str, Persona] = {p.id: p for p in [
         sources=["wcc", "wcc_icvcm", "pc", "bng", "nmf", "bsi", "vcnm", "icvcm", "vcmi", "tnfd",
                  "issb", "sdr", "fcacrypto", "dss", "pdaa"],
     ),
+    Persona(
+        id="research",
+        label="Research scientist",
+        audience="a research scientist",
+        who=("A researcher in a university or research institute (e.g. NERC centres, UKCEH, "
+             "Rothamsted Research, Forest Research, the James Hutton Institute), a doctoral "
+             "or postdoctoral researcher, or an analyst in an agency science team. Works in "
+             "Earth observation, ecosystem and biogeochemical modelling, ecology, physical "
+             "geography or agricultural science, and uses the digital twins to explore "
+             "hypotheses, compare models with data, design experiments or produce results "
+             "for publication."),
+        recognise_by=["hypothesis", "paper", "publication", "PhD", "research", "study",
+                      "sensitivity", "uncertainty", "validation", "calibration", "RMSE",
+                      "bias", "parameter", "model structure", "flux", "eddy covariance",
+                      "remote sensing", "Earth observation", "Sentinel", "lidar", "CCI",
+                      "inventory comparison", "Tier 2", "Tier 3", "reproducible", "dataset",
+                      "DOI"],
+        decisions=[
+            "whether the twins' outputs are fit for a research purpose: process "
+            "representation, resolution, calibration and validation status",
+            "which experiments to run: scenario design, sensitivity and uncertainty "
+            "analysis, comparison with observations or inventories (IPCC Tier 1-3)",
+            "which data to collect next (field plots, flux towers, EO products) to test or "
+            "constrain the models",
+            "how to report, cite and archive results reproducibly (FAIR data, open access, "
+            "funder data policies, software citation)",
+        ],
+        needs=[
+            "methods first: model name and version, process equations or references, "
+            "parameter state (calibrated, learned, default), drivers and input datasets with "
+            "versions and DOIs, spatial and temporal resolution",
+            "uncertainty decomposed where the agents allow it (parameter, driver, structural) "
+            "and validation metrics as the agents report them, with calibration and "
+            "validation kept apart",
+            "sensitivity of outputs to the main assumptions (e.g. water-table depth, "
+            "emission factors, GWP metric)",
+            "a reproducible record: every tool call with arguments, the agents' provenance, "
+            "and enough detail to rerun the analysis",
+        ],
+        follow_ups=[
+            FollowUp("What is the research aim: which response variable, hypothesis or "
+                     "comparison is the analysis for?",
+                     "an exploratory characterisation of the variables the agent models",
+                     "the question names a topic but no variable or hypothesis"),
+            FollowUp("What spatial extent, resolution and period should the analysis cover?",
+                     "the agent's native resolution and pilot extent, and its reference year",
+                     "extent or period is unclear"),
+            FollowUp("Do you want a single central run or a sensitivity analysis over a "
+                     "range of an input (which input and range)?",
+                     "a central run plus a one-at-a-time sweep of the most influential input "
+                     "the agent exposes", "results will be used to draw conclusions"),
+        ],
+        framing=[
+            "Scientific register: precise terms, SI units, symbols defined, sign "
+            "conventions stated (positive flux = emission), GWP set named (e.g. AR6 GWP100).",
+            "Methods before results; keep observation, calibration, validation and scenario "
+            "output explicitly apart.",
+            "Report uncertainty and validation statistics exactly as the agents give them; "
+            "do not inflate precision or claim significance that was not tested.",
+            "Discuss limitations and alternative explanations; suggest falsifiable tests "
+            "and the data that would constrain the result.",
+            "Cite the agents' data and model sources (DOIs where given) and the [R#] calls.",
+        ],
+        section_title="Methods, uncertainty and reproducibility",
+        section_brief=(
+            "The models and data behind each result (from the agents' provenance), parameter "
+            "state, what was calibrated and what was validated and how well (only metrics the "
+            "agents returned), the main sources of uncertainty and how sensitive the result "
+            "is to them, how to reproduce the analysis (the logged calls), and suggested "
+            "experiments or observations that would test or constrain the result. No numbers "
+            "that did not come from the agents."),
+        context=[
+            ("The FAIR principles ask that research data be findable, accessible, "
+             "interoperable and reusable.", "fair"),
+            ("UKRI requires peer-reviewed articles from UKRI-funded research submitted from "
+             "1 April 2022 to be open access on publication.", "ukrioa"),
+            ("NERC-funded data must be deposited in a NERC data centre and made openly "
+             "available within two years of collection.", "nercdata"),
+            ("National inventories follow the IPCC 2006 Guidelines and 2019 Refinement, "
+             "with Tier 1 default factors, Tier 2 country-specific factors and Tier 3 "
+             "models or measurements.", "ipcc2019"),
+            ("CO2-equivalents depend on the metric: AR6 GWP100 values differ from the AR5 "
+             "values still used in some reporting, so the GWP set must be stated.", "ar6gwp"),
+            ("CEOS Land Product Validation defines validation stages 1-4, from a few "
+             "reference sites to uncertainties well quantified over many sites and updated "
+             "systematically.", "ceoslpv"),
+            ("Good practice for EO-based land change estimates is design-based area "
+             "estimation with an accuracy assessment from a probability sample.", "olofsson"),
+            ("The Gemini Principles say national digital twins should have a clear purpose, "
+             "be trustworthy (secure, open, quality data) and function through federation "
+             "and curation.", "gemini"),
+        ],
+        caveats=[
+            "Results are outputs of research-grade models at the versions and parameter "
+            "state reported in the provenance; learned or assimilated parameters can change "
+            "between runs, so cite the version and the logged calls.",
+            "Validation statements cover only what the agents report; skill outside the "
+            "calibration domain (sites, years, management) has not been established here.",
+            "Uncertainty ranges are those the agents compute; structural uncertainty between "
+            "alternative models is generally not included.",
+        ],
+        sources=["fair", "ukrioa", "nercdata", "ipcc2019", "ar6gwp", "ceoslpv", "olofsson",
+                 "gcos", "ebv", "gemini", "swcite", "gum", "naei"],
+    ),
 ]}
 
 GENERAL = "general"
@@ -471,13 +610,13 @@ def prompt_section() -> str:
     out = [
         "User personas",
         "",
-        "You are trained to serve three personas. Before your first agent call, call "
+        "You are trained to serve four personas. Before your first agent call, call "
         "`set_persona` with the persona the user most likely belongs to (from what they say "
         "about themselves, the place and scale of the question and the vocabulary they use), "
-        "or 'general' (for NGOs, researchers, the public, or when there is no signal). If the "
+        "or 'general' (for NGOs, the public, or when there is no signal). If the "
         "persona is genuinely unclear and it would change the report materially, you may "
-        "include 'Which best describes you: policy-maker, farmer or land manager, or green "
-        "finance?' among your follow-up questions. When the persona is fixed by the "
+        "include 'Which best describes you: policy-maker, farmer or land manager, green "
+        "finance, or research scientist?' among your follow-up questions. When the persona is fixed by the "
         "application, use it. Then adapt to the persona throughout: the follow-up questions "
         "you ask, the defaults and assumptions you record, the agent calls you choose, the "
         "framing and tone, and the persona section of the report "

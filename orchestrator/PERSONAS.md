@@ -1,14 +1,15 @@
 # User personas of the SLATE orchestrator
 
-The orchestrator is trained to serve three personas:
+The orchestrator is trained to serve four personas:
 
 | id | Persona | Report section it adds |
 |---|---|---|
 | `policy` | Policy-maker in land use and agricultural policy | Policy relevance |
 | `farmer` | Farmer (owner-occupier or tenant) or land manager | What this could mean for your farm |
 | `finance` | Green finance manager interested in tokenisation of carbon or nature credits | Credit and market relevance |
+| `research` | Research scientist | Methods, uncertainty and reproducibility |
 
-Anyone else (NGOs, researchers, the public) is served as `general`, which is the behaviour the
+Anyone else (NGOs, the public) is served as `general`, which is the behaviour the
 orchestrator had before personas were added.
 
 The profiles are in [`personas.py`](personas.py). This note explains what "trained for a
@@ -27,7 +28,7 @@ parts that must not be left to chance:
    for them, what goes in their report section, and sourced context facts. The profiles are
    part of the static system prompt, so they are cached with the tool definitions.
 2. **Persona selection.** Before its first agent call the model must call `set_persona` with
-   `policy`, `farmer`, `finance` or `general` and its rationale. The orchestrator refuses agent
+   `policy`, `farmer`, `finance`, `research` or `general` and its rationale. The orchestrator refuses agent
    calls until it has. If the persona is genuinely unclear and it matters, the model may ask
    which persona fits as one of its (at most three) follow-up questions. An application that
    knows its user can fix the persona (`Orchestrator(..., persona="farmer")`, or
@@ -106,6 +107,32 @@ what the twin contributes to tokenisation (repeatable, provenance-logged MRV dat
 cannot (legal title, registry status, regulatory classification); no investment advice, prices,
 returns or ratings.
 
+### Research scientist (`research`)
+
+**Who.** Researchers in universities and institutes (NERC centres, UKCEH, Rothamsted Research,
+Forest Research, the James Hutton Institute), doctoral and postdoctoral researchers, and agency
+science teams, working in Earth observation, ecosystem and biogeochemical modelling, ecology,
+physical geography and agricultural science.
+
+**Decisions.** Whether the twins are fit for a research purpose (process representation,
+resolution, calibration and validation status); which experiments to run (scenarios,
+sensitivity and uncertainty analysis, comparison with observations and IPCC Tier 1-3
+inventories); which data to collect next to test or constrain the models; how to report, cite
+and archive results reproducibly.
+
+**Needs from the twins.** Methods first (model and version, equations or references, parameter
+state, drivers and datasets with DOIs, resolution); uncertainty and validation metrics exactly
+as the agents report them, with calibration and validation kept apart; sensitivity to the main
+assumptions; a reproducible record of every call.
+
+**Framing.** Scientific register with units, sign conventions and the GWP set stated; methods
+before results; no inflated precision or untested significance; limitations, alternative
+explanations and falsifiable next tests; data and model sources cited.
+
+**Follow-ups.** The research aim (response variable, hypothesis or comparison); extent,
+resolution and period; central run or a sensitivity sweep (default: central run plus a
+one-at-a-time sweep of the most influential input the agent exposes).
+
 ## Sources
 
 The profiles cite these sources (keys as in `personas.py`). "Checked" means the page or its
@@ -165,6 +192,27 @@ cannot reach gov.uk directly.
 | dss | Bank of England / FCA. Digital Securities Sandbox | |
 | pdaa | Property (Digital Assets etc) Act 2025 (Royal Assent December 2025) | yes |
 
+**Research scientist**
+
+| Key | Source | Checked |
+|---|---|---|
+| fair | Wilkinson et al. (2016). The FAIR Guiding Principles. Scientific Data 3, 160018 | |
+| ukrioa | UKRI open access policy (articles submitted from 1 April 2022 open on publication) | |
+| nercdata | UKRI-NERC data policy: deposit in a NERC data centre, openly available within two years of collection | yes (17 Nov 2026) |
+| ipcc2019 | IPCC (2019). 2019 Refinement to the 2006 Guidelines (Tier 1-3 methods) | |
+| ar6gwp | Forster et al. (2021). IPCC AR6 WG I Chapter 7 (GWP100) | |
+| ceoslpv | CEOS WGCV Land Product Validation: validation stages 1-4 | yes (17 Nov 2026) |
+| olofsson | Olofsson et al. (2014). Good practices for estimating area and assessing accuracy of land change. RSE 148, 42-57 | |
+| gcos | GCOS (2022). Essential Climate Variables | |
+| ebv | Pereira et al. (2013). Essential Biodiversity Variables. Science 339, 277-278 | |
+| gemini | Centre for Digital Built Britain (2018). The Gemini Principles | |
+| swcite | Smith et al. (2016). Software citation principles. PeerJ CS 2, e86 | |
+| gum | JCGM 100:2008. Guide to the expression of uncertainty in measurement | |
+| naei | DESNZ / NAEI. UK Greenhouse Gas Inventory | |
+
+The peer-reviewed sources are cited by DOI; the profile uses only their well-established core
+statements.
+
 ## Assumptions
 
 Where the sources do not settle a point, the profiles rest on these assumptions. Each is a
@@ -197,7 +245,18 @@ users to the authoritative source.
    should map one-to-one to registry units, with retirement mirrored on the registry, to avoid
    double issuance and double counting (the problem seen with tokenised retired credits in
    2022). The orchestrator does not give a regulatory view.
-8. **Persona cues are heuristics.** The cue lists help the model infer a persona; a fixed
+8. **Researchers want methods and uncertainty first.** The research persona puts the
+   provenance, parameter state, calibration vs validation and the reproducible call record at
+   the centre of the report, and defaults to a one-at-a-time sensitivity sweep when results
+   will support conclusions. One-at-a-time sweeps are a pragmatic default, not a global
+   sensitivity analysis; a researcher can ask for more.
+9. **Learned state matters for reproducibility.** Some twins learn or assimilate parameters
+   during a session (e.g. DT8), so the research persona's caveats ask users to cite the model
+   version and the logged calls rather than treat a run as fixed.
+10. **Validation language follows the agents.** The profile names CEOS LPV validation stages as
+   a reference frame, but the orchestrator does not assign a stage to a twin; it reports only
+   the validation the agents return.
+11. **Persona cues are heuristics.** The cue lists help the model infer a persona; a fixed
    persona from the application is preferred when the application knows its user.
 
 ## Keeping the personas current
