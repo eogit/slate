@@ -77,7 +77,9 @@ def script(state):
         # 2. an agent call before stating assumptions is refused
         lambda m: msg(tool_use(2, "dt2__area_methane", {"area": CREWE})),
         # 3. assumptions, then the calls in parallel
-        lambda m: (state.update(gate=last_results(m)["tu2"]), msg(tool_use(3, "record_assumptions", {
+        lambda m: (state.update(gate=last_results(m)["tu2"]), msg(tool_use(
+            30, "set_persona", {"persona": "ngo", "rationale": "the user is with an NGO"}),
+            tool_use(3, "record_assumptions", {
             "assumptions": [
                 {"topic": "Area", "assumption": "15 km radius around Crewe (53.10 N, 2.44 W)",
                  "rationale": "the user's answer"},
@@ -119,6 +121,8 @@ def script(state):
             "key_findings": ["Scenario lowers methane [R1]."],
             "results_markdown": "Numbers from [R1] and [R2].",
             "interpretation_markdown": "Dairy dominates.",
+            "persona_section_markdown": "The scenario quantifies methane only; habitat "
+                                        "and species effects were not modelled.",
             "caveats": ["Dairy share is England's average."],
             "figure_ids": ["1", "2"]})))[1],
         lambda m: msg(text("Done."), stop="end_turn"),
@@ -163,7 +167,7 @@ def test_request_shape(run_result):
     assert kw["model"] == "claude-opus-5-5"
     assert kw["thinking"] == {"type": "adaptive"}
     assert kw["fallbacks"] == "default"
-    assert [t["name"] for t in kw["tools"][:4]] == [t["name"] for t in LOCAL_TOOLS]
+    assert [t["name"] for t in kw["tools"][:len(LOCAL_TOOLS)]] == [t["name"] for t in LOCAL_TOOLS]
     # tools and system prompt identical on every turn (prompt caching)
     assert all(r["tools"] == kw["tools"] and r["system"] == kw["system"]
                for r in run_result.claude.requests)
@@ -181,6 +185,8 @@ def test_follow_up_questions_and_limits(run_result):
 def test_assumptions_are_required_before_agent_calls(run_result):
     gate = run_result.state["gate"]
     assert gate.get("is_error") and "record_assumptions" in gate["content"]
+    assert "set_persona" in gate["content"]
+    assert run_result.result.persona == "ngo" and not run_result.result.persona_fixed
     assert [a["topic"] for a in run_result.result.assumptions] == ["Area", "Scenario"]
     assert all(c.assumptions == ["Area", "Scenario"] for c in run_result.result.calls)
 
@@ -206,6 +212,8 @@ def test_report(run_result):
     assert "| R1 | DT2 livestock methane | `methane_scenario` |" in md
     assert "zenodo.13734518" in md                          # provenance comes from the agent
     assert "15 km radius around Crewe" in md
+    assert "## Nature recovery and advocacy relevance" in md        # NGO persona section
+    assert "do not assess species, habitat condition" in md          # NGO persona caveat
     page = r.html_path.read_text()
     assert page.count("data:image/png;base64,") == 2        # both figures embedded
     assert "<table>" in page

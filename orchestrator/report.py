@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import personas as per
+
 
 @dataclass
 class Figure:
@@ -36,6 +38,7 @@ class ReportContent:
     caveats: list[str]
     figure_ids: list[str] = field(default_factory=list)
     next_steps: list[str] = field(default_factory=list)
+    persona_section_markdown: str = ""
 
 
 def _provenance_strings(results: list[Any]) -> list[str]:
@@ -68,10 +71,14 @@ def _args(a: dict) -> str:
 
 def render_markdown(c: ReportContent, *, question: str, clarifications: list[dict],
                     assumptions: list[dict], calls: list, figures: dict[str, Figure],
-                    agents_used: dict[str, str], when: datetime | None = None) -> str:
+                    agents_used: dict[str, str], when: datetime | None = None,
+                    persona: str = per.GENERAL, persona_rationale: str = "",
+                    persona_fixed: bool = False) -> str:
     when = when or datetime.now(timezone.utc)
+    p = per.get(persona)
+    audience = c.audience + (f" (persona: {p.label})" if p else "")
     out = [f"# {c.title}", "",
-           f"*Prepared for: {c.audience} · {when:%d %B %Y} · SLATE digital-twin orchestrator*",
+           f"*Prepared for: {audience} · {when:%d %B %Y} · SLATE digital-twin orchestrator*",
            "", f"**Question.** {question}", "",
            f"**As understood.** {c.question_as_understood}", "", "## Key findings", ""]
     out += [f"- {k}" for k in c.key_findings]
@@ -81,10 +88,17 @@ def render_markdown(c: ReportContent, *, question: str, clarifications: list[dic
         if f:
             out += [f"![{f.caption}]({f.path.name})", "", f"*Figure {fid}. {f.caption}*", ""]
     out += ["## What this means", "", c.interpretation_markdown.strip(), ""]
+    if p and c.persona_section_markdown.strip():
+        out += [f"## {p.section_title}", "", c.persona_section_markdown.strip(), ""]
     if c.next_steps:
         out += ["## Possible next steps", ""] + [f"- {s}" for s in c.next_steps] + [""]
-    out += ["## Caveats", ""] + [f"- {s}" for s in c.caveats] + [""]
+    caveats = list(c.caveats) + [s for s in (p.caveats if p else []) if s not in c.caveats]
+    out += ["## Caveats", ""] + [f"- {s}" for s in caveats] + [""]
     out += ["## How this was produced", ""]
+    how = "set by the application" if persona_fixed else "inferred by the orchestrator"
+    out += [f"**Persona.** {p.label if p else 'General (no persona-specific framing)'} "
+            f"({how}{'; ' + persona_rationale if persona_rationale and not persona_fixed else ''}).",
+            ""]
     if clarifications:
         out += ["**Follow-up questions**", ""]
         for q in clarifications:
@@ -106,6 +120,10 @@ def render_markdown(c: ReportContent, *, question: str, clarifications: list[dic
     if prov:
         out += ["", "**Data and models (as reported by the agents)**", ""]
         out += [f"- {p}" for p in prov]
+    if p:
+        out += ["", f"**Policy and market context sources for this persona (reviewed "
+                    f"{per.REVIEWED})**", ""]
+        out += [f"- {s}" for s in per.sources_markdown(persona)]
     out += ["", "*Scenario results are model responses to assumed changes, not observations.*", ""]
     return "\n".join(out)
 
