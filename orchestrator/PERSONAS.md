@@ -1,6 +1,6 @@
 # User personas of the SLATE orchestrator
 
-The orchestrator is trained to serve four personas:
+The orchestrator is trained to serve five personas:
 
 | id | Persona | Report section it adds |
 |---|---|---|
@@ -8,8 +8,9 @@ The orchestrator is trained to serve four personas:
 | `farmer` | Farmer (owner-occupier or tenant) or land manager | What this could mean for your farm |
 | `finance` | Green finance manager interested in tokenisation of carbon or nature credits | Credit and market relevance |
 | `research` | Research scientist | Methods, uncertainty and reproducibility |
+| `ngo` | NGO, including conservation and nature restoration charities | Nature recovery and advocacy relevance |
 
-Anyone else (NGOs, the public) is served as `general`, which is the behaviour the
+Anyone else (the public, or no signal about the user) is served as `general`, which is the behaviour the
 orchestrator had before personas were added.
 
 The profiles are in [`personas.py`](personas.py). This note explains what "trained for a
@@ -28,7 +29,7 @@ parts that must not be left to chance:
    for them, what goes in their report section, and sourced context facts. The profiles are
    part of the static system prompt, so they are cached with the tool definitions.
 2. **Persona selection.** Before its first agent call the model must call `set_persona` with
-   `policy`, `farmer`, `finance`, `research` or `general` and its rationale. The orchestrator refuses agent
+   `policy`, `farmer`, `finance`, `research`, `ngo` or `general` and its rationale. The orchestrator refuses agent
    calls until it has. If the persona is genuinely unclear and it matters, the model may ask
    which persona fits as one of its (at most three) follow-up questions. An application that
    knows its user can fix the persona (`Orchestrator(..., persona="farmer")`, or
@@ -133,6 +134,34 @@ explanations and falsifiable next tests; data and model sources cited.
 resolution and period; central run or a sensitivity sweep (default: central run plus a
 one-at-a-time sweep of the most influential input the agent exposes).
 
+### NGO, including conservation and nature restoration charities (`ngo`)
+
+**Who.** Staff of conservation and nature restoration charities (e.g. the Wildlife Trusts,
+RSPB, National Trust, Woodland Trust, Plantlife, Rewilding Britain, rivers trusts),
+environmental campaign groups and sustainable farming and food NGOs: reserve and estate
+managers, landscape-scale restoration leads, conservation scientists, policy and advocacy
+officers, fundraising and communications teams. Many are large landowners and work with
+farmers (e.g. farm clusters, Landscape Recovery).
+
+**Decisions.** Where and how to restore or create habitat; which policy positions and campaigns
+to pursue and on what evidence; how to fund restoration (grants, Landscape Recovery, BNG habitat
+banks, carbon codes, philanthropy); how to monitor and report outcomes to members and funders.
+
+**Needs from the twins.** Site and landscape results comparing restoration options with current
+land use; co-benefits and trade-offs, with a clear statement of what is not modelled (most
+biodiversity outcomes); evidence that withstands public scrutiny; material for plain-language
+messages plus a technical annex.
+
+**Framing.** Balanced and transparent about uncertainty; climate outcomes the twins compute kept
+apart from biodiversity outcomes they do not; sector language (Lawton's more, bigger, better,
+joined-up; nature-based solutions with safeguards) without advocating a campaign position; a
+clear line between statements the evidence supports for public use and those needing
+qualification.
+
+**Follow-ups.** Which outcome matters most (default: GHG and carbon, others named as not
+modelled); the reserve or project boundary vs the wider landscape; the use of the result (land
+management decision, campaign or policy submission, funder report).
+
 ## Sources
 
 The profiles cite these sources (keys as in `personas.py`). "Checked" means the page or its
@@ -213,6 +242,22 @@ cannot reach gov.uk directly.
 The peer-reviewed sources are cited by DOI; the profile uses only their well-established core
 statements.
 
+**NGO**
+
+| Key | Source | Checked |
+|---|---|---|
+| son23 | State of Nature Partnership (2023). State of Nature 2023: 19 % average decline in abundance of monitored species since 1970; about one in six species at risk of extinction in Great Britain | yes (17 Nov 2026, via NHM summary) |
+| lawton | Lawton et al. (2010). Making Space for Nature (more, bigger, better, joined) | |
+| gbf | CBD (2022). Kunming-Montreal Global Biodiversity Framework, Target 3 (30by30) | |
+| wcl30 | Wildlife and Countryside Link (2023-2025). 30by30 progress assessments for England | yes (page exists; figures vary by criteria, so none quoted) |
+| envbio | Environmental Targets (Biodiversity) (England) Regulations 2023: halt species decline by 2030, increase by 2042 | |
+| cc9 | Charity Commission (2022). Speaking out: campaigning and political activity by charities (CC9) | yes (page exists) |
+| iucnnbs | IUCN (2020). Global Standard for Nature-based Solutions | |
+| ser | Gann et al. (2019). SER International principles and standards for ecological restoration, 2nd ed. | |
+
+The NGO profile also uses the policy sources for the Environment Act, Land Use Framework, ELM,
+LNRS, BNG, and the Peatland and Woodland Carbon Codes.
+
 ## Assumptions
 
 Where the sources do not settle a point, the profiles rest on these assumptions. Each is a
@@ -256,7 +301,17 @@ users to the authoritative source.
 10. **Validation language follows the agents.** The profile names CEOS LPV validation stages as
    a reference frame, but the orchestrator does not assign a stage to a twin; it reports only
    the validation the agents return.
-11. **Persona cues are heuristics.** The cue lists help the model infer a persona; a fixed
+11. **NGOs need defensible evidence more than persuasive evidence.** NGO outputs are often
+   public and contested, so the profile emphasises ranges, sources and which statements are
+   safe for public use, and keeps the orchestrator out of campaign positions. Charity law (CC9)
+   allows campaigning in support of charitable purposes; that is the NGO's call, not the
+   twin's.
+12. **Biodiversity is mostly outside the twins.** The current twins model greenhouse gases and
+   biomass carbon, not species or habitat condition. NGO reports always say so, and habitat
+   benefits are named only as unassessed possibilities.
+13. **NGOs are a persona; the public stays general.** Before this change NGOs were served as
+   `general`; `general` now covers the public and questions with no signal about the user.
+14. **Persona cues are heuristics.** The cue lists help the model infer a persona; a fixed
    persona from the application is preferred when the application knows its user.
 
 ## Keeping the personas current

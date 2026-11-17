@@ -197,6 +197,30 @@ SOURCES: dict[str, Source] = {s.key: s for s in [
     Source("gum", "Evaluation of measurement data: Guide to the expression of uncertainty in "
            "measurement (JCGM 100:2008)", "JCGM / BIPM", "2008",
            "https://www.bipm.org/en/doi/10.59161/jcgm100-2008e"),
+    # --- NGO ----------------------------------------------------------------------------
+    Source("son23", "State of Nature 2023", "State of Nature Partnership", "2023",
+           "https://stateofnature.org.uk/"),
+    Source("lawton", "Lawton et al. Making Space for Nature: a review of England's wildlife "
+           "sites and ecological network", "Defra", "2010",
+           "https://webarchive.nationalarchives.gov.uk/ukgwa/20130402170324/http://archive."
+           "defra.gov.uk/environment/biodiversity/documents/201009space-for-nature.pdf"),
+    Source("gbf", "Kunming-Montreal Global Biodiversity Framework (Target 3: 30by30)",
+           "Convention on Biological Diversity", "2022", "https://www.cbd.int/gbf"),
+    Source("wcl30", "30by30 progress assessments for England", "Wildlife and Countryside Link",
+           "2023-2025", "https://www.wcl.org.uk/30by30-update-2025.asp"),
+    Source("envbio", "Environmental Targets (Biodiversity) (England) Regulations 2023 "
+           "(species abundance: halt decline by 2030, increase by 2042)", "UK Parliament",
+           "2023", "https://www.legislation.gov.uk/uksi/2023/91/contents/made"),
+    Source("cc9", "Speaking out: guidance on campaigning and political activity by charities "
+           "(CC9)", "Charity Commission for England and Wales", "2022",
+           "https://www.gov.uk/government/publications/speaking-out-guidance-on-campaigning-"
+           "and-political-activity-by-charities-cc9"),
+    Source("iucnnbs", "IUCN Global Standard for Nature-based Solutions", "IUCN", "2020",
+           "https://www.iucn.org/resources/publication/iucn-global-standard-nature-based-"
+           "solutions"),
+    Source("ser", "Gann et al. International principles and standards for the practice of "
+           "ecological restoration, 2nd edition. Restoration Ecology 27, S1-S46",
+           "Society for Ecological Restoration", "2019", "https://doi.org/10.1111/rec.13035"),
 ]}
 
 
@@ -590,6 +614,105 @@ PERSONAS: dict[str, Persona] = {p.id: p for p in [
         sources=["fair", "ukrioa", "nercdata", "ipcc2019", "ar6gwp", "ceoslpv", "olofsson",
                  "gcos", "ebv", "gemini", "swcite", "gum", "naei"],
     ),
+    Persona(
+        id="ngo",
+        label="NGO (conservation, nature restoration and environmental charities)",
+        audience="a conservation or environmental NGO",
+        who=("Staff of a non-governmental organisation: conservation and nature restoration "
+             "charities (e.g. the Wildlife Trusts, RSPB, National Trust, Woodland Trust, "
+             "Plantlife, Rewilding Britain, rivers trusts), environmental campaign groups, and "
+             "sustainable farming and food NGOs. Roles include reserve and estate managers, "
+             "landscape-scale restoration project leads, conservation scientists, policy and "
+             "advocacy officers, and fundraising and communications teams. Many of these "
+             "organisations are large landowners and work in partnership with farmers."),
+        recognise_by=["NGO", "charity", "trust", "reserve", "conservation", "restoration",
+                      "rewilding", "nature recovery", "habitat", "species", "wildlife",
+                      "biodiversity", "30by30", "campaign", "advocacy", "members", "funders",
+                      "landscape-scale", "farm cluster", "Landscape Recovery", "LNRS",
+                      "nature-based solutions"],
+        decisions=[
+            "where to restore or create habitat and how (peatland rewetting, woodland and "
+            "scrub, wetland, species-rich grassland), on their own land or with partners",
+            "which policy positions and campaigns to pursue (land use, farming payments, "
+            "targets such as 30by30 and species abundance) and what evidence supports them",
+            "how to fund restoration: grants, Landscape Recovery, biodiversity net gain "
+            "habitat banks, carbon codes, philanthropic and corporate partnerships",
+            "how to monitor and report outcomes to members, funders and the public",
+        ],
+        needs=[
+            "results for reserves, project areas or whole landscapes, comparing restoration "
+            "options with the current land use",
+            "co-benefits and trade-offs across climate, water and food where the agents "
+            "report them, and a clear statement of what is not modelled (most biodiversity "
+            "outcomes)",
+            "evidence that withstands scrutiny: ranges, assumptions and sources that critics "
+            "or the public can check",
+            "material that can be turned into plain-language messages and a technical "
+            "annex for funders or policy submissions",
+        ],
+        follow_ups=[
+            FollowUp("Which outcome matters most for this work: greenhouse gases and carbon, "
+                     "habitat extent, water, or species?",
+                     "greenhouse gases and carbon, the outcomes the twins model, with other "
+                     "outcomes named as not modelled", "the question mixes several outcomes"),
+            FollowUp("Is the area a reserve or project you manage, or a wider landscape?",
+                     "the wider landscape around the place named", "the boundary is unclear"),
+            FollowUp("What will the result be used for: a land management decision, a "
+                     "campaign or policy submission, or a report to funders?",
+                     "a land management decision", "it changes how cautious and how detailed "
+                     "the report should be"),
+        ],
+        framing=[
+            "Balanced and transparent about uncertainty; quote ranges and say what each "
+            "number is a model estimate of.",
+            "Separate climate outcomes the twins compute from biodiversity outcomes they do "
+            "not, and never imply species or habitat benefits the agents did not assess.",
+            "Frame restoration options in the language of the sector (more, bigger, better "
+            "and more joined-up habitat; nature-based solutions with safeguards) without "
+            "advocating a campaign position.",
+            "Say which statements the evidence supports for public use and which need "
+            "qualification, so the organisation is not exposed to challenge.",
+            "Plain language in the findings, with the detail in the results and caveats.",
+        ],
+        section_title="Nature recovery and advocacy relevance",
+        section_brief=(
+            "What the results mean for restoration choices on the site or landscape (and how "
+            "they relate to more, bigger, better, joined-up habitat), which co-benefits and "
+            "trade-offs the agents quantified and which outcomes, especially biodiversity, "
+            "were not modelled; which statements the evidence supports for campaigns, policy "
+            "submissions or funder reports and which need qualification; and what monitoring "
+            "would show whether the outcome is achieved. No campaign positions and no "
+            "numbers that did not come from the agents."),
+        context=[
+            ("The State of Nature 2023 report found that monitored UK species have declined "
+             "in abundance by 19% on average since 1970 and that about one in six species "
+             "assessed is at risk of extinction in Great Britain.", "son23"),
+            ("The Lawton review set the principle that England's ecological network needs "
+             "more, bigger, better and more joined-up sites.", "lawton"),
+            ("The UK signed the Kunming-Montreal Global Biodiversity Framework, whose Target "
+             "3 is to protect and conserve 30% of land and sea by 2030 (30by30).", "gbf"),
+            ("NGO coalitions led by Wildlife and Countryside Link assess progress on 30by30 "
+             "in England and argue that only a small share of land is effectively protected, "
+             "so the criteria for what counts matter.", "wcl30"),
+            ("England has legally binding targets to halt the decline in species abundance by "
+             "2030 and increase it by 2042.", "envbio"),
+            ("Charities may campaign and engage in political activity in support of their "
+             "charitable purposes, but must stay independent of party politics.", "cc9"),
+            ("Recognised good practice for restoration and nature-based solutions includes "
+             "the IUCN Global Standard and the SER international principles and standards.",
+             "iucnnbs"),
+        ],
+        caveats=[
+            "The digital twins model greenhouse gases and biomass carbon; they do not "
+            "assess species, habitat condition or other biodiversity outcomes, so any such "
+            "benefit is outside this report's evidence.",
+            "Quote model results as estimates with their ranges and assumptions; they are "
+            "not monitoring data and should not be presented as observed outcomes.",
+            f"Policy context reflects the position in {REVIEWED}.",
+        ],
+        sources=["son23", "lawton", "gbf", "wcl30", "envbio", "envact", "cc9", "iucnnbs",
+                 "ser", "luf", "elm", "lnrs", "bng", "pc", "wcc"],
+    ),
 ]}
 
 GENERAL = "general"
@@ -610,13 +733,13 @@ def prompt_section() -> str:
     out = [
         "User personas",
         "",
-        "You are trained to serve four personas. Before your first agent call, call "
+        "You are trained to serve five personas. Before your first agent call, call "
         "`set_persona` with the persona the user most likely belongs to (from what they say "
         "about themselves, the place and scale of the question and the vocabulary they use), "
-        "or 'general' (for NGOs, the public, or when there is no signal). If the "
+        "or 'general' (for the public, or when there is no signal). If the "
         "persona is genuinely unclear and it would change the report materially, you may "
         "include 'Which best describes you: policy-maker, farmer or land manager, green "
-        "finance, or research scientist?' among your follow-up questions. When the persona is fixed by the "
+        "finance, research scientist, or NGO?' among your follow-up questions. When the persona is fixed by the "
         "application, use it. Then adapt to the persona throughout: the follow-up questions "
         "you ask, the defaults and assumptions you record, the agent calls you choose, the "
         "framing and tone, and the persona section of the report "

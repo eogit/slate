@@ -26,9 +26,9 @@ from test_orchestrator import ScriptedClaude, last_results, msg, text, tool_use 
 # --------------------------------------------------------------------------- #
 # the profiles
 # --------------------------------------------------------------------------- #
-def test_four_personas_plus_general():
-    assert list(per.PERSONAS) == ["policy", "farmer", "finance", "research"]
-    assert per.PERSONA_IDS == ["policy", "farmer", "finance", "research", "general"]
+def test_five_personas_plus_general():
+    assert list(per.PERSONAS) == ["policy", "farmer", "finance", "research", "ngo"]
+    assert per.PERSONA_IDS == ["policy", "farmer", "finance", "research", "ngo", "general"]
     assert per.get("general") is None
     with pytest.raises(ValueError):
         per.get("banker")
@@ -72,6 +72,12 @@ def test_persona_knowledge_is_grounded():
         assert term in res_text, term
     assert any("parameter state" in c for c in res.caveats)
     assert any("structural uncertainty" in c for c in res.caveats)
+    ngo = per.PERSONAS["ngo"]
+    ngo_text = " ".join(f for f, _ in ngo.context)
+    for term in ("State of Nature 2023", "19%", "more, bigger, better", "30by30", "2042",
+                 "party politics", "IUCN Global Standard"):
+        assert term in ngo_text, term
+    assert any("do not assess species" in c for c in ngo.caveats)
 
 
 def test_personas_in_system_prompt_and_tools():
@@ -276,3 +282,21 @@ def test_research_persona_selected_by_model(tmp_path):
         assert c in md
     assert "https://doi.org/10.1038/sdata.2016.18" in md          # FAIR principles cited
     assert "gwp100: IPCC AR6" in md                                 # agent provenance kept
+
+
+def test_general_persona_has_no_persona_section(tmp_path):
+    steps = [
+        lambda m: msg(tool_use(1, "set_persona", {"persona": "general",
+                                                  "rationale": "no signal about the user"}),
+                      tool_use(2, "record_assumptions", {"assumptions": []}),
+                      tool_use(3, "dt8__ghg_balance", {"crop": "Potato"})),
+        lambda m: msg(tool_use(4, "write_report", report_args("Potato on peat"))),
+        lambda m: msg(text("Done."), stop="end_turn"),
+    ]
+    res = run(steps, tmp=tmp_path, question="What does growing potatoes on peat emit?").result
+    md = res.markdown
+    assert res.stop == "done" and res.persona == "general"
+    assert "(persona:" not in md and "General (no persona-specific framing)" in md
+    for p in per.PERSONAS.values():
+        assert f"## {p.section_title}" not in md
+    assert "context sources for this persona" not in md
