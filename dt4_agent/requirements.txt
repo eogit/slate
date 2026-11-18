@@ -1,0 +1,5 @@
+mcp>=2.3,<3
+numpy>=1.24
+pydantic>=2
+# only for scripts/extract_cci_pilots.py (re-extracting CCI v7 from CEDA):
+# rasterio>=1.3
