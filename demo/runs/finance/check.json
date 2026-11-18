@@ -1,0 +1,46 @@
+{
+ "persona": "finance",
+ "report": true,
+ "twins_called": [
+  "dt4",
+  "dt6",
+  "dt8"
+ ],
+ "twins_expected": [
+  "dt8",
+  "dt4",
+  "dt6"
+ ],
+ "multi_twin": true,
+ "persona_section": true,
+ "agent_calls": 10,
+ "failed_calls": 0,
+ "assumptions": 5,
+ "clarifications": 0,
+ "figures": 1,
+ "key_finding_numbers_traced": 46,
+ "key_finding_numbers_other": [],
+ "passed": true,
+ "backend": "claude-code",
+ "model": "claude-opus-5-5",
+ "seconds": 134,
+ "turns": 14,
+ "tool_sequence": [
+  "record_assumptions",
+  "dt8__ghg_balance",
+  "dt8__ghg_balance",
+  "dt8__water_table_scenario",
+  "dt8__validate_inventory",
+  "dt4__afforestation_scenario",
+  "dt4__afforestation_scenario",
+  "dt4__validate",
+  "dt6__planting_scenario",
+  "dt6__planting_scenario",
+  "dt6__validate",
+  "make_figure",
+  "write_report"
+ ],
+ "final_message": "I've written the report. Peat rewetting comes out as the most robust basis for credits: it avoids about 34\u201336 t CO2e/ha/yr from drained Fen cropland, and the model agrees closely with the UK Peatland Inventory. That range comes from varying the baseline crop and the target water level; the peat model gives no confidence interval.\n\n| Project type | Modelled abatement, t CO2/ha/yr | Spread | How well validated |\n|---|---|---|---|\n| Peat rewetting on Fenland cropland | about 34\u201336 (avoided emissions, from year one) | only what changes with crop and water level (no confidence interval) | Matches inventory emission factors (e.g. rewetted-fen methane 109 vs 111 kg/ha/yr), but not tested against site flux measurements |\n| Corsican pine near Thetford, unthinned | 16.5\u201320.2 (removals, 50-year average) | roughly 3\u201333 (90 % range) | Tested against satellite biomass maps on years it wasn't fitted to; explains about 63\u201366 % of the variation |\n| Corsican pine near Thetford, thinned and felled | 10.9\u201311.9 | \u2014 | Same as above |\n| Hedgerow and agroforestry trees on Fenland farms | about 0.3\u20131.0 | \u2014 | Effectively unvalidated |\n\n- **Peat:** the main risk is whether the target water table is reached and kept. If it only gets to 0.5 m below the surface, emissions climb back to about 16 t/ha/yr. At a water table around 0.2 m below the surface, the inventory's own equations give a less favourable result than the model.\n- **Pine:** this has the most independent validation, but the volume is very uncertain and the model drifts high in recent years. Removals start slowly, under 5 t/ha/yr for the first 6\u20137 years.\n- **Hedgerow and agroforestry:** the model does no better than assuming the trees stop growing, and it predicts 2\u20136 times the height growth seen in lidar. The figures are per tree, so the per-hectare numbers rest on my assumption of 100 trees/ha. The drained peat underneath keeps emitting about 37 t CO2e/ha/yr regardless.\n\nNone of these figures are credits: the Peatland Code and Woodland Carbon Code calculations, buffers, additionality and leakage checks were not run. The pine runs assume planting on bare land and leave out soil carbon and fire or storm losses. Food production, water and biodiversity were not modelled. The report also covers tokenisation and buyer claims.\n\nFiles are in /home/user/slate/demo/runs/finance:\n- 20261118-2039-east-anglia-nature-based-carbon-how-fen-peat-rewetting-thetf.html",
+ "is_error": false,
+ "stderr_tail": ""
+}

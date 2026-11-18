@@ -1,0 +1,1136 @@
+{
+ "question": "Across the SLATE twins, how good is each model at reproducing independent observations, and where is the structural uncertainty largest? Compare the hold-out skill of the forest biomass models at Thetford, of the tree-height models for trees outside woodland in Breckland and the Fens against persistence, of the livestock methane map against the NAEI over Norfolk and Suffolk, and of the peatland model against the UK Peatland Inventory emission factors.",
+ "persona": "research",
+ "persona_fixed": true,
+ "persona_rationale": "set by the application",
+ "clarifications": [],
+ "assumptions": [
+  {
+   "topic": "Norfolk and Suffolk extent",
+   "assumption": "Approximated by a BNG box [555000, 215000, 655000, 345000] (EPSG:27700), which includes slivers of Cambridgeshire, Essex and the sea.",
+   "rationale": "DT2 accepts BNG boxes, not county polygons.",
+   "agents": [
+    "DT2"
+   ]
+  },
+  {
+   "topic": "DT4 hold-out design",
+   "assumption": "Use the agent's shipped hold-out (fit 2005-2017, score 2018-2024, felled/restocked pixels excluded) for all calibrated species groups at Thetford.",
+   "rationale": "This is the independent-data test the agent provides.",
+   "agents": [
+    "DT4"
+   ]
+  },
+  {
+   "topic": "DT6 hold-out design",
+   "assumption": "Use the shipped forecast of the latest lidar epoch from earlier epochs, against no-growth persistence, for the Breckland and Fens tiles.",
+   "rationale": "Matches the question.",
+   "agents": [
+    "DT6"
+   ]
+  },
+  {
+   "topic": "DT2 independence",
+   "assumption": "Validate with the default site (no learned factors) so the comparison with NAEI is not contaminated by assimilating NAEI itself.",
+   "rationale": "Keeps calibration and validation apart.",
+   "agents": [
+    "DT2"
+   ]
+  },
+  {
+   "topic": "DT8 parameter state",
+   "assumption": "Default calibrated parameters (site 'default'), compared with UK Peatland Inventory Tier-2 emission factors.",
+   "rationale": "No learned parameters should be used for an independent comparison.",
+   "agents": [
+    "DT8"
+   ]
+  }
+ ],
+ "calls": [
+  {
+   "ref": "R1",
+   "agent": "dt4",
+   "tool": "validate",
+   "arguments": {
+    "landscapes": [
+     "thetford"
+    ]
+   },
+   "ok": true,
+   "result": {
+    "fit_years": [
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2015,
+     2016,
+     2017
+    ],
+    "holdout_years": [
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024
+    ],
+    "rows": [
+     {
+      "landscape": "thetford",
+      "species": "CP",
+      "growth_model": "yield_curve",
+      "productivity_median": 14.0,
+      "holdout": {
+       "rmse_mg_ha": 37.2108,
+       "bias_mg_ha": 1.6771,
+       "r2": 0.6262,
+       "n": 13209
+      },
+      "pixels_excluded_for_harvest": 113,
+      "holdout_landscape_mean_observed": [
+       115.6645,
+       115.106,
+       115.1086,
+       118.5866,
+       116.5729,
+       113.9449,
+       114.9565
+      ],
+      "holdout_landscape_mean_model": [
+       112.5179,
+       114.2815,
+       115.9144,
+       117.5073,
+       119.0389,
+       120.5251,
+       121.8945
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 34.1948,
+       "bias_mg_ha": -0.7053,
+       "r2": 0.6862,
+       "n": 13279
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "CP",
+      "growth_model": "3pg",
+      "productivity_median": 0.55,
+      "holdout": {
+       "rmse_mg_ha": 35.7324,
+       "bias_mg_ha": 2.3557,
+       "r2": 0.6553,
+       "n": 13209
+      },
+      "pixels_excluded_for_harvest": 113,
+      "holdout_landscape_mean_observed": [
+       115.6645,
+       115.106,
+       115.1086,
+       118.5866,
+       116.5729,
+       113.9449,
+       114.9565
+      ],
+      "holdout_landscape_mean_model": [
+       113.3518,
+       115.0039,
+       116.6205,
+       118.1878,
+       119.6723,
+       121.1279,
+       122.4656
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 33.5293,
+       "bias_mg_ha": 0.5846,
+       "r2": 0.6983,
+       "n": 13279
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "MB",
+      "growth_model": "yield_curve",
+      "productivity_median": 2.0,
+      "holdout": {
+       "rmse_mg_ha": 30.1966,
+       "bias_mg_ha": 3.9448,
+       "r2": 0.7487,
+       "n": 12964
+      },
+      "pixels_excluded_for_harvest": 148,
+      "holdout_landscape_mean_observed": [
+       73.1911,
+       75.791,
+       77.1793,
+       78.3969,
+       76.1787,
+       79.0302,
+       77.6112
+      ],
+      "holdout_landscape_mean_model": [
+       75.4541,
+       77.2367,
+       79.0082,
+       80.7622,
+       82.4844,
+       84.1868,
+       85.8598
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 27.9464,
+       "bias_mg_ha": 2.8748,
+       "r2": 0.7845,
+       "n": 13069
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "MB",
+      "growth_model": "3pg",
+      "productivity_median": 0.35,
+      "holdout": {
+       "rmse_mg_ha": 28.7607,
+       "bias_mg_ha": -5.245,
+       "r2": 0.7721,
+       "n": 12964
+      },
+      "pixels_excluded_for_harvest": 148,
+      "holdout_landscape_mean_observed": [
+       73.1911,
+       75.791,
+       77.1793,
+       78.3969,
+       76.1787,
+       79.0302,
+       77.6112
+      ],
+      "holdout_landscape_mean_model": [
+       68.8224,
+       69.7902,
+       70.7226,
+       71.6051,
+       72.4504,
+       73.2525,
+       74.02
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 26.4708,
+       "bias_mg_ha": -3.6967,
+       "r2": 0.8067,
+       "n": 13069
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "SP",
+      "growth_model": "yield_curve",
+      "productivity_median": 8.0,
+      "holdout": {
+       "rmse_mg_ha": 45.9325,
+       "bias_mg_ha": -11.8271,
+       "r2": 0.2974,
+       "n": 11375
+      },
+      "pixels_excluded_for_harvest": 375,
+      "holdout_landscape_mean_observed": [
+       115.6548,
+       117.4375,
+       117.8498,
+       113.312,
+       117.4505,
+       122.1514,
+       118.1077
+      ],
+      "holdout_landscape_mean_model": [
+       99.764,
+       101.8753,
+       103.8468,
+       105.6912,
+       107.5162,
+       109.3471,
+       111.1335
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 38.8704,
+       "bias_mg_ha": -0.9204,
+       "r2": 0.5731,
+       "n": 12894
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "SP",
+      "growth_model": "3pg",
+      "productivity_median": 0.5,
+      "holdout": {
+       "rmse_mg_ha": 43.2661,
+       "bias_mg_ha": -11.5509,
+       "r2": 0.3766,
+       "n": 11375
+      },
+      "pixels_excluded_for_harvest": 375,
+      "holdout_landscape_mean_observed": [
+       115.6548,
+       117.4375,
+       117.8498,
+       113.312,
+       117.4505,
+       122.1514,
+       118.1077
+      ],
+      "holdout_landscape_mean_model": [
+       100.3217,
+       102.2423,
+       104.1889,
+       106.093,
+       107.7744,
+       109.4449,
+       111.0422
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 37.427,
+       "bias_mg_ha": 0.7919,
+       "r2": 0.6042,
+       "n": 12894
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "DF",
+      "growth_model": "yield_curve",
+      "productivity_median": 14.0,
+      "holdout": {
+       "rmse_mg_ha": 41.515,
+       "bias_mg_ha": -16.1777,
+       "r2": 0.5888,
+       "n": 5201
+      },
+      "pixels_excluded_for_harvest": 319,
+      "holdout_landscape_mean_observed": [
+       111.6178,
+       115.86,
+       117.7106,
+       106.5047,
+       114.2678,
+       123.6258,
+       117.5236
+      ],
+      "holdout_landscape_mean_model": [
+       91.2506,
+       93.763,
+       96.3499,
+       98.947,
+       101.6895,
+       104.5621,
+       107.3044
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 38.4625,
+       "bias_mg_ha": -2.9238,
+       "r2": 0.6767,
+       "n": 6594
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "DF",
+      "growth_model": "3pg",
+      "productivity_median": 0.5,
+      "holdout": {
+       "rmse_mg_ha": 41.1648,
+       "bias_mg_ha": -16.0824,
+       "r2": 0.5957,
+       "n": 5201
+      },
+      "pixels_excluded_for_harvest": 319,
+      "holdout_landscape_mean_observed": [
+       111.6178,
+       115.86,
+       117.7106,
+       106.5047,
+       114.2678,
+       123.6258,
+       117.5236
+      ],
+      "holdout_landscape_mean_model": [
+       92.0413,
+       94.3699,
+       96.7793,
+       99.1774,
+       101.611,
+       104.0461,
+       106.5084
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 38.6938,
+       "bias_mg_ha": -3.0958,
+       "r2": 0.6729,
+       "n": 6594
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "BE",
+      "growth_model": "yield_curve",
+      "productivity_median": 3.0,
+      "holdout": {
+       "rmse_mg_ha": 47.6591,
+       "bias_mg_ha": -4.7035,
+       "r2": 0.2223,
+       "n": 5670
+      },
+      "pixels_excluded_for_harvest": 22,
+      "holdout_landscape_mean_observed": [
+       136.5543,
+       132.6469,
+       132.8346,
+       127.9778,
+       134.4444,
+       145.6531,
+       136.9198
+      ],
+      "holdout_landscape_mean_model": [
+       127.9709,
+       128.8772,
+       129.7604,
+       130.6226,
+       131.4633,
+       132.2945,
+       133.1174
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 37.6332,
+       "bias_mg_ha": -8.4731,
+       "r2": 0.5151,
+       "n": 5670
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "BE",
+      "growth_model": "3pg",
+      "productivity_median": 0.35,
+      "holdout": {
+       "rmse_mg_ha": 51.3993,
+       "bias_mg_ha": -29.5219,
+       "r2": 0.0955,
+       "n": 5670
+      },
+      "pixels_excluded_for_harvest": 22,
+      "holdout_landscape_mean_observed": [
+       136.5543,
+       132.6469,
+       132.8346,
+       127.9778,
+       134.4444,
+       145.6531,
+       136.9198
+      ],
+      "holdout_landscape_mean_model": [
+       104.9537,
+       105.2105,
+       105.4756,
+       105.751,
+       106.0352,
+       106.3264,
+       106.625
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 38.1783,
+       "bias_mg_ha": -14.4596,
+       "r2": 0.5009,
+       "n": 5670
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "LA",
+      "growth_model": "yield_curve",
+      "productivity_median": 8.0,
+      "holdout": {
+       "rmse_mg_ha": 63.7874,
+       "bias_mg_ha": -38.7412,
+       "r2": 0.2095,
+       "n": 2128
+      },
+      "pixels_excluded_for_harvest": 120,
+      "holdout_landscape_mean_observed": [
+       109.8158,
+       113.7895,
+       122.9474,
+       109.6283,
+       122.8257,
+       134.5428,
+       128.7829
+      ],
+      "holdout_landscape_mean_model": [
+       70.5177,
+       73.8307,
+       77.3977,
+       81.1953,
+       85.199,
+       89.3765,
+       93.627
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 55.9578,
+       "bias_mg_ha": -23.7949,
+       "r2": 0.4354,
+       "n": 2569
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "LA",
+      "growth_model": "3pg",
+      "productivity_median": 0.5,
+      "holdout": {
+       "rmse_mg_ha": 52.6046,
+       "bias_mg_ha": -30.6247,
+       "r2": 0.4624,
+       "n": 2128
+      },
+      "pixels_excluded_for_harvest": 120,
+      "holdout_landscape_mean_observed": [
+       109.8158,
+       113.7895,
+       122.9474,
+       109.6283,
+       122.8257,
+       134.5428,
+       128.7829
+      ],
+      "holdout_landscape_mean_model": [
+       77.6628,
+       81.5761,
+       85.599,
+       89.6768,
+       93.7406,
+       97.8208,
+       101.8832
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 56.771,
+       "bias_mg_ha": -24.2575,
+       "r2": 0.4189,
+       "n": 2569
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "BI",
+      "growth_model": "yield_curve",
+      "productivity_median": 5.0,
+      "holdout": {
+       "rmse_mg_ha": 35.6153,
+       "bias_mg_ha": -4.6016,
+       "r2": 0.451,
+       "n": 2198
+      },
+      "pixels_excluded_for_harvest": 35,
+      "holdout_landscape_mean_observed": [
+       81.3153,
+       82.5541,
+       83.7261,
+       83.7357,
+       83.0669,
+       105.379,
+       91.793
+      ],
+      "holdout_landscape_mean_model": [
+       70.1312,
+       74.5072,
+       78.7935,
+       83.0328,
+       87.1498,
+       91.0456,
+       94.6989
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 33.8611,
+       "bias_mg_ha": -8.501,
+       "r2": 0.5079,
+       "n": 2282
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "BI",
+      "growth_model": "3pg",
+      "productivity_median": 0.45,
+      "holdout": {
+       "rmse_mg_ha": 36.5269,
+       "bias_mg_ha": -5.5126,
+       "r2": 0.4226,
+       "n": 2198
+      },
+      "pixels_excluded_for_harvest": 35,
+      "holdout_landscape_mean_observed": [
+       81.3153,
+       82.5541,
+       83.7261,
+       83.7357,
+       83.0669,
+       105.379,
+       91.793
+      ],
+      "holdout_landscape_mean_model": [
+       72.0034,
+       75.5641,
+       78.9754,
+       82.2243,
+       85.2912,
+       88.1179,
+       90.8056
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 35.1737,
+       "bias_mg_ha": -9.7921,
+       "r2": 0.469,
+       "n": 2282
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "OK",
+      "growth_model": "yield_curve",
+      "productivity_median": 2.0,
+      "holdout": {
+       "rmse_mg_ha": 42.9497,
+       "bias_mg_ha": 6.9801,
+       "r2": 0.1216,
+       "n": 2275
+      },
+      "pixels_excluded_for_harvest": 13,
+      "holdout_landscape_mean_observed": [
+       122.4431,
+       126.5938,
+       127.5477,
+       123.7169,
+       125.9815,
+       131.2769,
+       126.36
+      ],
+      "holdout_landscape_mean_model": [
+       129.6635,
+       131.1002,
+       132.3314,
+       133.3965,
+       134.4338,
+       135.4367,
+       136.4185
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 29.9398,
+       "bias_mg_ha": -3.6307,
+       "r2": 0.5732,
+       "n": 2275
+      }
+     },
+     {
+      "landscape": "thetford",
+      "species": "OK",
+      "growth_model": "3pg",
+      "productivity_median": 0.35,
+      "holdout": {
+       "rmse_mg_ha": 46.509,
+       "bias_mg_ha": -28.638,
+       "r2": -0.03,
+       "n": 2275
+      },
+      "pixels_excluded_for_harvest": 13,
+      "holdout_landscape_mean_observed": [
+       122.4431,
+       126.5938,
+       127.5477,
+       123.7169,
+       125.9815,
+       131.2769,
+       126.36
+      ],
+      "holdout_landscape_mean_model": [
+       96.9771,
+       97.222,
+       97.4483,
+       97.6573,
+       97.8598,
+       98.0552,
+       98.2345
+      ],
+      "holdout_free_age": {
+       "rmse_mg_ha": 31.0527,
+       "bias_mg_ha": -9.3722,
+       "r2": 0.5408,
+       "n": 2275
+      }
+     }
+    ],
+    "better_model": {
+     "thetford/CP": "3pg",
+     "thetford/MB": "3pg",
+     "thetford/SP": "3pg",
+     "thetford/DF": "3pg",
+     "thetford/BE": "yield_curve",
+     "thetford/LA": "3pg",
+     "thetford/BI": "yield_curve",
+     "thetford/OK": "yield_curve"
+    },
+    "method": "Pixel-by-pixel fit of productivity (and age where the inventory has no planting year) on a fixed sample of up to 2000 woodland pixels per species group, comparing CCI with min(model AGB, saturation level); scores are over pixel-years in the hold-out period.",
+    "provenance": {
+     "model": "DT4 forest biomass twin 0.2.0",
+     "observations": "ESA Biomass CCI v7.0 (100 m AGB and SD), https://catalogue.ceda.ac.uk/uuid/6429d1aafe1e43b9b414e4a5a7f8b903",
+     "citation": "Santoro, M.; Cartus, O. (2026): ESA Biomass Climate Change Initiative (Biomass_cci): Global datasets of forest above-ground biomass for the years 2005-2012 and 2015-2024, v7.0. NERC EDS Centre for Environmental Data Analysis.",
+     "licence": "ESA CCI Biomass terms and conditions v2: free and open, citation required",
+     "inventory": "National Forest Inventory Woodland GB 2024 and Forestry England Subcompartments, Forestry Commission open data. Contains, or is based on, information supplied by the Forestry Commission; Open Government Licence v3.0.",
+     "parameters": "shipped calibration (scripts/calibrate_pilots.py)",
+     "assumptions": [
+      "Calibrated on ESA Biomass CCI v7 only (no GEDI, ICESat-2, lidar or other satellite data).",
+      "Woodland mask from the NFI woodland map GB 2024; species groups, planting years (stand ages) and Forestry England yield classes from the FE sub-compartment database. FE yield class is only an independent check, never used in calibration.",
+      "Pixels outside the FE estate take a species group from the NFI forest type (conifer, felled and young types: the landscape's dominant conifer; broadleaved types: mixed broadleaves).",
+      "3-PG climate: HadUK-Grid 1991-2020 monthly averages (Met Office portal, ~2 km and 12 km grids); radiation estimated from the diurnal temperature range (Hargreaves-Samani).",
+      "CCI v7 saturates at about 150 Mg/ha in these forests; calibration compares CCI with min(model AGB, 150). Each pixel is treated as an unthinned even-aged stand."
+     ]
+    }
+   }
+  },
+  {
+   "ref": "R2",
+   "agent": "dt6",
+   "tool": "validate",
+   "arguments": {
+    "pilots": [
+     "breckland",
+     "fens"
+    ]
+   },
+   "ok": true,
+   "result": {
+    "rows": [
+     {
+      "pilot": "breckland",
+      "growth_model": "size_age",
+      "n": 544,
+      "years_ahead_median": 9.0137,
+      "model_rmse_m": 2.5063,
+      "model_bias_m": 0.2737,
+      "persistence_rmse_m": 3.5536,
+      "persistence_bias_m": -2.5934,
+      "skill_vs_persistence": 0.5026,
+      "observed_growth_m_yr": 0.1913,
+      "predicted_growth_m_yr": 0.2303
+     },
+     {
+      "pilot": "breckland",
+      "growth_model": "crown_lue",
+      "n": 544,
+      "years_ahead_median": 9.0137,
+      "model_rmse_m": 2.5984,
+      "model_bias_m": 1.1714,
+      "persistence_rmse_m": 3.5536,
+      "persistence_bias_m": -2.5934,
+      "skill_vs_persistence": 0.4653,
+      "observed_growth_m_yr": 0.1913,
+      "predicted_growth_m_yr": 0.3712
+     },
+     {
+      "pilot": "fens",
+      "growth_model": "size_age",
+      "n": 705,
+      "years_ahead_median": 1.3607,
+      "model_rmse_m": 2.5793,
+      "model_bias_m": 0.059,
+      "persistence_rmse_m": 2.5791,
+      "persistence_bias_m": -0.9342,
+      "skill_vs_persistence": -0.0002,
+      "observed_growth_m_yr": 0.325,
+      "predicted_growth_m_yr": 0.7647
+     },
+     {
+      "pilot": "fens",
+      "growth_model": "crown_lue",
+      "n": 705,
+      "years_ahead_median": 1.3607,
+      "model_rmse_m": 2.9941,
+      "model_bias_m": 1.472,
+      "persistence_rmse_m": 2.5791,
+      "persistence_bias_m": -0.9342,
+      "skill_vs_persistence": -0.3478,
+      "observed_growth_m_yr": 0.325,
+      "predicted_growth_m_yr": 2.0304
+     }
+    ],
+    "method": "Latest lidar epoch held out; each object fitted on its earlier epochs with the pilot prior learned from the other half of the objects (two-fold); forecast of the last-return height at the latest flight compared with persistence (no growth since the previous epoch). Shipped results from scripts/calibrate_pilots.py.",
+    "provenance": {
+     "model": "DT6 trees-outside-woodland twin 0.1.0",
+     "observations": "Environment Agency LIDAR: National LIDAR Programme DSM/DTM and LIDAR Tiles DSM (1998 onwards), environment.data.gov.uk",
+     "inventory": "National Trees Outside Woodland Map V1 (Forest Research / Forestry Commission, NCEA, 2025) and Environment Agency LIDAR (National LIDAR Programme and LIDAR Tiles DSM/DTM). Open Government Licence v3.0.",
+     "allometry": "Jucker et al. 2017, Allometric equations for integrating remote sensing imagery into forest monitoring programmes, Global Change Biology 23, 177-190",
+     "licence": "Open Government Licence v3.0 (TOW map, EA lidar, HadUK-Grid)",
+     "parameters": "",
+     "assumptions": [
+      "Inventory: National Trees Outside Woodland map V1 (lone trees, groups of trees, small woodlands; canopy > 3 m outside NFI woodland). NFI overhanging canopy is left to DT4, hedges below 3 m to DT5.",
+      "Calibrated on Environment Agency lidar canopy heights only: first and last return of the National LIDAR Programme and last-return LIDAR Tiles DSMs back to 1998, all above the NLP terrain model.",
+      "Biomass from crown size and height with Jucker et al. (2017); trees in groups share the object's crown area equally; leaf type is a pilot prior (no open leaf-type map for TOW).",
+      "Crown light-use model climate: HadUK-Grid 1991-2020 monthly averages; radiation from Hargreaves-Samani.",
+      "Trees removed before the TOW map was made (2016-2023 lidar) are not in the inventory, so their loss is not seen."
+     ]
+    }
+   }
+  },
+  {
+   "ref": "R3",
+   "agent": "dt2",
+   "tool": "validate_naei",
+   "arguments": {
+    "area": {
+     "bbox_bng": [
+      555000,
+      215000,
+      655000,
+      345000
+     ]
+    }
+   },
+   "ok": true,
+   "result": {
+    "area": "BNG box 555000,215000,655000,345000 m",
+    "skill": {
+     "r_1km": 0.38948813601466475,
+     "r_5km": 0.4892386861743705,
+     "r_10km": 0.6058779321365024,
+     "r_20km": 0.6824598007426997,
+     "dt2_t_ch4": 9990.15897082897,
+     "naei_t_ch4": 16411.243825196754,
+     "ratio_dt2_to_naei": 0.6087386841142858
+    },
+    "shipped_holdout": {
+     "r_1km": 0.6533778720304917,
+     "r_5km": 0.867719057710753,
+     "r_10km": 0.9343226939377117,
+     "r_20km": 0.9743497956438709,
+     "dt2_t_ch4": 250946.28228994692,
+     "naei_t_ch4": 280739.6588643085,
+     "ratio_dt2_to_naei": 0.8938754264542232
+    },
+    "malek_only_holdout": {
+     "r_1km": 0.5027955603033936,
+     "r_5km": 0.7419122559588776,
+     "r_10km": 0.8300944287042684,
+     "r_20km": 0.8866533338223136,
+     "dt2_t_ch4": 249878.8938246496,
+     "naei_t_ch4": 280739.6588643085,
+     "ratio_dt2_to_naei": 0.8900733684563783
+    },
+    "allocation": {
+     "alpha_other": 0.0,
+     "block_km": 10.0,
+     "acn_weight": 0.5
+    },
+    "note": "NAEI SNAP 10 also contains pigs, poultry, horses and deer (about 5-10 % in England), so DT2 is expected to be slightly below it."
+   }
+  },
+  {
+   "ref": "R4",
+   "agent": "dt2",
+   "tool": "calibration_report",
+   "arguments": {},
+   "ok": true,
+   "result": {
+    "chosen": {
+     "alpha_other": 0.0,
+     "block_km": 10.0,
+     "acn_weight": 0.5
+    },
+    "holdout": {
+     "r_1km": 0.6533778720304917,
+     "r_5km": 0.867719057710753,
+     "r_10km": 0.9343226939377117,
+     "r_20km": 0.9743497956438709,
+     "dt2_t_ch4": 250946.28228994692,
+     "naei_t_ch4": 280739.6588643085,
+     "ratio_dt2_to_naei": 0.8938754264542232
+    },
+    "calibration": {
+     "r_1km": 0.663030610973031,
+     "r_5km": 0.8634874518549132,
+     "r_10km": 0.9301094502712763,
+     "r_20km": 0.9693725280855005,
+     "dt2_t_ch4": 240704.5677100531,
+     "naei_t_ch4": 266533.2046192819,
+     "ratio_dt2_to_naei": 0.9030941118720174
+    },
+    "england": {
+     "r_1km": 0.6581160547403926,
+     "r_5km": 0.8656860875753096,
+     "r_10km": 0.932231425137741,
+     "r_20km": 0.9720410935931417,
+     "dt2_t_ch4": 491650.8500000001,
+     "naei_t_ch4": 547272.8634835904,
+     "ratio_dt2_to_naei": 0.8983651169372148
+    },
+    "reference_holdout": {
+     "malek_all_layers_no_living_england": {
+      "r_1km": 0.5027955603033936,
+      "r_5km": 0.7419122559588776,
+      "r_10km": 0.8300944287042684,
+      "r_20km": 0.8866533338223136,
+      "dt2_t_ch4": 249878.8938246496,
+      "naei_t_ch4": 280739.6588643085,
+      "ratio_dt2_to_naei": 0.8900733684563783
+     },
+     "malek_grazing_layers_no_living_england": {
+      "r_1km": 0.5581859878877801,
+      "r_5km": 0.8569548308991808,
+      "r_10km": 0.9343226939377117,
+      "r_20km": 0.9743497956438711,
+      "dt2_t_ch4": 250946.2822899469,
+      "naei_t_ch4": 280739.6588643085,
+      "ratio_dt2_to_naei": 0.8938754264542231
+     }
+    },
+    "best_trials": [
+     {
+      "alpha_other": 0.0,
+      "block_km": 10,
+      "acn_weight": 0.5,
+      "r_1km_calibration": 0.663030610973031
+     },
+     {
+      "alpha_other": 0.0,
+      "block_km": 20,
+      "acn_weight": 0.5,
+      "r_1km_calibration": 0.6621377768535897
+     },
+     {
+      "alpha_other": 0.1,
+      "block_km": 10,
+      "acn_weight": 0.5,
+      "r_1km_calibration": 0.6614353683143002
+     },
+     {
+      "alpha_other": 0.1,
+      "block_km": 20,
+      "acn_weight": 0.5,
+      "r_1km_calibration": 0.660272786187143
+     },
+     {
+      "alpha_other": 0.0,
+      "block_km": 10,
+      "acn_weight": 1.0,
+      "r_1km_calibration": 0.6575077607563312
+     },
+     {
+      "alpha_other": 0.1,
+      "block_km": 10,
+      "acn_weight": 1.0,
+      "r_1km_calibration": 0.655839329889413
+     },
+     {
+      "alpha_other": 0.0,
+      "block_km": 20,
+      "acn_weight": 1.0,
+      "r_1km_calibration": 0.6532483396470756
+     },
+     {
+      "alpha_other": 0.25,
+      "block_km": 20,
+      "acn_weight": 0.5,
+      "r_1km_calibration": 0.6530946327568661
+     },
+     {
+      "alpha_other": 0.25,
+      "block_km": 10,
+      "acn_weight": 0.5,
+      "r_1km_calibration": 0.6520393321158653
+     },
+     {
+      "alpha_other": 0.1,
+      "block_km": 20,
+      "acn_weight": 1.0,
+      "r_1km_calibration": 0.6512166791185505
+     }
+    ],
+    "method": "grid search of alpha_other x block_km x acn_weight, ranked by Pearson r at 1 km on a 20 km checkerboard of England; scored on the other squares"
+   }
+  },
+  {
+   "ref": "R5",
+   "agent": "dt8",
+   "tool": "validate_inventory",
+   "arguments": {},
+   "ok": true,
+   "result": {
+    "water_table_profile": [
+     {
+      "wtd_cm": 5.0,
+      "co2_model_t": -2.022043522133968,
+      "co2_report_eq1_t": -3.8815,
+      "ch4_model_kg": 158.19600343378931,
+      "ch4_report_eq3_kg": 148.45148837879307,
+      "n2o_model_kg_n": 1.1046633742053207
+     },
+     {
+      "wtd_cm": 10.0,
+      "co2_model_t": -2.3276352280310335,
+      "co2_report_eq1_t": -1.423,
+      "ch4_model_kg": 132.75075912586968,
+      "ch4_report_eq3_kg": 85.7137481680448,
+      "n2o_model_kg_n": 1.953119063951121
+     },
+     {
+      "wtd_cm": 20.0,
+      "co2_model_t": -1.0835336320033837,
+      "co2_report_eq1_t": 3.4939999999999998,
+      "ch4_model_kg": 38.408223556573795,
+      "ch4_report_eq3_kg": 28.574743970517172,
+      "n2o_model_kg_n": 4.69737013449399
+     },
+     {
+      "wtd_cm": 30.0,
+      "co2_model_t": 1.2061825598055074,
+      "co2_report_eq1_t": 8.411000000000001,
+      "ch4_model_kg": 12.474832343564078,
+      "ch4_report_eq3_kg": 9.526079659704058,
+      "n2o_model_kg_n": 9.317173750318759
+     },
+     {
+      "wtd_cm": 40.0,
+      "co2_model_t": 6.884318857287822,
+      "co2_report_eq1_t": 13.328,
+      "ch4_model_kg": 4.095118254957833,
+      "ch4_report_eq3_kg": 3.1757482683539493,
+      "n2o_model_kg_n": 13.874206019904436
+     },
+     {
+      "wtd_cm": 50.0,
+      "co2_model_t": 12.562455154770129,
+      "co2_report_eq1_t": 18.245,
+      "ch4_model_kg": 0.9142393622262069,
+      "ch4_report_eq3_kg": 1.058712232547762,
+      "n2o_model_kg_n": 15.801555812653818
+     },
+     {
+      "wtd_cm": 68.0,
+      "co2_model_t": 22.536537410609835,
+      "co2_report_eq1_t": 27.0956,
+      "ch4_model_kg": -0.97850856764463,
+      "ch4_report_eq3_kg": 0.14657344010891601,
+      "n2o_model_kg_n": 16.947464811762256
+     },
+     {
+      "wtd_cm": 80.0,
+      "co2_model_t": 27.018073601382255,
+      "co2_report_eq1_t": 32.995999999999995,
+      "ch4_model_kg": -1.3643380706346846,
+      "ch4_report_eq3_kg": 0.0392259539578993,
+      "n2o_model_kg_n": 17.282561289214172
+     }
+    ],
+    "co2_slope_model": 0.41893905823843175,
+    "co2_slope_report": 0.4917,
+    "cropland_co2_model_t": 27.67102280272035,
+    "cropland_co2_tier2_t": 27.06,
+    "ch4_rewetted_model_kg": 109.28419310877517,
+    "ch4_rewetted_tier2_kg": 111.0,
+    "ch4_cropland_model_kg": -0.97850856764463,
+    "ch4_cropland_tier2_kg": 1.96,
+    "n2o_cropland_model_kg_n": 16.279999999999994,
+    "n2o_cropland_tier2_kg_n": 16.28,
+    "n2o_grass_model_kg_n": 7.886513616534872,
+    "n2o_grass_tier2_kg_n": 7.39,
+    "n2o_rewetted_model_kg_n": 1.953119063951121,
+    "ch4_skill": {
+     "eq3_5_70cm": {
+      "bias": 6.768583376060087,
+      "rmse": 14.33426971156064,
+      "r": 0.9802929507915884,
+      "nse": 0.8813933673408856
+     },
+     "eq3_20_70cm": {
+      "bias": 1.5677096613060508,
+      "rmse": 3.558219011969485,
+      "r": 0.9996510752653961,
+      "nse": 0.8283176607682838
+     },
+     "tier2_classes": {
+      "bias": -6.586937462483776,
+      "rmse": 21.995660842853585,
+      "r": 0.9790697769036608,
+      "nse": 0.8319117578939604
+     }
+    },
+    "ch4_tier2_table": [
+     {
+      "peat_class": "Near-natural fen",
+      "wtd_cm": 2.6,
+      "ef_tier2": 143.25,
+      "model": 171.73856291101242
+     },
+     {
+      "peat_class": "Rewetted fen",
+      "wtd_cm": 11.5,
+      "ef_tier2": 111.44,
+      "model": 109.28419310877517
+     },
+     {
+      "peat_class": "Extensive grassland",
+      "wtd_cm": 37.0,
+      "ef_tier2": 35.91,
+      "model": 5.784604135469635
+     },
+     {
+      "peat_class": "Intensive grassland",
+      "wtd_cm": 43.0,
+      "ef_tier2": 29.03,
+      "model": 2.8264610999685202
+     },
+     {
+      "peat_class": "Cropland",
+      "wtd_cm": 68.0,
+      "ef_tier2": 1.96,
+      "model": -0.97850856764463
+     }
+    ],
+    "reference": "Evans et al. (2023) UK Peatland Inventory / CEH report: Eq. 1 (CO2), Eq. 3 (CH4), Fig. 3.9 (N2O), Tier-2 emission factors",
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  }
+ ],
+ "figures": {
+  "1": {
+   "path": "/home/user/slate/demo/runs/research/across-the-slate-twins-how-goo-fig1.png",
+   "caption": "Pixel-year R\u00b2 against ESA Biomass CCI v7 AGB, fitted 2005-2017 with Forestry England inventory ages; harvested pixels excluded [R1]."
+  },
+  "2": {
+   "path": "/home/user/slate/demo/runs/research/across-the-slate-twins-how-goo-fig2.png",
+   "caption": "Annual CH4 (kg CH4 ha-1 yr-1) from the DT8 calibrated baseline at each class's mean water-table depth versus the Tier-2 EF (Evans et al. 2023) [R5]."
+  },
+  "3": {
+   "path": "/home/user/slate/demo/runs/research/across-the-slate-twins-how-goo-fig3.png",
+   "caption": "Correlation of DT2 livestock CH4 with NAEI agricultural CH4 over a Norfolk-Suffolk box and on the shipped England checkerboard hold-out [R3, R4]."
+  }
+ },
+ "report_markdown": "/home/user/slate/demo/runs/research/20261118-2039-how-well-do-the-slate-twins-reproduce-independent-data-hold-.md",
+ "report_html": "/home/user/slate/demo/runs/research/20261118-2039-how-well-do-the-slate-twins-reproduce-independent-data-hold-.html",
+ "agents": {
+  "dt2": "DT2 livestock methane",
+  "dt4": "DT4 forest biomass",
+  "dt6": "DT6 trees outside woodland",
+  "dt8": "DT8 peatland greenhouse gases"
+ }
+}

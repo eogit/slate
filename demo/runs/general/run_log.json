@@ -1,0 +1,2675 @@
+{
+ "question": "I live in the Fens. Which matters more for the climate here: the drained peat fields, the cattle and sheep, or the trees in hedges and around farms? What could change it?",
+ "persona": "general",
+ "persona_fixed": true,
+ "persona_rationale": "set by the application",
+ "clarifications": [],
+ "assumptions": [
+  {
+   "topic": "Place",
+   "assumption": "'The Fens' is represented by the DT6 'fens' pilot tile (5 km) and, for livestock, a 10 km radius circle around the same area; drained peat fluxes use DT8's East Anglian Fens calibration.",
+   "rationale": "No specific location given; these are the agents' Fenland representations.",
+   "agents": [
+    "dt2",
+    "dt6",
+    "dt8"
+   ]
+  },
+  {
+   "topic": "Crops on peat",
+   "assumption": "Drained peat fields represented by winter wheat, sugar beet and potato under the default Fenland water table (~0.66 m), typical rates of fertiliser.",
+   "rationale": "Common Fenland arable crops.",
+   "agents": [
+    "dt8"
+   ]
+  },
+  {
+   "topic": "Common basis",
+   "assumption": "Compare on a per-hectare / per-km\u00b2 of land basis and as totals over the same area, in t CO2e/yr using AR6 GWP100 where possible (DT8 uses AR6; DT2 gives AR6). Tree carbon is a stock plus an annual net uptake flux.",
+   "rationale": "Allows like-for-like comparison of the three sources.",
+   "agents": [
+    "dt2",
+    "dt6",
+    "dt8"
+   ]
+  },
+  {
+   "topic": "Change options",
+   "assumption": "Levers examined: raising the water table (rewetting, reed/paludiculture), herd change/feed additive for livestock, and new hedgerow tree planting (1,000 trees) for TOW.",
+   "rationale": "Main levers each agent can model.",
+   "agents": [
+    "dt2",
+    "dt6",
+    "dt8"
+   ]
+  },
+  {
+   "topic": "Livestock scenario",
+   "assumption": "Feed additive giving a herd-average 20 % enteric CH4 reduction for dairy and beef/other cattle, and separately a 25 % cut in cattle and sheep numbers, over the 5 km Fens tile.",
+   "rationale": "Illustrative sizes for the main livestock levers.",
+   "agents": [
+    "dt2"
+   ]
+  },
+  {
+   "topic": "Tree planting scenario",
+   "assumption": "1,000 new hedgerow trees planted in 2025 in the Fens pilot, followed for 30 years.",
+   "rationale": "Illustrative scale: roughly 40 % more trees than the tile's 2,379.",
+   "agents": [
+    "dt6"
+   ]
+  },
+  {
+   "topic": "Peat area",
+   "assumption": "DT2/Living England shows 1,590 ha of arable in the tile, but no agent maps peat depth or extent. Totals for peat are given per hectare, plus an illustrative 'break-even' area and a hypothetical upper bound if all that arable were drained peat.",
+   "rationale": "Peat area is not available from the agents.",
+   "agents": [
+    "dt8",
+    "dt2"
+   ]
+  }
+ ],
+ "calls": [
+  {
+   "ref": "R1",
+   "agent": "dt6",
+   "tool": "list_landscapes",
+   "arguments": {},
+   "ok": true,
+   "result": {
+    "landscapes": [
+     {
+      "key": "breckland",
+      "name": "Breckland farmland",
+      "region": "Eastern",
+      "landscape": "Dry arable Brecks beside Thetford Forest: Scots pine rows, shelterbelts, field trees",
+      "tile": "TL7580",
+      "centre_lon_lat": [
+       0.6083,
+       52.4117
+      ],
+      "bbox": [
+       0.5703,
+       52.3901,
+       0.6464,
+       52.4333
+      ],
+      "conifer_share_prior": 0.35,
+      "lidar_epochs": [
+       1998,
+       2009,
+       2018
+      ],
+      "objects": 2186,
+      "trees": 3727,
+      "canopy_area_ha": 28.3325,
+      "observed_height_growth_m_yr": 0.1913,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 8.7798,
+        "productivity_p25": 7.9323,
+        "productivity_p75": 9.7253,
+        "age_median_years": 113.7801,
+        "holdout_n": 544,
+        "holdout_years_ahead": 9.0137,
+        "holdout_rmse_m": 2.5063,
+        "persistence_rmse_m": 3.5536,
+        "skill_vs_persistence": 0.5026
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.1911,
+        "productivity_p25": 0.1845,
+        "productivity_p75": 0.2055,
+        "age_median_years": 63.8242,
+        "holdout_n": 544,
+        "holdout_years_ahead": 9.0137,
+        "holdout_rmse_m": 2.5984,
+        "persistence_rmse_m": 3.5536,
+        "skill_vs_persistence": 0.4653
+       }
+      ],
+      "annual_rain_mm": 629.249,
+      "mean_temp_c": 10.334458333333332,
+      "notes": [
+       "Shares its edge with DT4's Thetford window: tests the DT4/DT6 boundary."
+      ]
+     },
+     {
+      "key": "fens",
+      "name": "Cambridgeshire Fens",
+      "region": "Eastern",
+      "landscape": "Open fen arable along the Great Ouse washes: willows, poplars, farmstead trees",
+      "tile": "TL4075",
+      "centre_lon_lat": [
+       0.092,
+       52.377
+      ],
+      "bbox": [
+       0.0542,
+       52.3552,
+       0.1298,
+       52.3988
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       1999,
+       2017,
+       2019,
+       2021
+      ],
+      "objects": 856,
+      "trees": 2379,
+      "canopy_area_ha": 13.357,
+      "observed_height_growth_m_yr": 0.3655,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 5.6693,
+        "productivity_p25": 4.9436,
+        "productivity_p75": 6.949,
+        "age_median_years": 153.8504,
+        "holdout_n": 705,
+        "holdout_years_ahead": 1.3607,
+        "holdout_rmse_m": 2.5793,
+        "persistence_rmse_m": 2.5791,
+        "skill_vs_persistence": -0.0002
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.1193,
+        "productivity_p25": 0.1088,
+        "productivity_p75": 0.1403,
+        "age_median_years": 63.3768,
+        "holdout_n": 705,
+        "holdout_years_ahead": 1.3607,
+        "holdout_rmse_m": 2.9941,
+        "persistence_rmse_m": 2.5791,
+        "skill_vs_persistence": -0.3478
+       }
+      ],
+      "annual_rain_mm": 569.1850000000001,
+      "mean_temp_c": 10.497625000000001,
+      "notes": [
+       "Flown twice by the NLP (2019 and 2021)."
+      ]
+     },
+     {
+      "key": "mid_devon",
+      "name": "Exe valley, mid-Devon",
+      "region": "South_West",
+      "landscape": "Pastoral Devon with hedgebanks, field oaks and riparian trees",
+      "tile": "SX9095",
+      "centre_lon_lat": [
+       -3.5257,
+       50.7671
+      ],
+      "bbox": [
+       -3.5604,
+       50.7442,
+       -3.491,
+       50.79
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2005,
+       2016,
+       2020
+      ],
+      "objects": 6048,
+      "trees": 20735,
+      "canopy_area_ha": 161.163,
+      "observed_height_growth_m_yr": 0.0711,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 6.5847,
+        "productivity_p25": 5.5062,
+        "productivity_p75": 8.4627,
+        "age_median_years": 152.7255,
+        "holdout_n": 2787,
+        "holdout_years_ahead": 14.2583,
+        "holdout_rmse_m": 2.8525,
+        "persistence_rmse_m": 3.013,
+        "skill_vs_persistence": 0.1037
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.0879,
+        "productivity_p25": 0.0715,
+        "productivity_p75": 0.1182,
+        "age_median_years": 73.7283,
+        "holdout_n": 2787,
+        "holdout_years_ahead": 14.2583,
+        "holdout_rmse_m": 2.9861,
+        "persistence_rmse_m": 3.013,
+        "skill_vs_persistence": 0.0178
+       }
+      ],
+      "annual_rain_mm": 888.059,
+      "mean_temp_c": 10.626625,
+      "notes": []
+     },
+     {
+      "key": "somerset_levels",
+      "name": "Somerset Levels",
+      "region": "South_West",
+      "landscape": "Grazing marsh and rhynes: pollard willows and lines of trees",
+      "tile": "ST3535",
+      "centre_lon_lat": [
+       -2.8946,
+       51.1333
+      ],
+      "bbox": [
+       -2.9299,
+       51.1106,
+       -2.8593,
+       51.1561
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2003,
+       2015,
+       2021
+      ],
+      "objects": 6462,
+      "trees": 16066,
+      "canopy_area_ha": 102.1874,
+      "observed_height_growth_m_yr": 0.1515,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 7.0687,
+        "productivity_p25": 5.8886,
+        "productivity_p75": 8.1326,
+        "age_median_years": 69.0268,
+        "holdout_n": 5088,
+        "holdout_years_ahead": 6.9945,
+        "holdout_rmse_m": 2.7969,
+        "persistence_rmse_m": 3.4794,
+        "skill_vs_persistence": 0.3538
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.113,
+        "productivity_p25": 0.077,
+        "productivity_p75": 0.1526,
+        "age_median_years": 31.3283,
+        "holdout_n": 5088,
+        "holdout_years_ahead": 6.9945,
+        "holdout_rmse_m": 2.5828,
+        "persistence_rmse_m": 3.4794,
+        "skill_vs_persistence": 0.449
+       }
+      ],
+      "annual_rain_mm": 738.3389999999999,
+      "mean_temp_c": 11.030083333333332,
+      "notes": []
+     },
+     {
+      "key": "herefordshire",
+      "name": "Wye valley, Herefordshire",
+      "region": "West_Midlands",
+      "landscape": "Mixed farming in the Welsh Marches: orchards, field and hedgerow oaks",
+      "tile": "SO5040",
+      "centre_lon_lat": [
+       -2.6945,
+       52.0788
+      ],
+      "bbox": [
+       -2.7306,
+       52.0561,
+       -2.6584,
+       52.1015
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2002,
+       2006,
+       2019
+      ],
+      "objects": 10190,
+      "trees": 27704,
+      "canopy_area_ha": 154.7429,
+      "observed_height_growth_m_yr": 0.1073,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 6.8768,
+        "productivity_p25": 5.8532,
+        "productivity_p75": 8.4635,
+        "age_median_years": 109.3343,
+        "holdout_n": 5370,
+        "holdout_years_ahead": 13.0383,
+        "holdout_rmse_m": 3.8757,
+        "persistence_rmse_m": 4.3363,
+        "skill_vs_persistence": 0.2011
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.1008,
+        "productivity_p25": 0.0856,
+        "productivity_p75": 0.137,
+        "age_median_years": 45.8665,
+        "holdout_n": 5370,
+        "holdout_years_ahead": 13.0383,
+        "holdout_rmse_m": 3.8732,
+        "persistence_rmse_m": 4.3363,
+        "skill_vs_persistence": 0.2022
+       }
+      ],
+      "annual_rain_mm": 694.505,
+      "mean_temp_c": 10.329708333333334,
+      "notes": []
+     },
+     {
+      "key": "leicestershire",
+      "name": "Soar valley, Leicestershire",
+      "region": "East_Midlands",
+      "landscape": "Urban fringe of Leicester and Midlands clay farmland",
+      "tile": "SK6005",
+      "centre_lon_lat": [
+       -1.0774,
+       52.6616
+      ],
+      "bbox": [
+       -1.1148,
+       52.6394,
+       -1.0399,
+       52.6838
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2001,
+       2014,
+       2018,
+       2022
+      ],
+      "objects": 10561,
+      "trees": 28024,
+      "canopy_area_ha": 155.3202,
+      "observed_height_growth_m_yr": 0.1576,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 6.3879,
+        "productivity_p25": 5.5086,
+        "productivity_p75": 7.6572,
+        "age_median_years": 134.5504,
+        "holdout_n": 6922,
+        "holdout_years_ahead": 3.9617,
+        "holdout_rmse_m": 2.2259,
+        "persistence_rmse_m": 2.0717,
+        "skill_vs_persistence": -0.1544
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.1008,
+        "productivity_p25": 0.0755,
+        "productivity_p75": 0.1298,
+        "age_median_years": 51.1808,
+        "holdout_n": 6922,
+        "holdout_years_ahead": 3.9617,
+        "holdout_rmse_m": 2.1631,
+        "persistence_rmse_m": 2.0717,
+        "skill_vs_persistence": -0.0902
+       }
+      ],
+      "annual_rain_mm": 663.394,
+      "mean_temp_c": 9.921291666666667,
+      "notes": [
+       "Flown twice by the NLP (2018 and 2022)."
+      ]
+     },
+     {
+      "key": "vale_of_york",
+      "name": "Vale of York",
+      "region": "Yorkshire_and_Humber",
+      "landscape": "Flat arable and Derwent floodplain: hedgerow trees and farm copses",
+      "tile": "SE6045",
+      "centre_lon_lat": [
+       -1.0499,
+       53.9199
+      ],
+      "bbox": [
+       -1.0884,
+       53.8977,
+       -1.0113,
+       53.942
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2000,
+       2010,
+       2020
+      ],
+      "objects": 5766,
+      "trees": 19424,
+      "canopy_area_ha": 132.6666,
+      "observed_height_growth_m_yr": 0.1733,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 10.1059,
+        "productivity_p25": 8.9339,
+        "productivity_p75": 11.4019,
+        "age_median_years": 46.1411,
+        "holdout_n": 3728,
+        "holdout_years_ahead": 20.8524,
+        "holdout_rmse_m": 4.2176,
+        "persistence_rmse_m": 5.7452,
+        "skill_vs_persistence": 0.4611
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.1918,
+        "productivity_p25": 0.1754,
+        "productivity_p75": 0.2297,
+        "age_median_years": 29.6364,
+        "holdout_n": 3728,
+        "holdout_years_ahead": 20.8524,
+        "holdout_rmse_m": 4.1464,
+        "persistence_rmse_m": 5.7452,
+        "skill_vs_persistence": 0.4791
+       }
+      ],
+      "annual_rain_mm": 616.76,
+      "mean_temp_c": 10.011125,
+      "notes": []
+     },
+     {
+      "key": "cheshire",
+      "name": "Cheshire plain near Chester",
+      "region": "North_West",
+      "landscape": "Dairy pasture with marl pits and many field oaks",
+      "tile": "SJ4065",
+      "centre_lon_lat": [
+       -2.8623,
+       53.2014
+      ],
+      "bbox": [
+       -2.8992,
+       53.1787,
+       -2.8253,
+       53.2242
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2001,
+       2015,
+       2021
+      ],
+      "objects": 18376,
+      "trees": 41967,
+      "canopy_area_ha": 192.7761,
+      "observed_height_growth_m_yr": 0.1402,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 6.5644,
+        "productivity_p25": 5.7241,
+        "productivity_p75": 8.2233,
+        "age_median_years": 115.0434,
+        "holdout_n": 8828,
+        "holdout_years_ahead": 19.9891,
+        "holdout_rmse_m": 3.4208,
+        "persistence_rmse_m": 4.0877,
+        "skill_vs_persistence": 0.2997
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.1006,
+        "productivity_p25": 0.0881,
+        "productivity_p75": 0.1237,
+        "age_median_years": 40.7417,
+        "holdout_n": 8828,
+        "holdout_years_ahead": 19.9891,
+        "holdout_rmse_m": 3.3543,
+        "persistence_rmse_m": 4.0877,
+        "skill_vs_persistence": 0.3267
+       }
+      ],
+      "annual_rain_mm": 731.414,
+      "mean_temp_c": 10.383708333333333,
+      "notes": []
+     },
+     {
+      "key": "oxford",
+      "name": "Oxford and the Thames",
+      "region": "South_East",
+      "landscape": "City, parks and colleges, and Thames floodplain meadows",
+      "tile": "SP5005",
+      "centre_lon_lat": [
+       -1.2407,
+       51.7637
+      ],
+      "bbox": [
+       -1.2773,
+       51.7415,
+       -1.2041,
+       51.786
+      ],
+      "conifer_share_prior": 0.08,
+      "lidar_epochs": [
+       2005,
+       2016,
+       2020,
+       2023
+      ],
+      "objects": 16933,
+      "trees": 36042,
+      "canopy_area_ha": 230.1707,
+      "observed_height_growth_m_yr": 0.0922,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 6.3808,
+        "productivity_p25": 5.384,
+        "productivity_p75": 8.8324,
+        "age_median_years": 159.8827,
+        "holdout_n": 6396,
+        "holdout_years_ahead": 3.0476,
+        "holdout_rmse_m": 2.4782,
+        "persistence_rmse_m": 2.2462,
+        "skill_vs_persistence": -0.2172
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.0981,
+        "productivity_p25": 0.0743,
+        "productivity_p75": 0.1285,
+        "age_median_years": 102.9344,
+        "holdout_n": 6396,
+        "holdout_years_ahead": 3.0476,
+        "holdout_rmse_m": 2.5983,
+        "persistence_rmse_m": 2.2462,
+        "skill_vs_persistence": -0.338
+       }
+      ],
+      "annual_rain_mm": 689.604,
+      "mean_temp_c": 10.7005,
+      "notes": [
+       "Urban pilot; flown twice by the NLP (2020 and 2023)."
+      ]
+     },
+     {
+      "key": "tyne_valley",
+      "name": "Tyne valley near Hexham",
+      "region": "North_East",
+      "landscape": "Upland-fringe pasture: riparian alders, field ash and sycamore",
+      "tile": "NY9065",
+      "centre_lon_lat": [
+       -2.1188,
+       55.002
+      ],
+      "bbox": [
+       -2.1578,
+       54.9795,
+       -2.0797,
+       55.0245
+      ],
+      "conifer_share_prior": 0.15,
+      "lidar_epochs": [
+       2005,
+       2016,
+       2019
+      ],
+      "objects": 5737,
+      "trees": 18485,
+      "canopy_area_ha": 120.7155,
+      "observed_height_growth_m_yr": 0.5417,
+      "calibration": [
+       {
+        "growth_model": "size_age",
+        "productivity_name": "site index (height at 50 years, m)",
+        "productivity_median": 10.3317,
+        "productivity_p25": 9.5237,
+        "productivity_p75": 11.1667,
+        "age_median_years": 65.0385,
+        "holdout_n": 1977,
+        "holdout_years_ahead": 2.2894,
+        "holdout_rmse_m": 4.1259,
+        "persistence_rmse_m": 4.6555,
+        "skill_vs_persistence": 0.2146
+       },
+       {
+        "growth_model": "crown_lue",
+        "productivity_name": "light-use efficiency multiplier (0-1)",
+        "productivity_median": 0.3163,
+        "productivity_p25": 0.308,
+        "productivity_p75": 0.3233,
+        "age_median_years": 16.006,
+        "holdout_n": 1977,
+        "holdout_years_ahead": 2.2894,
+        "holdout_rmse_m": 3.9242,
+        "persistence_rmse_m": 4.6555,
+        "skill_vs_persistence": 0.2895
+       }
+      ],
+      "annual_rain_mm": 772.02,
+      "mean_temp_c": 8.892083333333334,
+      "notes": []
+     }
+    ],
+    "growth_models": {
+     "size_age": "Chapman-Richards height-age curve; productivity = site index (m at 50 yr)",
+     "crown_lue": "single-tree crown light-use model on monthly HadUK-Grid climate; productivity = light-use efficiency multiplier (0-1)"
+    }
+   }
+  },
+  {
+   "ref": "R2",
+   "agent": "dt8",
+   "tool": "ghg_balance",
+   "arguments": {
+    "crop": "WW"
+   },
+   "ok": true,
+   "result": {
+    "crop": "WW",
+    "mean_wtd_m": 0.6614077723812615,
+    "water_table_source": "Fenland drained climatology",
+    "fertiliser_n_kg_ha_yr": 200.0,
+    "nee_tc_ha_yr": 9.02035379170969,
+    "ch4_kg_ha_yr": -0.3513224783806102,
+    "ch4_litter_kg_ha_yr": 0.0,
+    "n2o_kg_n_ha_yr": 9.956513569460407,
+    "co2_t_co2e_ha_yr": 33.07463056960219,
+    "ch4_t_co2e_ha_yr": -0.009485706916276475,
+    "n2o_t_co2e_ha_yr": 4.271344321298515,
+    "net_t_co2e_ha_yr": 37.336489183984426,
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  },
+  {
+   "ref": "R3",
+   "agent": "dt8",
+   "tool": "ghg_balance",
+   "arguments": {
+    "crop": "Potato"
+   },
+   "ok": true,
+   "result": {
+    "crop": "Potato",
+    "mean_wtd_m": 0.6614077723812615,
+    "water_table_source": "Fenland drained climatology",
+    "fertiliser_n_kg_ha_yr": 200.0,
+    "nee_tc_ha_yr": 8.118971905234265,
+    "ch4_kg_ha_yr": -1.0481593510117375,
+    "ch4_litter_kg_ha_yr": 0.0,
+    "n2o_kg_n_ha_yr": 16.893914089121566,
+    "co2_t_co2e_ha_yr": 29.769563652525637,
+    "ch4_t_co2e_ha_yr": -0.02830030247731691,
+    "n2o_t_co2e_ha_yr": 7.2474891442331515,
+    "net_t_co2e_ha_yr": 36.98875249428147,
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  },
+  {
+   "ref": "R4",
+   "agent": "dt8",
+   "tool": "ghg_balance",
+   "arguments": {
+    "crop": "Beet"
+   },
+   "ok": true,
+   "result": {
+    "crop": "Beet",
+    "mean_wtd_m": 0.6614077723812615,
+    "water_table_source": "Fenland drained climatology",
+    "fertiliser_n_kg_ha_yr": 120.0,
+    "nee_tc_ha_yr": 5.0062855320823525,
+    "ch4_kg_ha_yr": -0.6618884045550141,
+    "ch4_litter_kg_ha_yr": 0.0,
+    "n2o_kg_n_ha_yr": 11.402327524931907,
+    "co2_t_co2e_ha_yr": 18.35638028430196,
+    "ch4_t_co2e_ha_yr": -0.01787098692298538,
+    "n2o_t_co2e_ha_yr": 4.891598508195788,
+    "net_t_co2e_ha_yr": 23.23010780557476,
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  },
+  {
+   "ref": "R5",
+   "agent": "dt8",
+   "tool": "water_table_scenario",
+   "arguments": {
+    "mean_wtd_m": [
+     0,
+     0.1,
+     0.2,
+     0.3,
+     0.5,
+     0.7,
+     0.9
+    ]
+   },
+   "ok": true,
+   "result": {
+    "evidence_role": "response / scenario",
+    "crop_for_n2o": "Potato",
+    "vegetation_for_co2_ch4": "reed",
+    "points": [
+     {
+      "mean_wtd_m": 0.0,
+      "co2_t_co2e_ha_yr": -0.7280377019961574,
+      "ch4_t_co2e_ha_yr": 5.062538236072996,
+      "n2o_t_co2e_ha_yr": 0.33068752121374223,
+      "net_t_co2e_ha_yr": 4.665188055290581
+     },
+     {
+      "mean_wtd_m": 0.1,
+      "co2_t_co2e_ha_yr": -2.3276352280310335,
+      "ch4_t_co2e_ha_yr": 3.584270496398481,
+      "n2o_t_co2e_ha_yr": 0.8636355970191755,
+      "net_t_co2e_ha_yr": 2.120270865386623
+     },
+     {
+      "mean_wtd_m": 0.2,
+      "co2_t_co2e_ha_yr": -1.0835336320033837,
+      "ch4_t_co2e_ha_yr": 1.0370220360274924,
+      "n2o_t_co2e_ha_yr": 2.015171787697922,
+      "net_t_co2e_ha_yr": 1.9686601917220308
+     },
+     {
+      "mean_wtd_m": 0.3,
+      "co2_t_co2e_ha_yr": 1.2061825598055074,
+      "ch4_t_co2e_ha_yr": 0.33682047327623005,
+      "n2o_t_co2e_ha_yr": 3.9970675388867476,
+      "net_t_co2e_ha_yr": 5.540070571968485
+     },
+     {
+      "mean_wtd_m": 0.5,
+      "co2_t_co2e_ha_yr": 12.562455154770129,
+      "ch4_t_co2e_ha_yr": 0.024684462780107587,
+      "n2o_t_co2e_ha_yr": 6.778867443628489,
+      "net_t_co2e_ha_yr": 19.366007061178728
+     },
+     {
+      "mean_wtd_m": 0.7,
+      "co2_t_co2e_ha_yr": 23.405168306035584,
+      "ch4_t_co2e_ha_yr": -0.028853053753768933,
+      "n2o_t_co2e_ha_yr": 7.300560279032912,
+      "net_t_co2e_ha_yr": 30.676875531314728
+     },
+     {
+      "mean_wtd_m": 0.9,
+      "co2_t_co2e_ha_yr": 29.76935703994014,
+      "ch4_t_co2e_ha_yr": -0.04068910351543597,
+      "n2o_t_co2e_ha_yr": 7.367443205401462,
+      "net_t_co2e_ha_yr": 37.096111141826164
+     }
+    ],
+    "optimum_wtd_m": 0.2,
+    "optimum_net_t_co2e_ha_yr": 1.9686601917220308,
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  },
+  {
+   "ref": "R6",
+   "agent": "dt2",
+   "tool": "area_methane",
+   "arguments": {
+    "area": {
+     "bbox_bng": [
+      540000,
+      275000,
+      545000,
+      280000
+     ]
+    }
+   },
+   "ok": true,
+   "result": {
+    "area": "BNG box 540000,275000,545000,280000 m",
+    "cells_km2": 25,
+    "groups": {
+     "dairy": {
+      "heads": 97.84784456857032,
+      "lsu": 81.57267635075942,
+      "enteric_t_ch4": 9.02125270689074,
+      "manure_t_ch4": 2.389500825005345,
+      "total_t_ch4": 11.410753531896084
+     },
+     "beef_other": {
+      "heads": 169.8481113501017,
+      "lsu": 107.32183650694594,
+      "enteric_t_ch4": 8.98142153772216,
+      "manure_t_ch4": 1.0522927048001045,
+      "total_t_ch4": 10.033714242522263
+     },
+     "sheep": {
+      "heads": 436.35773028143547,
+      "lsu": 43.635773028143554,
+      "enteric_t_ch4": 2.1762890223002493,
+      "manure_t_ch4": 0.054284806682755725,
+      "total_t_ch4": 2.230573828983005
+     },
+     "goats": {
+      "heads": 2.613616113758099,
+      "lsu": 0.2613616113758099,
+      "enteric_t_ch4": 0.02352254502382289,
+      "manure_t_ch4": 0.0010193102843656585,
+      "total_t_ch4": 0.02454185530818855
+     }
+    },
+    "enteric_t_ch4": 20.20248581193697,
+    "manure_t_ch4": 3.4970976467725707,
+    "total_t_ch4": 23.69958345870954,
+    "t_co2e_ar5": 663.5883368438672,
+    "t_co2e_ar6": 639.8887533851575,
+    "lsu": 232.79164749722472,
+    "grassland": {
+     "improved_ha": 275.1288183629513,
+     "semi_natural_ha": 206.95000439882278,
+     "rough_grazing_ha": 327.01375406980515,
+     "land_ha": 2491.695509970188
+    },
+    "stocking_lsu_per_grazing_ha": 0.2877194206982357,
+    "kg_ch4_per_grazing_ha": 29.291559627845714,
+    "site": "default",
+    "provenance": {
+     "model": "DT2 livestock methane twin 0.1.0",
+     "emission_factors": "UK GHG Inventory 1990-2023 (NID 2025, Ricardo/DESNZ), Annex Tables A 5.1.8, A 5.1.9 and A 5.1.11; the UK-inventory default 'Tier 2' factors of the Farm Carbon Calculator (methodology v3.6, April 2026, Eqs 1a and 4)",
+     "head_counts": "Defra June Survey of Agriculture, England, 1 June 2020 (final, 22 Dec 2020): Tables 7, 9 and 11; cattle from the Cattle Tracing System",
+     "livestock_maps": "Malek, Romanchuk, Yashchun and See (2024), Spatial distribution of cattle, sheep and goat density, and grazed areas for the EU and the UK, v1, Zenodo, doi:10.5281/zenodo.13734518 (CC BY 4.0), ~2020, 100 m, LSU/ha",
+     "grassland_map": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid",
+     "allocation": "{'alpha_other': 0.0, 'block_km': 10, 'acn_weight': 0.5}",
+     "site_factors": "June Survey 2020 totals (no site learning)",
+     "gwp100": "CH4: AR5 28 (Farm Carbon Calculator), AR6 27 (non-fossil)"
+    }
+   }
+  },
+  {
+   "ref": "R7",
+   "agent": "dt2",
+   "tool": "area_methane",
+   "arguments": {
+    "area": {
+     "lat": 52.377,
+     "lon": 0.092,
+     "radius_km": 10
+    }
+   },
+   "ok": true,
+   "result": {
+    "area": "10 km around 52.3770N 0.0920E",
+    "cells_km2": 311,
+    "groups": {
+     "dairy": {
+      "heads": 1132.362215937144,
+      "lsu": 944.0148320051956,
+      "enteric_t_ch4": 104.40010968810874,
+      "manure_t_ch4": 27.65293871435783,
+      "total_t_ch4": 132.05304840246657
+     },
+     "beef_other": {
+      "heads": 1965.5985738792456,
+      "lsu": 1242.001733827511,
+      "enteric_t_ch4": 103.93915614148776,
+      "manure_t_ch4": 12.177851277928745,
+      "total_t_ch4": 116.1170074194165
+     },
+     "sheep": {
+      "heads": 6893.03049306485,
+      "lsu": 689.303049306485,
+      "enteric_t_ch4": 34.37827624312428,
+      "manure_t_ch4": 0.8575230866954696,
+      "total_t_ch4": 35.235799329819756
+     },
+     "goats": {
+      "heads": 41.28661948461576,
+      "lsu": 4.128661948461576,
+      "enteric_t_ch4": 0.37157957536154185,
+      "manure_t_ch4": 0.016101781599000147,
+      "total_t_ch4": 0.387681356960542
+     }
+    },
+    "enteric_t_ch4": 243.0891216480823,
+    "manure_t_ch4": 40.704414860581046,
+    "total_t_ch4": 283.79353650866335,
+    "t_co2e_ar5": 7946.219022242574,
+    "t_co2e_ar6": 7662.42548573391,
+    "lsu": 2879.4482770876534,
+    "grassland": {
+     "improved_ha": 3097.3728032261133,
+     "semi_natural_ha": 4542.146628886461,
+     "rough_grazing_ha": 2601.4074333012104,
+     "land_ha": 31036.749802850187
+    },
+    "stocking_lsu_per_grazing_ha": 0.28117067087084496,
+    "kg_ch4_per_grazing_ha": 27.71170424691795,
+    "site": "default",
+    "provenance": {
+     "model": "DT2 livestock methane twin 0.1.0",
+     "emission_factors": "UK GHG Inventory 1990-2023 (NID 2025, Ricardo/DESNZ), Annex Tables A 5.1.8, A 5.1.9 and A 5.1.11; the UK-inventory default 'Tier 2' factors of the Farm Carbon Calculator (methodology v3.6, April 2026, Eqs 1a and 4)",
+     "head_counts": "Defra June Survey of Agriculture, England, 1 June 2020 (final, 22 Dec 2020): Tables 7, 9 and 11; cattle from the Cattle Tracing System",
+     "livestock_maps": "Malek, Romanchuk, Yashchun and See (2024), Spatial distribution of cattle, sheep and goat density, and grazed areas for the EU and the UK, v1, Zenodo, doi:10.5281/zenodo.13734518 (CC BY 4.0), ~2020, 100 m, LSU/ha",
+     "grassland_map": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid",
+     "allocation": "{'alpha_other': 0.0, 'block_km': 10, 'acn_weight': 0.5}",
+     "site_factors": "June Survey 2020 totals (no site learning)",
+     "gwp100": "CH4: AR5 28 (Farm Carbon Calculator), AR6 27 (non-fossil)"
+    }
+   }
+  },
+  {
+   "ref": "R8",
+   "agent": "dt6",
+   "tool": "carbon_stock",
+   "arguments": {
+    "pilot": "fens"
+   },
+   "ok": true,
+   "result": {
+    "pilot": "fens",
+    "area": "whole tile",
+    "objects": 856,
+    "trees": 2379,
+    "reference_lidar_year": 2021,
+    "agb_t": 559.8639482768281,
+    "agb_p05_t": 363.85419910359883,
+    "agb_p95_t": 755.8736974500573,
+    "above_ground_c_t": 279.93197413841403,
+    "below_ground_c_t": 72.78231327598765,
+    "total_living_c_t": 352.71428741440167,
+    "total_living_co2_t": 1293.2857205194728,
+    "c_t_per_ha_canopy": 26.406699664176212,
+    "c_t_per_ha_land": 0.14108571496576067,
+    "uncertainty_parts_sd_t": {
+     "tree_allometry": 12.99808110905681,
+     "systematic": 111.97278965536562,
+     "leaf_type": 38.61380030416666
+    },
+    "ebcf_role": "state",
+    "provenance": {
+     "model": "DT6 trees-outside-woodland twin 0.1.0",
+     "observations": "Environment Agency LIDAR: National LIDAR Programme DSM/DTM and LIDAR Tiles DSM (1998 onwards), environment.data.gov.uk",
+     "inventory": "National Trees Outside Woodland Map V1 (Forest Research / Forestry Commission, NCEA, 2025) and Environment Agency LIDAR (National LIDAR Programme and LIDAR Tiles DSM/DTM). Open Government Licence v3.0.",
+     "allometry": "Jucker et al. 2017, Allometric equations for integrating remote sensing imagery into forest monitoring programmes, Global Change Biology 23, 177-190",
+     "licence": "Open Government Licence v3.0 (TOW map, EA lidar, HadUK-Grid)",
+     "parameters": "",
+     "assumptions": [
+      "Inventory: National Trees Outside Woodland map V1 (lone trees, groups of trees, small woodlands; canopy > 3 m outside NFI woodland). NFI overhanging canopy is left to DT4, hedges below 3 m to DT5.",
+      "Calibrated on Environment Agency lidar canopy heights only: first and last return of the National LIDAR Programme and last-return LIDAR Tiles DSMs back to 1998, all above the NLP terrain model.",
+      "Biomass from crown size and height with Jucker et al. (2017); trees in groups share the object's crown area equally; leaf type is a pilot prior (no open leaf-type map for TOW).",
+      "Crown light-use model climate: HadUK-Grid 1991-2020 monthly averages; radiation from Hargreaves-Samani.",
+      "Trees removed before the TOW map was made (2016-2023 lidar) are not in the inventory, so their loss is not seen."
+     ]
+    }
+   }
+  },
+  {
+   "ref": "R9",
+   "agent": "dt6",
+   "tool": "simulate_trees",
+   "arguments": {
+    "pilot": "fens",
+    "growth_model": "size_age",
+    "years": 30
+   },
+   "ok": true,
+   "result": {
+    "pilot": "fens",
+    "area": "whole tile",
+    "scenario": "baseline (background mortality only)",
+    "runs": [
+     {
+      "growth_model": "size_age",
+      "productivity_name": "site index (height at 50 years, m)",
+      "productivity_shift": 0.0,
+      "productivity_source": "calibrated baseline: crown-by-crown EA lidar calibration in fens",
+      "years": [
+       2025,
+       2026,
+       2027,
+       2028,
+       2029,
+       2030,
+       2031,
+       2032,
+       2033,
+       2034,
+       2035,
+       2036,
+       2037,
+       2038,
+       2039,
+       2040,
+       2041,
+       2042,
+       2043,
+       2044,
+       2045,
+       2046,
+       2047,
+       2048,
+       2049,
+       2050,
+       2051,
+       2052,
+       2053,
+       2054,
+       2055
+      ],
+      "n_objects": 856,
+      "n_trees": 2379,
+      "living_c_t": {
+       "mean": [
+        344.278,
+        342.773,
+        341.276,
+        339.786,
+        338.303,
+        336.826,
+        335.357,
+        333.894,
+        332.438,
+        330.988,
+        329.544,
+        328.106,
+        326.674,
+        325.247,
+        323.826,
+        322.411,
+        321.0,
+        319.595,
+        318.194,
+        316.798,
+        315.407,
+        314.019,
+        312.637,
+        311.258,
+        309.883,
+        308.513,
+        307.146,
+        305.783,
+        304.423,
+        303.068,
+        301.715
+       ],
+       "p05": [
+        202.208,
+        201.326,
+        200.448,
+        199.574,
+        198.704,
+        197.839,
+        196.977,
+        196.119,
+        195.265,
+        194.414,
+        193.567,
+        192.724,
+        191.884,
+        191.047,
+        190.213,
+        189.383,
+        188.555,
+        187.73,
+        186.908,
+        186.089,
+        185.272,
+        184.458,
+        183.646,
+        182.836,
+        182.029,
+        181.225,
+        180.422,
+        179.622,
+        178.823,
+        178.027,
+        177.233
+       ],
+       "p95": [
+        489.645,
+        487.441,
+        485.246,
+        483.061,
+        480.886,
+        478.72,
+        476.564,
+        474.417,
+        472.279,
+        470.15,
+        468.031,
+        465.919,
+        463.817,
+        461.723,
+        459.637,
+        457.559,
+        455.489,
+        453.426,
+        451.372,
+        449.324,
+        447.284,
+        445.251,
+        443.226,
+        441.207,
+        439.195,
+        437.189,
+        435.19,
+        433.198,
+        431.212,
+        429.233,
+        427.26
+       ]
+      },
+      "deadwood_c_t": {
+       "mean": [
+        0.0,
+        0.765,
+        1.501,
+        2.208,
+        2.888,
+        3.541,
+        4.169,
+        4.772,
+        5.352,
+        5.908,
+        6.443,
+        6.955,
+        7.448,
+        7.92,
+        8.373,
+        8.807,
+        9.224,
+        9.623,
+        10.005,
+        10.372,
+        10.722,
+        11.058,
+        11.379,
+        11.686,
+        11.98,
+        12.26,
+        12.528,
+        12.784,
+        13.028,
+        13.261,
+        13.483
+       ],
+       "p05": [
+        0.0,
+        0.449,
+        0.881,
+        1.297,
+        1.696,
+        2.08,
+        2.449,
+        2.803,
+        3.143,
+        3.47,
+        3.784,
+        4.085,
+        4.374,
+        4.652,
+        4.918,
+        5.173,
+        5.418,
+        5.652,
+        5.877,
+        6.092,
+        6.298,
+        6.495,
+        6.684,
+        6.864,
+        7.037,
+        7.202,
+        7.359,
+        7.509,
+        7.653,
+        7.789,
+        7.92
+       ],
+       "p95": [
+        0.0,
+        1.088,
+        2.134,
+        3.14,
+        4.106,
+        5.035,
+        5.927,
+        6.785,
+        7.608,
+        8.398,
+        9.157,
+        9.885,
+        10.584,
+        11.254,
+        11.896,
+        12.513,
+        13.103,
+        13.669,
+        14.211,
+        14.73,
+        15.227,
+        15.702,
+        16.157,
+        16.591,
+        17.007,
+        17.403,
+        17.782,
+        18.143,
+        18.488,
+        18.816,
+        19.129
+       ]
+      },
+      "firewood_c_t": {
+       "mean": [
+        0.0,
+        0.956,
+        1.43,
+        1.663,
+        1.775,
+        1.827,
+        1.849,
+        1.856,
+        1.856,
+        1.851,
+        1.845,
+        1.838,
+        1.83,
+        1.823,
+        1.815,
+        1.807,
+        1.799,
+        1.791,
+        1.783,
+        1.776,
+        1.768,
+        1.76,
+        1.752,
+        1.745,
+        1.737,
+        1.729,
+        1.722,
+        1.714,
+        1.706,
+        1.699,
+        1.691
+       ],
+       "p05": [
+        0.0,
+        0.562,
+        0.84,
+        0.977,
+        1.043,
+        1.073,
+        1.086,
+        1.09,
+        1.09,
+        1.087,
+        1.084,
+        1.08,
+        1.075,
+        1.071,
+        1.066,
+        1.061,
+        1.057,
+        1.052,
+        1.048,
+        1.043,
+        1.038,
+        1.034,
+        1.029,
+        1.025,
+        1.02,
+        1.016,
+        1.011,
+        1.007,
+        1.002,
+        0.998,
+        0.993
+       ],
+       "p95": [
+        0.0,
+        1.36,
+        2.034,
+        2.365,
+        2.524,
+        2.598,
+        2.629,
+        2.638,
+        2.637,
+        2.63,
+        2.621,
+        2.611,
+        2.6,
+        2.588,
+        2.577,
+        2.565,
+        2.554,
+        2.542,
+        2.531,
+        2.519,
+        2.508,
+        2.496,
+        2.485,
+        2.474,
+        2.462,
+        2.451,
+        2.44,
+        2.429,
+        2.418,
+        2.407,
+        2.396
+       ]
+      },
+      "replanted_living_c_t": null,
+      "trees_alive": {
+       "mean": [
+        2379.0,
+        2367.105,
+        2355.269,
+        2343.493,
+        2331.776,
+        2320.117,
+        2308.516,
+        2296.974,
+        2285.489,
+        2274.061,
+        2262.691,
+        2251.378,
+        2240.121,
+        2228.92,
+        2217.775,
+        2206.687,
+        2195.653,
+        2184.675,
+        2173.752,
+        2162.883,
+        2152.068,
+        2141.308,
+        2130.601,
+        2119.948,
+        2109.349,
+        2098.802,
+        2088.308,
+        2077.866,
+        2067.477,
+        2057.14,
+        2046.854
+       ],
+       "p05": [
+        2379.0,
+        2367.105,
+        2355.269,
+        2343.493,
+        2331.776,
+        2320.117,
+        2308.516,
+        2296.974,
+        2285.489,
+        2274.061,
+        2262.691,
+        2251.378,
+        2240.121,
+        2228.92,
+        2217.775,
+        2206.687,
+        2195.653,
+        2184.675,
+        2173.752,
+        2162.883,
+        2152.068,
+        2141.308,
+        2130.601,
+        2119.948,
+        2109.349,
+        2098.802,
+        2088.308,
+        2077.866,
+        2067.477,
+        2057.14,
+        2046.854
+       ],
+       "p95": [
+        2379.0,
+        2367.105,
+        2355.269,
+        2343.493,
+        2331.776,
+        2320.117,
+        2308.516,
+        2296.974,
+        2285.489,
+        2274.061,
+        2262.691,
+        2251.378,
+        2240.121,
+        2228.92,
+        2217.775,
+        2206.687,
+        2195.653,
+        2184.675,
+        2173.752,
+        2162.883,
+        2152.068,
+        2141.308,
+        2130.601,
+        2119.948,
+        2109.349,
+        2098.802,
+        2088.308,
+        2077.866,
+        2067.477,
+        2057.14,
+        2046.854
+       ]
+      },
+      "height_median_m": {
+       "mean": [
+        6.607,
+        6.615,
+        6.628,
+        6.65,
+        6.676,
+        6.711,
+        6.759,
+        6.797,
+        6.822,
+        6.852,
+        6.882,
+        6.907,
+        6.93,
+        6.947,
+        6.964,
+        6.987,
+        7.012,
+        7.038,
+        7.067,
+        7.092,
+        7.118,
+        7.138,
+        7.151,
+        7.164,
+        7.176,
+        7.188,
+        7.201,
+        7.216,
+        7.23,
+        7.244,
+        7.253
+       ],
+       "p05": [
+        6.602,
+        6.611,
+        6.616,
+        6.624,
+        6.652,
+        6.672,
+        6.7,
+        6.755,
+        6.795,
+        6.818,
+        6.842,
+        6.87,
+        6.905,
+        6.92,
+        6.94,
+        6.955,
+        6.974,
+        7.008,
+        7.035,
+        7.047,
+        7.068,
+        7.091,
+        7.103,
+        7.13,
+        7.151,
+        7.16,
+        7.164,
+        7.177,
+        7.194,
+        7.208,
+        7.221
+       ],
+       "p95": [
+        6.613,
+        6.623,
+        6.65,
+        6.679,
+        6.715,
+        6.781,
+        6.803,
+        6.815,
+        6.865,
+        6.888,
+        6.915,
+        6.939,
+        6.961,
+        6.981,
+        7.006,
+        7.036,
+        7.054,
+        7.088,
+        7.141,
+        7.157,
+        7.163,
+        7.168,
+        7.182,
+        7.207,
+        7.219,
+        7.228,
+        7.244,
+        7.264,
+        7.267,
+        7.274,
+        7.283
+       ]
+      },
+      "net_flux_t_co2_yr": {
+       "mean": [
+        0.0,
+        -120.221,
+        -117.922,
+        -116.511,
+        -115.545,
+        -114.803,
+        -114.174,
+        -113.604,
+        -113.063,
+        -112.539,
+        -112.023,
+        -111.513,
+        -111.006,
+        -110.501,
+        -109.999,
+        -109.498,
+        -108.998,
+        -108.5,
+        -108.003,
+        -107.507,
+        -107.012,
+        -106.518,
+        -106.026,
+        -105.534,
+        -105.044,
+        -104.554,
+        -104.066,
+        -103.579,
+        -103.093,
+        -102.608,
+        -102.125
+       ],
+       "p05": [
+        0.0,
+        -126.632,
+        -123.517,
+        -121.667,
+        -120.45,
+        -119.552,
+        -118.816,
+        -118.163,
+        -117.553,
+        -116.967,
+        -116.393,
+        -115.828,
+        -115.268,
+        -114.712,
+        -114.16,
+        -113.61,
+        -113.063,
+        -112.519,
+        -111.977,
+        -111.437,
+        -110.899,
+        -110.363,
+        -109.83,
+        -109.298,
+        -108.769,
+        -108.241,
+        -107.715,
+        -107.191,
+        -106.67,
+        -106.15,
+        -105.632
+       ],
+       "p95": [
+        0.0,
+        -113.726,
+        -112.217,
+        -111.23,
+        -110.504,
+        -109.91,
+        -109.383,
+        -108.889,
+        -108.413,
+        -107.945,
+        -107.483,
+        -107.024,
+        -106.566,
+        -106.109,
+        -105.654,
+        -105.199,
+        -104.744,
+        -104.29,
+        -103.837,
+        -103.383,
+        -102.931,
+        -102.478,
+        -102.027,
+        -101.575,
+        -101.124,
+        -100.674,
+        -100.224,
+        -99.774,
+        -99.329,
+        -98.876,
+        -98.427
+       ]
+      },
+      "cumulative_net_t_co2": [
+       -3286.087,
+       -3413.044,
+       -3153.942
+      ],
+      "mean_annual_net_t_co2_yr": -109.536,
+      "to_soil_t_c_yr": 30.7865,
+      "n_members": 40
+     }
+    ],
+    "ebcf_role": "response",
+    "provenance": {
+     "model": "DT6 trees-outside-woodland twin 0.1.0",
+     "observations": "Environment Agency LIDAR: National LIDAR Programme DSM/DTM and LIDAR Tiles DSM (1998 onwards), environment.data.gov.uk",
+     "inventory": "National Trees Outside Woodland Map V1 (Forest Research / Forestry Commission, NCEA, 2025) and Environment Agency LIDAR (National LIDAR Programme and LIDAR Tiles DSM/DTM). Open Government Licence v3.0.",
+     "allometry": "Jucker et al. 2017, Allometric equations for integrating remote sensing imagery into forest monitoring programmes, Global Change Biology 23, 177-190",
+     "licence": "Open Government Licence v3.0 (TOW map, EA lidar, HadUK-Grid)",
+     "parameters": "size_age: calibrated baseline: crown-by-crown EA lidar calibration in fens",
+     "assumptions": [
+      "Inventory: National Trees Outside Woodland map V1 (lone trees, groups of trees, small woodlands; canopy > 3 m outside NFI woodland). NFI overhanging canopy is left to DT4, hedges below 3 m to DT5.",
+      "Calibrated on Environment Agency lidar canopy heights only: first and last return of the National LIDAR Programme and last-return LIDAR Tiles DSMs back to 1998, all above the NLP terrain model.",
+      "Biomass from crown size and height with Jucker et al. (2017); trees in groups share the object's crown area equally; leaf type is a pilot prior (no open leaf-type map for TOW).",
+      "Crown light-use model climate: HadUK-Grid 1991-2020 monthly averages; radiation from Hargreaves-Samani.",
+      "Trees removed before the TOW map was made (2016-2023 lidar) are not in the inventory, so their loss is not seen."
+     ]
+    }
+   }
+  },
+  {
+   "ref": "R10",
+   "agent": "dt2",
+   "tool": "grassland_map",
+   "arguments": {
+    "area": {
+     "bbox_bng": [
+      540000,
+      275000,
+      545000,
+      280000
+     ]
+    }
+   },
+   "ok": true,
+   "result": {
+    "area": "BNG box 540000,275000,545000,280000 m",
+    "living_england_ha": {
+     "Acid, Calcareous, Neutral Grassland": 206.9499969482422,
+     "Arable and Horticultural": 1590.1300048828125,
+     "Bare Ground": 0.0,
+     "Bare Sand": 0.0,
+     "Bog": 0.0,
+     "Bracken": 0.0,
+     "Broadleaved, Mixed and Yew Woodland": 3.180000066757202,
+     "Built-up Areas and Gardens": 82.97000122070312,
+     "Coastal Saltmarsh": 0.0,
+     "Coastal Sand Dunes": 0.0,
+     "Coniferous Woodland": 0.0,
+     "Dwarf Shrub Heath": 0.0,
+     "Fen, Marsh and Swamp": 327.0137634277344,
+     "Improved Grassland": 275.1288146972656,
+     "Scrub": 0.0,
+     "Unclassified": 0.0,
+     "Water": 6.3229169845581055
+    },
+    "grazing_groups_ha": {
+     "improved_ha": 275.1288183629513,
+     "semi_natural_ha": 206.95000439882278,
+     "rough_grazing_ha": 327.01375406980515,
+     "land_ha": 2491.695509970188
+    },
+    "source": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid"
+   }
+  },
+  {
+   "ref": "R11",
+   "agent": "dt8",
+   "tool": "validate_inventory",
+   "arguments": {},
+   "ok": true,
+   "result": {
+    "water_table_profile": [
+     {
+      "wtd_cm": 5.0,
+      "co2_model_t": -2.022043522133968,
+      "co2_report_eq1_t": -3.8815,
+      "ch4_model_kg": 158.19600343378931,
+      "ch4_report_eq3_kg": 148.45148837879307,
+      "n2o_model_kg_n": 1.1046633742053207
+     },
+     {
+      "wtd_cm": 10.0,
+      "co2_model_t": -2.3276352280310335,
+      "co2_report_eq1_t": -1.423,
+      "ch4_model_kg": 132.75075912586968,
+      "ch4_report_eq3_kg": 85.7137481680448,
+      "n2o_model_kg_n": 1.953119063951121
+     },
+     {
+      "wtd_cm": 20.0,
+      "co2_model_t": -1.0835336320033837,
+      "co2_report_eq1_t": 3.4939999999999998,
+      "ch4_model_kg": 38.408223556573795,
+      "ch4_report_eq3_kg": 28.574743970517172,
+      "n2o_model_kg_n": 4.69737013449399
+     },
+     {
+      "wtd_cm": 30.0,
+      "co2_model_t": 1.2061825598055074,
+      "co2_report_eq1_t": 8.411000000000001,
+      "ch4_model_kg": 12.474832343564078,
+      "ch4_report_eq3_kg": 9.526079659704058,
+      "n2o_model_kg_n": 9.317173750318759
+     },
+     {
+      "wtd_cm": 40.0,
+      "co2_model_t": 6.884318857287822,
+      "co2_report_eq1_t": 13.328,
+      "ch4_model_kg": 4.095118254957833,
+      "ch4_report_eq3_kg": 3.1757482683539493,
+      "n2o_model_kg_n": 13.874206019904436
+     },
+     {
+      "wtd_cm": 50.0,
+      "co2_model_t": 12.562455154770129,
+      "co2_report_eq1_t": 18.245,
+      "ch4_model_kg": 0.9142393622262069,
+      "ch4_report_eq3_kg": 1.058712232547762,
+      "n2o_model_kg_n": 15.801555812653818
+     },
+     {
+      "wtd_cm": 68.0,
+      "co2_model_t": 22.536537410609835,
+      "co2_report_eq1_t": 27.0956,
+      "ch4_model_kg": -0.97850856764463,
+      "ch4_report_eq3_kg": 0.14657344010891601,
+      "n2o_model_kg_n": 16.947464811762256
+     },
+     {
+      "wtd_cm": 80.0,
+      "co2_model_t": 27.018073601382255,
+      "co2_report_eq1_t": 32.995999999999995,
+      "ch4_model_kg": -1.3643380706346846,
+      "ch4_report_eq3_kg": 0.0392259539578993,
+      "n2o_model_kg_n": 17.282561289214172
+     }
+    ],
+    "co2_slope_model": 0.41893905823843175,
+    "co2_slope_report": 0.4917,
+    "cropland_co2_model_t": 27.67102280272035,
+    "cropland_co2_tier2_t": 27.06,
+    "ch4_rewetted_model_kg": 109.28419310877517,
+    "ch4_rewetted_tier2_kg": 111.0,
+    "ch4_cropland_model_kg": -0.97850856764463,
+    "ch4_cropland_tier2_kg": 1.96,
+    "n2o_cropland_model_kg_n": 16.279999999999994,
+    "n2o_cropland_tier2_kg_n": 16.28,
+    "n2o_grass_model_kg_n": 7.886513616534872,
+    "n2o_grass_tier2_kg_n": 7.39,
+    "n2o_rewetted_model_kg_n": 1.953119063951121,
+    "ch4_skill": {
+     "eq3_5_70cm": {
+      "bias": 6.768583376060087,
+      "rmse": 14.33426971156064,
+      "r": 0.9802929507915884,
+      "nse": 0.8813933673408856
+     },
+     "eq3_20_70cm": {
+      "bias": 1.5677096613060508,
+      "rmse": 3.558219011969485,
+      "r": 0.9996510752653961,
+      "nse": 0.8283176607682838
+     },
+     "tier2_classes": {
+      "bias": -6.586937462483776,
+      "rmse": 21.995660842853585,
+      "r": 0.9790697769036608,
+      "nse": 0.8319117578939604
+     }
+    },
+    "ch4_tier2_table": [
+     {
+      "peat_class": "Near-natural fen",
+      "wtd_cm": 2.6,
+      "ef_tier2": 143.25,
+      "model": 171.73856291101242
+     },
+     {
+      "peat_class": "Rewetted fen",
+      "wtd_cm": 11.5,
+      "ef_tier2": 111.44,
+      "model": 109.28419310877517
+     },
+     {
+      "peat_class": "Extensive grassland",
+      "wtd_cm": 37.0,
+      "ef_tier2": 35.91,
+      "model": 5.784604135469635
+     },
+     {
+      "peat_class": "Intensive grassland",
+      "wtd_cm": 43.0,
+      "ef_tier2": 29.03,
+      "model": 2.8264610999685202
+     },
+     {
+      "peat_class": "Cropland",
+      "wtd_cm": 68.0,
+      "ef_tier2": 1.96,
+      "model": -0.97850856764463
+     }
+    ],
+    "reference": "Evans et al. (2023) UK Peatland Inventory / CEH report: Eq. 1 (CO2), Eq. 3 (CH4), Fig. 3.9 (N2O), Tier-2 emission factors",
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  },
+  {
+   "ref": "R12",
+   "agent": "dt2",
+   "tool": "methane_scenario",
+   "arguments": {
+    "area": {
+     "bbox_bng": [
+      540000,
+      275000,
+      545000,
+      280000
+     ]
+    },
+    "interventions": {
+     "enteric_reduction_pct": {
+      "dairy": 20,
+      "beef_other": 20
+     }
+    }
+   },
+   "ok": true,
+   "result": {
+    "baseline": {
+     "area": "BNG box 540000,275000,545000,280000 m",
+     "cells_km2": 25,
+     "groups": {
+      "dairy": {
+       "heads": 97.84784456857032,
+       "lsu": 81.57267635075942,
+       "enteric_t_ch4": 9.02125270689074,
+       "manure_t_ch4": 2.389500825005345,
+       "total_t_ch4": 11.410753531896084
+      },
+      "beef_other": {
+       "heads": 169.8481113501017,
+       "lsu": 107.32183650694594,
+       "enteric_t_ch4": 8.98142153772216,
+       "manure_t_ch4": 1.0522927048001045,
+       "total_t_ch4": 10.033714242522263
+      },
+      "sheep": {
+       "heads": 436.35773028143547,
+       "lsu": 43.635773028143554,
+       "enteric_t_ch4": 2.1762890223002493,
+       "manure_t_ch4": 0.054284806682755725,
+       "total_t_ch4": 2.230573828983005
+      },
+      "goats": {
+       "heads": 2.613616113758099,
+       "lsu": 0.2613616113758099,
+       "enteric_t_ch4": 0.02352254502382289,
+       "manure_t_ch4": 0.0010193102843656585,
+       "total_t_ch4": 0.02454185530818855
+      }
+     },
+     "enteric_t_ch4": 20.20248581193697,
+     "manure_t_ch4": 3.4970976467725707,
+     "total_t_ch4": 23.69958345870954,
+     "t_co2e_ar5": 663.5883368438672,
+     "t_co2e_ar6": 639.8887533851575,
+     "lsu": 232.79164749722472,
+     "grassland": {
+      "improved_ha": 275.1288183629513,
+      "semi_natural_ha": 206.95000439882278,
+      "rough_grazing_ha": 327.01375406980515,
+      "land_ha": 2491.695509970188
+     },
+     "stocking_lsu_per_grazing_ha": 0.2877194206982357,
+     "kg_ch4_per_grazing_ha": 29.291559627845714,
+     "site": "default",
+     "provenance": {
+      "model": "DT2 livestock methane twin 0.1.0",
+      "emission_factors": "UK GHG Inventory 1990-2023 (NID 2025, Ricardo/DESNZ), Annex Tables A 5.1.8, A 5.1.9 and A 5.1.11; the UK-inventory default 'Tier 2' factors of the Farm Carbon Calculator (methodology v3.6, April 2026, Eqs 1a and 4)",
+      "head_counts": "Defra June Survey of Agriculture, England, 1 June 2020 (final, 22 Dec 2020): Tables 7, 9 and 11; cattle from the Cattle Tracing System",
+      "livestock_maps": "Malek, Romanchuk, Yashchun and See (2024), Spatial distribution of cattle, sheep and goat density, and grazed areas for the EU and the UK, v1, Zenodo, doi:10.5281/zenodo.13734518 (CC BY 4.0), ~2020, 100 m, LSU/ha",
+      "grassland_map": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid",
+      "allocation": "{'alpha_other': 0.0, 'block_km': 10, 'acn_weight': 0.5}",
+      "site_factors": "June Survey 2020 totals (no site learning)",
+      "gwp100": "CH4: AR5 28 (Farm Carbon Calculator), AR6 27 (non-fossil)"
+     }
+    },
+    "scenario": {
+     "area": "BNG box 540000,275000,545000,280000 m",
+     "cells_km2": 25,
+     "groups": {
+      "dairy": {
+       "heads": 97.84784456857032,
+       "lsu": 81.57267635075942,
+       "enteric_t_ch4": 7.217002165512593,
+       "manure_t_ch4": 2.389500825005345,
+       "total_t_ch4": 9.606502990517939
+      },
+      "beef_other": {
+       "heads": 169.8481113501017,
+       "lsu": 107.32183650694594,
+       "enteric_t_ch4": 7.1851372301777285,
+       "manure_t_ch4": 1.0522927048001045,
+       "total_t_ch4": 8.237429934977833
+      },
+      "sheep": {
+       "heads": 436.35773028143547,
+       "lsu": 43.635773028143554,
+       "enteric_t_ch4": 2.1762890223002493,
+       "manure_t_ch4": 0.054284806682755725,
+       "total_t_ch4": 2.230573828983005
+      },
+      "goats": {
+       "heads": 2.613616113758099,
+       "lsu": 0.2613616113758099,
+       "enteric_t_ch4": 0.02352254502382289,
+       "manure_t_ch4": 0.0010193102843656585,
+       "total_t_ch4": 0.02454185530818855
+      }
+     },
+     "enteric_t_ch4": 16.601950963014392,
+     "manure_t_ch4": 3.4970976467725707,
+     "total_t_ch4": 20.099048609786962,
+     "t_co2e_ar5": 562.7733610740349,
+     "t_co2e_ar6": 542.674312464248,
+     "lsu": 232.79164749722472,
+     "grassland": {
+      "improved_ha": 275.1288183629513,
+      "semi_natural_ha": 206.95000439882278,
+      "rough_grazing_ha": 327.01375406980515,
+      "land_ha": 2491.695509970188
+     },
+     "stocking_lsu_per_grazing_ha": 0.2877194206982357,
+     "kg_ch4_per_grazing_ha": 24.841469549127726,
+     "site": "default",
+     "provenance": {
+      "model": "DT2 livestock methane twin 0.1.0",
+      "emission_factors": "UK GHG Inventory 1990-2023 (NID 2025, Ricardo/DESNZ), Annex Tables A 5.1.8, A 5.1.9 and A 5.1.11; the UK-inventory default 'Tier 2' factors of the Farm Carbon Calculator (methodology v3.6, April 2026, Eqs 1a and 4)",
+      "head_counts": "Defra June Survey of Agriculture, England, 1 June 2020 (final, 22 Dec 2020): Tables 7, 9 and 11; cattle from the Cattle Tracing System",
+      "livestock_maps": "Malek, Romanchuk, Yashchun and See (2024), Spatial distribution of cattle, sheep and goat density, and grazed areas for the EU and the UK, v1, Zenodo, doi:10.5281/zenodo.13734518 (CC BY 4.0), ~2020, 100 m, LSU/ha",
+      "grassland_map": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid",
+      "allocation": "{'alpha_other': 0.0, 'block_km': 10, 'acn_weight': 0.5}",
+      "site_factors": "June Survey 2020 totals (no site learning)",
+      "gwp100": "CH4: AR5 28 (Farm Carbon Calculator), AR6 27 (non-fossil)"
+     }
+    },
+    "change_t_ch4": -3.600534848922578,
+    "change_t_co2e_ar5": -100.81497576983219,
+    "change_pct": -15.192397179450806,
+    "interventions": {
+     "herd_change_pct": {},
+     "pasture_pct": {},
+     "ad_pct_of_housed": null,
+     "enteric_reduction_pct": {
+      "dairy": 20.0,
+      "beef_other": 20.0
+     },
+     "grassland_loss_pct": 0.0,
+     "max_stocking_lsu_ha": null
+    }
+   }
+  },
+  {
+   "ref": "R13",
+   "agent": "dt2",
+   "tool": "methane_scenario",
+   "arguments": {
+    "area": {
+     "bbox_bng": [
+      540000,
+      275000,
+      545000,
+      280000
+     ]
+    },
+    "interventions": {
+     "herd_change_pct": {
+      "dairy": -25,
+      "beef_other": -25,
+      "sheep": -25
+     }
+    }
+   },
+   "ok": true,
+   "result": {
+    "baseline": {
+     "area": "BNG box 540000,275000,545000,280000 m",
+     "cells_km2": 25,
+     "groups": {
+      "dairy": {
+       "heads": 97.84784456857032,
+       "lsu": 81.57267635075942,
+       "enteric_t_ch4": 9.02125270689074,
+       "manure_t_ch4": 2.389500825005345,
+       "total_t_ch4": 11.410753531896084
+      },
+      "beef_other": {
+       "heads": 169.8481113501017,
+       "lsu": 107.32183650694594,
+       "enteric_t_ch4": 8.98142153772216,
+       "manure_t_ch4": 1.0522927048001045,
+       "total_t_ch4": 10.033714242522263
+      },
+      "sheep": {
+       "heads": 436.35773028143547,
+       "lsu": 43.635773028143554,
+       "enteric_t_ch4": 2.1762890223002493,
+       "manure_t_ch4": 0.054284806682755725,
+       "total_t_ch4": 2.230573828983005
+      },
+      "goats": {
+       "heads": 2.613616113758099,
+       "lsu": 0.2613616113758099,
+       "enteric_t_ch4": 0.02352254502382289,
+       "manure_t_ch4": 0.0010193102843656585,
+       "total_t_ch4": 0.02454185530818855
+      }
+     },
+     "enteric_t_ch4": 20.20248581193697,
+     "manure_t_ch4": 3.4970976467725707,
+     "total_t_ch4": 23.69958345870954,
+     "t_co2e_ar5": 663.5883368438672,
+     "t_co2e_ar6": 639.8887533851575,
+     "lsu": 232.79164749722472,
+     "grassland": {
+      "improved_ha": 275.1288183629513,
+      "semi_natural_ha": 206.95000439882278,
+      "rough_grazing_ha": 327.01375406980515,
+      "land_ha": 2491.695509970188
+     },
+     "stocking_lsu_per_grazing_ha": 0.2877194206982357,
+     "kg_ch4_per_grazing_ha": 29.291559627845714,
+     "site": "default",
+     "provenance": {
+      "model": "DT2 livestock methane twin 0.1.0",
+      "emission_factors": "UK GHG Inventory 1990-2023 (NID 2025, Ricardo/DESNZ), Annex Tables A 5.1.8, A 5.1.9 and A 5.1.11; the UK-inventory default 'Tier 2' factors of the Farm Carbon Calculator (methodology v3.6, April 2026, Eqs 1a and 4)",
+      "head_counts": "Defra June Survey of Agriculture, England, 1 June 2020 (final, 22 Dec 2020): Tables 7, 9 and 11; cattle from the Cattle Tracing System",
+      "livestock_maps": "Malek, Romanchuk, Yashchun and See (2024), Spatial distribution of cattle, sheep and goat density, and grazed areas for the EU and the UK, v1, Zenodo, doi:10.5281/zenodo.13734518 (CC BY 4.0), ~2020, 100 m, LSU/ha",
+      "grassland_map": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid",
+      "allocation": "{'alpha_other': 0.0, 'block_km': 10, 'acn_weight': 0.5}",
+      "site_factors": "June Survey 2020 totals (no site learning)",
+      "gwp100": "CH4: AR5 28 (Farm Carbon Calculator), AR6 27 (non-fossil)"
+     }
+    },
+    "scenario": {
+     "area": "BNG box 540000,275000,545000,280000 m",
+     "cells_km2": 25,
+     "groups": {
+      "dairy": {
+       "heads": 73.38588342642775,
+       "lsu": 61.17950726306956,
+       "enteric_t_ch4": 6.765939530168055,
+       "manure_t_ch4": 1.7921256187540084,
+       "total_t_ch4": 8.558065148922063
+      },
+      "beef_other": {
+       "heads": 127.38608351257628,
+       "lsu": 80.49137738020946,
+       "enteric_t_ch4": 6.7360661532916195,
+       "manure_t_ch4": 0.7892195286000784,
+       "total_t_ch4": 7.525285681891698
+      },
+      "sheep": {
+       "heads": 327.26829771107657,
+       "lsu": 32.72682977110767,
+       "enteric_t_ch4": 1.6322167667251872,
+       "manure_t_ch4": 0.040713605012066785,
+       "total_t_ch4": 1.6729303717372541
+      },
+      "goats": {
+       "heads": 2.613616113758099,
+       "lsu": 0.2613616113758099,
+       "enteric_t_ch4": 0.02352254502382289,
+       "manure_t_ch4": 0.0010193102843656585,
+       "total_t_ch4": 0.02454185530818855
+      }
+     },
+     "enteric_t_ch4": 15.157744995208684,
+     "manure_t_ch4": 2.6230780626505195,
+     "total_t_ch4": 17.780823057859205,
+     "t_co2e_ar5": 497.86304562005773,
+     "t_co2e_ar6": 480.0822225621985,
+     "lsu": 174.6590760257625,
+     "grassland": {
+      "improved_ha": 275.1288183629513,
+      "semi_natural_ha": 206.95000439882278,
+      "rough_grazing_ha": 327.01375406980515,
+      "land_ha": 2491.695509970188
+     },
+     "stocking_lsu_per_grazing_ha": 0.2158703231584827,
+     "kg_ch4_per_grazing_ha": 21.976252862792563,
+     "site": "default",
+     "provenance": {
+      "model": "DT2 livestock methane twin 0.1.0",
+      "emission_factors": "UK GHG Inventory 1990-2023 (NID 2025, Ricardo/DESNZ), Annex Tables A 5.1.8, A 5.1.9 and A 5.1.11; the UK-inventory default 'Tier 2' factors of the Farm Carbon Calculator (methodology v3.6, April 2026, Eqs 1a and 4)",
+      "head_counts": "Defra June Survey of Agriculture, England, 1 June 2020 (final, 22 Dec 2020): Tables 7, 9 and 11; cattle from the Cattle Tracing System",
+      "livestock_maps": "Malek, Romanchuk, Yashchun and See (2024), Spatial distribution of cattle, sheep and goat density, and grazed areas for the EU and the UK, v1, Zenodo, doi:10.5281/zenodo.13734518 (CC BY 4.0), ~2020, 100 m, LSU/ha",
+      "grassland_map": "Living England Habitat Map Phase 4, Natural England (Open Government Licence), segments assigned to 1 km cells by centroid",
+      "allocation": "{'alpha_other': 0.0, 'block_km': 10, 'acn_weight': 0.5}",
+      "site_factors": "June Survey 2020 totals (no site learning)",
+      "gwp100": "CH4: AR5 28 (Farm Carbon Calculator), AR6 27 (non-fossil)"
+     }
+    },
+    "change_t_ch4": -5.918760400850335,
+    "change_t_co2e_ar5": -165.7252912238094,
+    "change_pct": -24.974111511969234,
+    "interventions": {
+     "herd_change_pct": {
+      "dairy": -25.0,
+      "beef_other": -25.0,
+      "sheep": -25.0
+     },
+     "pasture_pct": {},
+     "ad_pct_of_housed": null,
+     "enteric_reduction_pct": {},
+     "grassland_loss_pct": 0.0,
+     "max_stocking_lsu_ha": null
+    }
+   }
+  },
+  {
+   "ref": "R14",
+   "agent": "dt6",
+   "tool": "planting_scenario",
+   "arguments": {
+    "pilot": "fens",
+    "n_trees": 1000,
+    "kind": "hedgerow",
+    "years": 30,
+    "growth_model": "size_age"
+   },
+   "ok": true,
+   "result": {
+    "pilot": "fens",
+    "kind": "hedgerow",
+    "n_planted": 1000,
+    "establishment_survival": 0.85,
+    "runs": [
+     {
+      "growth_model": "size_age",
+      "productivity": 5.6693,
+      "productivity_sd": 1.4865826538176425,
+      "years": [
+       2025,
+       2026,
+       2027,
+       2028,
+       2029,
+       2030,
+       2031,
+       2032,
+       2033,
+       2034,
+       2035,
+       2036,
+       2037,
+       2038,
+       2039,
+       2040,
+       2041,
+       2042,
+       2043,
+       2044,
+       2045,
+       2046,
+       2047,
+       2048,
+       2049,
+       2050,
+       2051,
+       2052,
+       2053,
+       2054,
+       2055
+      ],
+      "trees_alive": {
+       "mean": [
+        1000.0,
+        970.037,
+        940.074,
+        910.11,
+        880.147,
+        850.184,
+        845.933,
+        841.703,
+        837.495,
+        833.307,
+        829.141,
+        824.995,
+        820.87,
+        816.766,
+        812.682,
+        808.618,
+        804.575,
+        800.553,
+        796.55,
+        792.567,
+        788.604,
+        784.661,
+        780.738,
+        776.834,
+        772.95,
+        769.085,
+        765.24,
+        761.414,
+        757.607,
+        753.819,
+        750.049
+       ],
+       "p05": [
+        1000.0,
+        957.109,
+        914.218,
+        871.327,
+        828.435,
+        785.544,
+        781.616,
+        777.708,
+        773.82,
+        769.951,
+        766.101,
+        762.271,
+        758.459,
+        754.667,
+        750.894,
+        747.139,
+        743.403,
+        739.686,
+        735.988,
+        732.308,
+        728.646,
+        725.003,
+        721.378,
+        717.771,
+        714.182,
+        710.612,
+        707.058,
+        703.523,
+        700.006,
+        696.506,
+        693.023
+       ],
+       "p95": [
+        1000.0,
+        993.561,
+        987.123,
+        980.684,
+        974.246,
+        967.807,
+        962.968,
+        958.153,
+        953.362,
+        948.595,
+        943.853,
+        939.133,
+        934.438,
+        929.765,
+        925.117,
+        920.491,
+        915.889,
+        911.309,
+        906.753,
+        902.219,
+        897.708,
+        893.219,
+        888.753,
+        884.309,
+        879.888,
+        875.488,
+        871.111,
+        866.755,
+        862.422,
+        858.109,
+        853.819
+       ]
+      },
+      "living_c_t": {
+       "mean": [
+        0.022,
+        0.033,
+        0.046,
+        0.064,
+        0.086,
+        0.111,
+        0.146,
+        0.188,
+        0.237,
+        0.295,
+        0.361,
+        0.436,
+        0.52,
+        0.614,
+        0.718,
+        0.831,
+        0.954,
+        1.087,
+        1.229,
+        1.381,
+        1.542,
+        1.711,
+        1.888,
+        2.073,
+        2.265,
+        2.464,
+        2.669,
+        2.88,
+        3.096,
+        3.317,
+        3.542
+       ],
+       "p05": [
+        0.013,
+        0.018,
+        0.024,
+        0.031,
+        0.041,
+        0.053,
+        0.07,
+        0.088,
+        0.106,
+        0.125,
+        0.146,
+        0.168,
+        0.193,
+        0.22,
+        0.248,
+        0.279,
+        0.311,
+        0.345,
+        0.38,
+        0.417,
+        0.455,
+        0.495,
+        0.536,
+        0.578,
+        0.62,
+        0.664,
+        0.709,
+        0.754,
+        0.799,
+        0.845,
+        0.892
+       ],
+       "p95": [
+        0.035,
+        0.05,
+        0.072,
+        0.101,
+        0.142,
+        0.192,
+        0.262,
+        0.347,
+        0.451,
+        0.574,
+        0.717,
+        0.883,
+        1.072,
+        1.284,
+        1.521,
+        1.783,
+        2.069,
+        2.381,
+        2.716,
+        3.076,
+        3.46,
+        3.871,
+        4.313,
+        4.778,
+        5.265,
+        5.772,
+        6.298,
+        6.842,
+        7.401,
+        7.976,
+        8.563
+       ]
+      },
+      "net_flux_t_co2_yr": {
+       "mean": [
+        0.0,
+        -0.043,
+        -0.061,
+        -0.086,
+        -0.121,
+        -0.166,
+        -0.227,
+        -0.306,
+        -0.397,
+        -0.502,
+        -0.621,
+        -0.752,
+        -0.896,
+        -1.052,
+        -1.218,
+        -1.393,
+        -1.578,
+        -1.77,
+        -1.969,
+        -2.174,
+        -2.383,
+        -2.596,
+        -2.812,
+        -3.03,
+        -3.249,
+        -3.468,
+        -3.687,
+        -3.905,
+        -4.121,
+        -4.336,
+        -4.547
+       ],
+       "p05": [
+        0.0,
+        -0.07,
+        -0.103,
+        -0.152,
+        -0.218,
+        -0.3,
+        -0.42,
+        -0.573,
+        -0.753,
+        -0.96,
+        -1.194,
+        -1.453,
+        -1.737,
+        -2.044,
+        -2.372,
+        -2.719,
+        -3.084,
+        -3.463,
+        -3.855,
+        -4.258,
+        -4.669,
+        -5.088,
+        -5.512,
+        -5.94,
+        -6.369,
+        -6.798,
+        -7.225,
+        -7.65,
+        -8.07,
+        -8.485,
+        -8.894
+       ],
+       "p95": [
+        0.0,
+        -0.022,
+        -0.032,
+        -0.042,
+        -0.055,
+        -0.075,
+        -0.101,
+        -0.134,
+        -0.171,
+        -0.214,
+        -0.262,
+        -0.315,
+        -0.373,
+        -0.436,
+        -0.503,
+        -0.574,
+        -0.649,
+        -0.727,
+        -0.808,
+        -0.892,
+        -0.977,
+        -1.065,
+        -1.154,
+        -1.244,
+        -1.334,
+        -1.426,
+        -1.517,
+        -1.608,
+        -1.699,
+        -1.79,
+        -1.88
+       ]
+      },
+      "cumulative_net_t_co2": [
+       -53.464427427821306,
+       -104.31035405920017,
+       -22.101667809820203
+      ],
+      "to_soil_t_c_yr": 0.36612296872230227
+     }
+    ],
+    "ebcf_role": "response",
+    "provenance": {
+     "model": "DT6 trees-outside-woodland twin 0.1.0",
+     "observations": "Environment Agency LIDAR: National LIDAR Programme DSM/DTM and LIDAR Tiles DSM (1998 onwards), environment.data.gov.uk",
+     "inventory": "National Trees Outside Woodland Map V1 (Forest Research / Forestry Commission, NCEA, 2025) and Environment Agency LIDAR (National LIDAR Programme and LIDAR Tiles DSM/DTM). Open Government Licence v3.0.",
+     "allometry": "Jucker et al. 2017, Allometric equations for integrating remote sensing imagery into forest monitoring programmes, Global Change Biology 23, 177-190",
+     "licence": "Open Government Licence v3.0 (TOW map, EA lidar, HadUK-Grid)",
+     "parameters": "calibrated baseline: crown-by-crown EA lidar calibration in fens",
+     "assumptions": [
+      "Inventory: National Trees Outside Woodland map V1 (lone trees, groups of trees, small woodlands; canopy > 3 m outside NFI woodland). NFI overhanging canopy is left to DT4, hedges below 3 m to DT5.",
+      "Calibrated on Environment Agency lidar canopy heights only: first and last return of the National LIDAR Programme and last-return LIDAR Tiles DSMs back to 1998, all above the NLP terrain model.",
+      "Biomass from crown size and height with Jucker et al. (2017); trees in groups share the object's crown area equally; leaf type is a pilot prior (no open leaf-type map for TOW).",
+      "Crown light-use model climate: HadUK-Grid 1991-2020 monthly averages; radiation from Hargreaves-Samani.",
+      "Trees removed before the TOW map was made (2016-2023 lidar) are not in the inventory, so their loss is not seen."
+     ]
+    }
+   }
+  },
+  {
+   "ref": "R15",
+   "agent": "dt8",
+   "tool": "ghg_balance",
+   "arguments": {
+    "crop": "Grass",
+    "mean_wtd_m": 0.3
+   },
+   "ok": true,
+   "result": {
+    "crop": "Grass",
+    "mean_wtd_m": 0.2954923763267956,
+    "water_table_source": "prescribed annual mean with summer drawdown",
+    "fertiliser_n_kg_ha_yr": 200.0,
+    "nee_tc_ha_yr": -1.741445433815123,
+    "ch4_kg_ha_yr": 20.200105990732514,
+    "ch4_litter_kg_ha_yr": 0.0,
+    "n2o_kg_n_ha_yr": 3.5266801246221773,
+    "co2_t_co2e_ha_yr": -6.385299923988784,
+    "ch4_t_co2e_ha_yr": 0.5454028617497779,
+    "n2o_t_co2e_ha_yr": 1.512945773462914,
+    "net_t_co2e_ha_yr": -4.326951288776092,
+    "provenance": {
+     "model": "DT8 peatland three-gas twin 0.1.0",
+     "source": "CO2 and N2O: eogit/digital_twin peatland_pignn.py (main), peatland_crop_validation.py and peatland_n2o.py (peatland-ghg-twin). CH4: standalone CH4 notebook peatland_ch4_model_with_litter_extension.ipynb, Sections 1-10 and 14 (flood-killed litter pool); no plant-functional-type extension",
+     "drivers": "UK Fens regional daily climatology (synthetic seasonal drivers, one representative year)",
+     "parameters": "co2: calibrated baseline; ch4: calibrated baseline; n2o: calibrated baseline",
+     "gwp100": "IPCC AR6: CH4 27 (non-fossil), N2O 273"
+    }
+   }
+  }
+ ],
+ "figures": {
+  "1": {
+   "path": "/home/user/slate/demo/runs/general/i-live-in-the-fens-which-matte-fig1.png",
+   "caption": "Livestock methane for the 25 km\u00b2 Fens tile [R6], net uptake by its trees outside woodland (2026, size-age model) [R9], and drained peat cropland expressed for 100 ha of winter wheat, potato and sugar beet [R2\u2013R4]. Positive = emission. Peat bars are per 100 ha, not the tile's (unknown) peat area."
+  },
+  "2": {
+   "path": "/home/user/slate/demo/runs/general/i-live-in-the-fens-which-matte-fig2.png",
+   "caption": "DT8 water-table scenario (reed for CO2 and CH4, potato fertiliser regime for N2O), t CO2e/ha/yr, AR6 GWP100 [R5]. Model response, not observation; the net optimum is near 0.2 m below the surface."
+  }
+ },
+ "report_markdown": "/home/user/slate/demo/runs/general/20261118-2037-in-the-fens-drained-peat-matters-far-more-for-the-climate-th.md",
+ "report_html": "/home/user/slate/demo/runs/general/20261118-2037-in-the-fens-drained-peat-matters-far-more-for-the-climate-th.html",
+ "agents": {
+  "dt2": "DT2 livestock methane",
+  "dt4": "DT4 forest biomass",
+  "dt6": "DT6 trees outside woodland",
+  "dt8": "DT8 peatland greenhouse gases"
+ }
+}

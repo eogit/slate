@@ -1,0 +1,55 @@
+{
+ "persona": "policy",
+ "report": true,
+ "twins_called": [
+  "dt2",
+  "dt4",
+  "dt6",
+  "dt8"
+ ],
+ "twins_expected": [
+  "dt8",
+  "dt4",
+  "dt6",
+  "dt2"
+ ],
+ "multi_twin": true,
+ "persona_section": true,
+ "agent_calls": 12,
+ "failed_calls": 0,
+ "assumptions": 6,
+ "clarifications": 0,
+ "figures": 2,
+ "key_finding_numbers_traced": 42,
+ "key_finding_numbers_other": [
+  "390",
+  "2,300",
+  "4,100"
+ ],
+ "passed": true,
+ "backend": "claude-code",
+ "model": "claude-opus-5-5",
+ "seconds": 144,
+ "turns": 17,
+ "tool_sequence": [
+  "record_assumptions",
+  "dt8__ghg_balance",
+  "dt8__water_table_scenario",
+  "dt4__afforestation_scenario",
+  "dt4__afforestation_scenario",
+  "dt6__planting_scenario",
+  "dt6__planting_scenario",
+  "dt2__area_methane",
+  "dt2__validate_naei",
+  "dt8__validate_inventory",
+  "dt4__validate",
+  "dt6__validate",
+  "dt8__ghg_balance",
+  "make_figure",
+  "make_figure",
+  "write_report"
+ ],
+ "final_message": "I've written the report: raising the water table on drained Fen arable peat gives by far the biggest greenhouse-gas benefit per hectare, about 25\u201336 t CO2e/ha/yr against drained winter wheat. Breckland woodland comes second, farm trees a distant last, and livestock methane is small in this area.\n\n| Option (25 years, 2026\u20132050) | Benefit per hectare | Confidence |\n|---|---|---|\n| Rewet Fen arable to a 0.1\u20130.2 m water table, with reed | About 890\u2013910 t CO2e (about 36 t/yr); about 620\u2013910 t on more cautious assumptions | Calibrated; agrees well with UK Peatland Inventory factors |\n| Raise the water table to about 0.4 m but keep growing wheat | About 390 t CO2e (about 16 t/yr) | Calibrated |\n| Corsican pine woodland in Breckland | 331\u2013342 t CO2 (90% range about 48\u2013553) | Checked against satellite biomass for existing stands; indicative for new planting |\n| Mixed broadleaf woodland in Breckland | 80\u2013180 t CO2 | As above |\n| Agroforestry on Fenland farms | 2.6\u201310.9 t CO2 | Indicative only |\n| Hedgerow trees on Fenland farms | 0.3\u20131.4 t CO2 | Indicative only |\n\n- **Peat rewetting:** drained wheat on Fen peat emits about 37 t CO2e/ha/yr in the model. The saving starts within the first few years after rewetting and lasts only while the water stays up. Above about 0.1 m, methane from the wet peat rises faster than CO2 falls, so a 0.1\u20130.3 m band beats full flooding.\n- **Peat uncertainty:** the model is more optimistic than the national peat inventory's own equation at mid-range water tables. That is where the lower 620 t figure comes from. It gives no uncertainty range of its own.\n- **Woodland:** the conifer figure is still rising at year 25, so over 50 years the gap with peat would narrow. Broadleaves score low because they grow slowly on Breckland's poor sandy soils.\n- **Farm trees:** the per-hectare figures depend on densities I assumed (100 agroforestry trees/ha, 10 hedgerow trees per hectare of farm). Neither growth model forecasts Fens tree growth better than assuming no growth, so the lower figures are more credible.\n- **Livestock methane:** the model estimates 3,055 t CH4/yr (82,500 t CO2e) for an 80 \u00d7 60 km box covering the Fens and Breckland. That is about 0.17 t CO2e per hectare per year. The national emissions map gives about 1.8 times more, and the two match poorly across this area. On those two figures, rewetting about 2,300\u20134,100 ha of Fen arable would avoid as much each year as all the area's livestock emits.\n\nOn greenhouse gases per hectare, Fen water-table raising should be the priority, with conifer woodland next. Several things are left out and could change the picture:\n- Tree figures count only carbon in the trees, litter and deadwood. Soil carbon change and planting emissions are excluded.\n- Food output lost to rewetting, and production moving elsewhere, are not costed.\n- Biodiversity, water and farm income are not modelled.\n- Fen tenancy and water-supply constraints are not covered.\n\nThe report also covers policy relevance, caveats and next steps, including running the comparison at different levels of uptake.\n\nFiles are in /home/user/slate/demo/runs/policy:\n- 20261118-2039-east-anglia-land-use-change-greenhouse-gas-return-per-hectar.html (bar chart of per-hectare benefit and a chart of peat emissions against water-table depth)",
+ "is_error": false,
+ "stderr_tail": ""
+}
