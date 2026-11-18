@@ -1,0 +1,57 @@
+{
+ "persona": "general",
+ "report": true,
+ "twins_called": [
+  "dt2",
+  "dt6",
+  "dt8"
+ ],
+ "twins_expected": [
+  "dt8",
+  "dt2",
+  "dt6"
+ ],
+ "multi_twin": true,
+ "persona_section": true,
+ "agent_calls": 15,
+ "failed_calls": 0,
+ "assumptions": 7,
+ "clarifications": 0,
+ "figures": 2,
+ "key_finding_numbers_traced": 23,
+ "key_finding_numbers_other": [
+  "2,400",
+  "1,290",
+  "97"
+ ],
+ "passed": true,
+ "backend": "claude-code",
+ "model": "claude-opus-5-5",
+ "seconds": 111,
+ "turns": 21,
+ "tool_sequence": [
+  "record_assumptions",
+  "dt6__list_landscapes",
+  "dt8__ghg_balance",
+  "dt8__ghg_balance",
+  "dt8__ghg_balance",
+  "dt8__water_table_scenario",
+  "dt2__area_methane",
+  "dt2__area_methane",
+  "dt6__carbon_stock",
+  "dt6__simulate_trees",
+  "dt2__grassland_map",
+  "dt8__validate_inventory",
+  "record_assumptions",
+  "dt2__methane_scenario",
+  "dt2__methane_scenario",
+  "dt6__planting_scenario",
+  "dt8__ghg_balance",
+  "make_figure",
+  "make_figure",
+  "write_report"
+ ],
+ "final_message": "In the Fens, drained peat matters by far the most: one hectare of drained peat cropland gives off about 23\u201337 t CO2e a year, which is as much as all the cattle and sheep in the 25 km\u00b2 pilot square produce from just 17\u201328 ha. Raising the water table to about 0.2 m below the surface is by far the biggest lever, and the full report is saved at `20261118-2037-in-the-fens-drained-peat-matters-far-more-for-the-climate-th.html`.",
+ "is_error": false,
+ "stderr_tail": ""
+}
